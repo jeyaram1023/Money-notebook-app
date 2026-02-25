@@ -3,738 +3,774 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Money Notebook</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Money Notebook Pro</title>
+  
+  <!-- Premium Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Chart & Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <style>
+    /* --- Core Variables & Reset --- */
+    :root {
+      --bg-color: #050505;
+      --surface: rgba(255, 255, 255, 0.03);
+      --surface-border: rgba(255, 255, 255, 0.08);
+      --text-main: #ffffff;
+      --text-muted: #8a8f98;
+      --accent: #00e5ff;
+      --accent-glow: rgba(0, 229, 255, 0.3);
+      --success: #00ff88;
+      --success-glow: rgba(0, 255, 136, 0.2);
+      --danger: #ff3366;
+      --danger-glow: rgba(255, 51, 102, 0.2);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Times New Roman', serif;
-      background-color: #121212;
-      color: #ffffff;
-      margin: 0;
-      padding: 0;
+      font-family: 'Outfit', sans-serif;
+      background: radial-gradient(circle at top left, #120e2a, var(--bg-color) 40%),
+                  radial-gradient(circle at bottom right, #091221, var(--bg-color) 40%);
+      color: var(--text-main);
+      min-height: 100vh;
       line-height: 1.6;
+      overflow-x: hidden;
     }
+
+    /* --- Animations --- */
+    @keyframes slideUpFade {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px var(--danger-glow); }
+      50% { box-shadow: 0 0 25px rgba(255, 51, 102, 0.5); }
+    }
+
+    /* --- Layout & Glassmorphism --- */
     .container {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 20px;
-    }
-    h1 {
-      text-align: center;
-      font-size: 32px;
-      color: #ffffff;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      animation: slideIn 1s ease-out;
-    }
-    .limit-display-area {
-      display: flex;
-      justify-content: space-around;
-      align-items: stretch;
-      font-size: 14px;
-      color: #ccc;
-      margin-bottom: 20px;
-      padding: 0 5px;
-      min-height: 40px;
-      gap: 10px;
-    }
-    #monthlyLimitDisplay, #dailyLimitDisplay {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid #121212; /* Initially less visible border */
-      background-color: #1e1e1e;
-      flex: 1;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-width: 200px;
-      transition: border-color 0.3s; /* Transition for border */
-    }
-    #monthlyLimitDisplay:not(:empty), #dailyLimitDisplay:not(:empty) {
-        border-color: #555; /* Visible border only when there's content */
-    }
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      animation: fadeIn 1s ease;
-    }
-    button {
-      padding: 12px 24px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      color: #ffffff;
-      transition: background-color 0.3s, transform 0.2s ease-in-out;
-    }
-    #spendBtn {
-      background-color: #ff4d4d;
-    }
-    #spendBtn:hover {
-      background-color: #ff6666;
-      transform: scale(1.1);
-    }
-    #reserveBtn {
-      background-color: #4caf50;
-    }
-    #reserveBtn:hover {
-      background-color: #66bb6a;
-      transform: scale(1.1);
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 20px;
     }
 
-    .menu-container {
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 1001;
-    }
-    #menuBtn {
-      background-color: black;
-      color: white;
-      border: dashed #ff66ff;
-      padding: 10px 15px;
-      font-size: 16px;
-      border-radius: 15px;
-      cursor: pointer;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-      transition: background-color 0.3s, transform 0.3s;
-    }
-    #menuBtn:hover {
-      background-color: #333;
-      transform: scale(1.1);
-    }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #2c2c2c;
-      min-width: 200px; /* Adjusted width for new button */
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3);
-      border-radius: 5px;
-      padding: 10px 0;
-      margin-top: 5px;
-    }
-    .dropdown-content button {
-      color: white;
-      padding: 10px 15px;
-      text-decoration: none;
-      display: block;
-      width: 100%;
-      text-align: left;
-      background-color: transparent;
-      border: none;
-      font-size: 15px;
-    }
-    .dropdown-content button:hover {
-      background-color: #555;
-      transform: scale(1.02);
-    }
-    .menu-container:hover .dropdown-content {
-      display: block;
+    .glass-card {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--surface-border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .input-section {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-bottom: 20px;
-      animation: fadeInUp 1s ease-out;
-    }
-    .input-container {
-      position: relative;
-      margin-bottom: 20px;
-    }
-    input, textarea, select {
-      padding: 12px;
-      font-size: 16px;
-      border: 1px solid #333;
-      border-radius: 5px;
-      background-color: #1e1e1e;
-      color: #ffffff;
-      width: 100%;
-      box-sizing: border-box;
-      transition: 0.3s ease-in-out;
-    }
-    .input-container label {
-      position: absolute;
-      top: 12px;
-      left: 15px;
-      color: #888;
-      font-size: 14px;
-      transition: 0.3s;
-      pointer-events: none;
-    }
-    input:focus, textarea:focus, select:focus {
-      border-color: #00bcd4;
-    }
-    input:focus + label, textarea:focus + label, select:focus + label,
-    input:not(:placeholder-shown) + label,
-    textarea:not(:placeholder-shown) + label,
-    select:not([value="nil"]):not(:focus) + label {
-      top: -12px;
-      left: 10px;
-      color: #00bcd4;
-      font-size: 12px;
-      background-color: #1e1e1e;
-      padding: 0 5px;
-    }
-    input[type="date"]:not(:placeholder-shown) + label,
-    input[type="date"]:focus + label {
-        top: -12px;
-        left: 10px;
-        color: #00bcd4;
-        font-size: 12px;
-        background-color: #1e1e1e;
-        padding: 0 5px;
-    }
-
-    .month-section {
-      margin-bottom: 20px;
-      background: #1e1e1e;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-      transition: transform 0.3s;
-      opacity: 0;
-      animation: slideInUp 1s ease-out forwards;
-    }
-    .month-section:hover {
-      transform: scale(1.03);
-    }
-    .month-header {
-      font-size: 20px;
-      display: flex;
-      justify-content: space-between;
-      border-bottom: 1px solid #333;
-      padding-bottom: 10px;
-    }
-    .transaction-list {
-      margin-top: 10px;
-      list-style: none;
-      padding: 0;
-    }
-    .transaction-item {
+    /* --- Header & Hero --- */
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid #333;
-      animation: fadeIn 0.5s ease;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(150,150,150,0.5);
-      opacity: 0;
-      animation: fadeIn 1s ease-in-out forwards;
+      margin-bottom: 30px;
+      animation: slideUpFade 0.5s ease-out;
     }
-    .transaction-item.positive .amount {
-      color: #4caf50;
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #fff, var(--text-muted));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
     }
-    .transaction-item.negative .amount {
-      color: #ff4d4d;
-    }
-    .delete-symbol {
-      margin-left: 10px;
-      cursor: pointer;
-      font-size: 18px;
-      color: #ff4d4d;
-      transition: color 0.3s;
-    }
-    .delete-symbol:hover {
-      color: #4caf50;
-    }
-    .footer {
+
+    .hero-balance {
       text-align: center;
-      padding: 10px;
-      margin-top: 20px;
-      font-size: 14px;
-      color: #ffffff;
-      background-color: #1e1e1e;
-      border-top: 1px solid #333;
+      margin-bottom: 40px;
+      animation: slideUpFade 0.7s ease-out forwards;
     }
-    .chart-container {
-      width: 100%;
-      max-height: 300px;
-      margin: 30px 0;
-      opacity: 0;
-      animation: fadeInUp 1s ease-out forwards;
+    .hero-balance p {
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 5px;
     }
-    #searchInput {
+    .hero-balance h1 {
+      font-size: 56px;
+      font-weight: 700;
+      text-shadow: 0 4px 20px rgba(255,255,255,0.1);
+      letter-spacing: -2px;
+    }
+
+    /* --- Progress Widgets --- */
+    .limits-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    .limit-widget {
+      display: none; /* Hidden if 0 */
+      flex-direction: column;
+      gap: 8px;
+    }
+    .limit-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .limit-header span.val { color: var(--text-main); }
+    .progress-track {
+      height: 8px;
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), #00b4d8);
+      width: 0%;
+      border-radius: 8px;
+      transition: width 1s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .progress-fill.danger {
+      background: linear-gradient(90deg, #ff416c, var(--danger));
+      box-shadow: 0 0 15px var(--danger-glow);
+    }
+    .limit-warning {
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 600;
       display: none;
+      animation: popIn 0.3s ease;
+    }
+
+    /* --- Input Form --- */
+    .input-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
       margin-bottom: 20px;
-      padding: 10px;
+    }
+    @media(max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
+    
+    .input-group { position: relative; }
+    .input-group input, .input-group select {
       width: 100%;
-      box-sizing: border-box;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--surface-border);
+      padding: 16px 16px 16px 45px;
+      border-radius: 12px;
+      color: white;
+      font-family: inherit;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+    .input-group input:focus, .input-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: rgba(0,0,0,0.4);
+    }
+    .input-group i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      pointer-events: none;
+    }
+    
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .btn {
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 600;
       font-size: 16px;
-      border: 1px solid #333;
-      border-radius: 5px;
-      background-color: #1e1e1e;
-      color: #ffffff;
-      transition: 0.3s;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    #searchInput:focus {
-      border-color: #00bcd4;
+    .btn-spend {
+      background: rgba(255, 51, 102, 0.1);
+      color: var(--danger);
+      border: 1px solid rgba(255, 51, 102, 0.2);
     }
-    .search-btn {
-     position: fixed;
-      top: 20px;
-       right: 20px;
-      background-color: black;
-       color: white;
-      border: solid #3366ff;
-     padding: 10px 10px;
-      font-size: 20px;
+    .btn-spend:hover {
+      background: var(--danger);
+      color: white;
+      box-shadow: 0 8px 20px var(--danger-glow);
+      transform: translateY(-2px);
+    }
+    .btn-reserve {
+      background: rgba(0, 255, 136, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(0, 255, 136, 0.2);
+    }
+    .btn-reserve:hover {
+      background: var(--success);
+      color: #000;
+      box-shadow: 0 8px 20px var(--success-glow);
+      transform: translateY(-2px);
+    }
+
+    /* --- Transactions --- */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 40px 0 20px;
+    }
+    .toolbar h3 { font-size: 20px; font-weight: 600; }
+    .search-box {
+      position: relative;
+      width: 200px;
+    }
+    .search-box input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      padding: 8px 16px 8px 36px;
       border-radius: 20px;
-    cursor: pointer;
-      z-index: 1000;
-     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-     transition: background-color 0.3s, transform 0.3s;
+      color: white;
+      font-size: 13px;
+      transition: all 0.3s;
     }
-    .search-btn:hover {
-      color: #00bcd4;
+    .search-box input:focus { width: 250px; border-color: var(--accent); outline: none; }
+    .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted); }
+
+    .day-group {
+      margin-bottom: 24px;
+      animation: slideUpFade 0.5s ease-out backwards;
     }
-    @keyframes fadeIn {
-      0% { opacity: 0; }
-      100% { opacity: 1; }
+    .day-header {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-    @keyframes fadeInUp {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
+    .tx-item {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--surface-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.3s ease;
     }
-    @keyframes slideIn {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(0); }
+    .tx-item:hover {
+      background: rgba(255,255,255,0.05);
+      transform: translateX(5px);
     }
-    @keyframes slideInUp {
-      0% { opacity: 0; transform: translateY(20px); }
-      100% { opacity: 1; transform: translateY(0); }
+    .tx-left { display: flex; align-items: center; gap: 16px; }
+    .tx-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 20px;
     }
-    @media (max-width: 768px) {
-      .input-section {
-        flex-direction: column;
-      }
-      .limit-display-area {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-      }
-       #monthlyLimitDisplay, #dailyLimitDisplay {
-        width: 90%;
-        min-width: unset;
-      }
+    .tx-spend .tx-icon { background: rgba(255, 51, 102, 0.1); }
+    .tx-reserve .tx-icon { background: rgba(0, 255, 136, 0.1); }
+    
+    .tx-meta h4 { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
+    .tx-meta p { font-size: 12px; color: var(--text-muted); }
+    
+    .tx-right { display: flex; align-items: center; gap: 15px; }
+    .tx-amount { font-size: 16px; font-weight: 700; }
+    .tx-spend .tx-amount { color: var(--danger); }
+    .tx-reserve .tx-amount { color: var(--success); }
+    
+    .btn-delete {
+      background: none; border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s;
+      padding: 8px;
     }
+    .tx-item:hover .btn-delete { opacity: 1; color: var(--danger); }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state div { font-size: 48px; margin-bottom: 15px; opacity: 0.5; animation: float 6s infinite ease-in-out; }
+
+    /* --- Chart Area --- */
+    .chart-wrapper {
+      margin-top: 40px;
+      height: 300px;
+      display: none;
+    }
+
+    /* --- Controls & Modals --- */
+    .icon-btn {
+      background: var(--surface);
+      border: 1px solid var(--surface-border);
+      color: white;
+      width: 40px; height: 40px;
+      border-radius: 12px;
+      display: flex; justify-content: center; align-items: center;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      display: none;
+      justify-content: center; align-items: center;
+      animation: fadeIn 0.3s;
+    }
+    .modal-content {
+      width: 90%; max-width: 400px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .modal-content h2 { margin-bottom: 20px; font-size: 20px; }
+    
+    /* --- Toasts --- */
+    .toast-container {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; gap: 10px; z-index: 9999;
+    }
+    .toast {
+      background: rgba(20, 20, 25, 0.95);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-size: 14px; font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      border: 1px solid var(--surface-border);
+      animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .toast.success { border-left: 4px solid var(--success); }
+    .toast.error { border-left: 4px solid var(--danger); }
+    .toast.fade-out { animation: popIn 0.3s reverse forwards; opacity: 0;}
+
+    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
   </style>
 </head>
 <body>
-  <div class="menu-container">
-    <button id="menuBtn">☰ Menu</button>
-    <div class="dropdown-content">
-      <button onclick="scrollToGraph()">📊 Graph</button>
-      <button onclick="navigateToMonthlyReport()">📅 Monthly Graph</button>
-      <button onclick="toggleMonthlyLimit()">💰 Monthly Limit</button>
-      <button onclick="toggleDailyLimit()">💵 Daily Limit</button>
-      <button onclick="handleDailyReminder()">🔔 Set/Update Reminder</button>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="glass-card modal-content">
+      <h2>⚙️ Limits & Alerts</h2>
+      
+      <div class="input-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px;">
+        <div class="input-group">
+          <i>📅</i>
+          <input type="number" id="modalMonthlyLimit" placeholder="Monthly Limit (₹)" min="0">
+        </div>
+        <div class="input-group">
+          <i>☀️</i>
+          <input type="number" id="modalDailyLimit" placeholder="Daily Limit (₹)" min="0">
+        </div>
+        <div class="input-group">
+          <i>🔔</i>
+          <input type="time" id="modalReminderTime" title="Daily Notification Time">
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn" style="background: rgba(255,255,255,0.05); color: white;" onclick="closeSettings()">Cancel</button>
+        <button class="btn" style="background: var(--text-main); color: #000;" onclick="saveSettings()">Save</button>
+      </div>
     </div>
   </div>
 
   <div class="container">
-    <h1>Money Notebook</h1>
-    <div class="limit-display-area">
-        <span id="monthlyLimitDisplay"></span>
-        <span id="dailyLimitDisplay"></span>
-    </div>
-    <input type="text" id="searchInput" placeholder="Search by date, reason, category, amount (+/-)..." oninput="filterTransactions()">
-    <button class="search-btn" onclick="toggleSearchInput()">🔍</button>
+    
+    <header>
+      <div class="logo">MoneyNotebook.</div>
+      <div style="display: flex; gap: 10px;">
+        <button class="icon-btn" onclick="scrollToGraph()" title="View Chart">📊</button>
+        <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
+      </div>
+    </header>
 
-    <div class="controls">
-      <button id="spendBtn">- Spend</button>
-      <button id="reserveBtn">+ Reserve</button>
+    <!-- Animated Hero Balance -->
+    <div class="hero-balance">
+      <p>Total Balance</p>
+      <h1 id="totalBalanceDisplay">₹0</h1>
     </div>
 
-    <div class="input-section">
-      <div class="input-container">
-        <input type="number" id="amount" placeholder=" " min="0">
-        <label for="amount">Amount</label>
+    <!-- Glowing Progress Limits -->
+    <div class="limits-grid">
+      <div id="monthlyProgressContainer" class="glass-card limit-widget">
+        <div class="limit-header">
+          <span>Monthly</span>
+          <span class="val" id="monthlyText">₹0 / ₹0</span>
+        </div>
+        <div class="progress-track"><div id="monthlyBar" class="progress-fill"></div></div>
+        <div id="monthlyWarning" class="limit-warning">⚠️ Over by ₹<span id="monthlyOverAmt"></span></div>
       </div>
-      <div class="input-container">
-        <textarea id="reason" rows="1" placeholder=" "></textarea>
-        <label for="reason">Reason for spend or reserve</label>
+      
+      <div id="dailyProgressContainer" class="glass-card limit-widget">
+        <div class="limit-header">
+          <span>Daily</span>
+          <span class="val" id="dailyText">₹0 / ₹0</span>
+        </div>
+        <div class="progress-track"><div id="dailyBar" class="progress-fill"></div></div>
+        <div id="dailyWarning" class="limit-warning">⚠️ Over by ₹<span id="dailyOverAmt"></span></div>
       </div>
-      <div class="input-container">
-        <select id="category">
-          <option value="nil">default🫥</option>
-          <option value="Food">Food🥘</option>
-          <option value="Entertainment">Entertainment🍿</option>
-          <option value="Bills">Bills🧾</option>
-          <option value="Savings">Savings🏦</option>
-          <option value="Travel">Travel✈️</option>
-          <option value="Shopping">Shopping 🛒</option>
-          <option value="Other">Other</option>
-        </select>
-        <label for="category">Category</label>
+    </div>
+
+    <!-- Action Form -->
+    <div class="glass-card">
+      <div class="input-grid">
+        <div class="input-group">
+          <i>₹</i>
+          <input type="number" id="amount" placeholder="Amount" min="0" step="any">
+        </div>
+        <div class="input-group">
+          <i>📝</i>
+          <input type="text" id="reason" placeholder="What was this for?">
+        </div>
+        <div class="input-group">
+          <i>🏷️</i>
+          <select id="category">
+            <option value="nil">Select Category...</option>
+            <option value="Food">Food</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Bills">Bills</option>
+            <option value="Savings">Savings</option>
+            <option value="Travel">Travel</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <i>📅</i>
+          <input type="date" id="date" style="color-scheme: dark;">
+        </div>
       </div>
-      <div class="input-container">
-        <input type="date" id="date" placeholder=" ">
-        <label for="date">Date</label>
+      <div class="action-buttons">
+        <button id="spendBtn" class="btn btn-spend">↓ Spend</button>
+        <button id="reserveBtn" class="btn btn-reserve">↑ Reserve</button>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="glass-card chart-wrapper" id="chartWrapper">
+      <canvas id="expenseChart"></canvas>
+    </div>
+
+    <!-- Transaction List Area -->
+    <div class="toolbar">
+      <h3>Recent Activity</h3>
+      <div class="search-box">
+        <i>🔍</i>
+        <input type="text" id="searchInput" placeholder="Search..." oninput="filterTransactions()">
       </div>
     </div>
 
     <div id="months"></div>
-    <div class="chart-container">
-      <canvas id="expenseChart"></canvas>
-    </div>
+
   </div>
 
-  <div class="footer">
-    <p>&copy; 2025 Money Notebook by RAMU_THE_KING</p>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script>
-    const spendBtn = document.getElementById('spendBtn');
-    const reserveBtn = document.getElementById('reserveBtn');
-    const amountInput = document.getElementById('amount');
-    const reasonInput = document.getElementById('reason');
-    const categoryInput = document.getElementById('category');
-    const dateInput = document.getElementById('date');
-    const searchInput = document.getElementById('searchInput');
-    const monthsDiv = document.getElementById('months');
+    // --- Configuration & Elements ---
+    const catMap = { 'Food':'🍔', 'Entertainment':'🎬', 'Bills':'🧾', 'Savings':'🏦', 'Travel':'✈️', 'Shopping':'🛍️', 'Other':'📦', 'nil':'✨' };
+    const els = {
+      amount: document.getElementById('amount'),
+      reason: document.getElementById('reason'),
+      category: document.getElementById('category'),
+      date: document.getElementById('date'),
+      search: document.getElementById('searchInput'),
+      list: document.getElementById('months'),
+      balance: document.getElementById('totalBalanceDisplay'),
+      chart: document.getElementById('chartWrapper'),
+      toast: document.getElementById('toastContainer')
+    };
     const ctx = document.getElementById('expenseChart').getContext('2d');
-    let expenseChart;
-    let cachedTransactions = [];
+    let expenseChart, cachedTransactions = [], currentBalance = 0;
 
-    const monthlyLimitDisplay = document.getElementById('monthlyLimitDisplay');
-    const dailyLimitDisplay = document.getElementById('dailyLimitDisplay');
+    // Set default date
+    els.date.value = new Date().toISOString().split('T')[0];
 
-    const dbName = 'moneyNotebook';
-    let db;
-
-    // --- LocalStorage Keys ---
-    const LS_MONTHLY_LIMIT = 'moneyNotebook_monthlyLimit';
-    const LS_DAILY_LIMIT = 'moneyNotebook_dailyLimit';
-    const LS_IS_MONTHLY_LIMIT_ON = 'moneyNotebook_isMonthlyLimitOn';
-    const LS_IS_DAILY_LIMIT_ON = 'moneyNotebook_isDailyLimitOn';
-    const LS_DAILY_REMINDER_TIME = 'moneyNotebook_dailyReminderTime';
-    const LS_IS_DAILY_REMINDER_ENABLED = 'moneyNotebook_isDailyReminderEnabled';
-    const LS_LAST_NOTIFICATION_DATE = 'moneyNotebook_lastNotificationDate';
-
-
-    let currentMonthlyLimit = parseFloat(localStorage.getItem(LS_MONTHLY_LIMIT)) || 0;
-    let currentDailyLimit = parseFloat(localStorage.getItem(LS_DAILY_LIMIT)) || 0;
-    let isMonthlyLimitOn = localStorage.getItem(LS_IS_MONTHLY_LIMIT_ON) === 'true';
-    let isDailyLimitOn = localStorage.getItem(LS_IS_DAILY_LIMIT_ON) === 'true';
-
-    let dailyReminderTime = localStorage.getItem(LS_DAILY_REMINDER_TIME) || '';
-    let isDailyReminderEnabled = localStorage.getItem(LS_IS_DAILY_REMINDER_ENABLED) === 'true';
+    // Settings
+    let currentMonthlyLimit = parseFloat(localStorage.getItem('mn_monthlyLimit')) || 0;
+    let currentDailyLimit = parseFloat(localStorage.getItem('mn_dailyLimit')) || 0;
+    let dailyReminderTime = localStorage.getItem('mn_reminderTime') || '';
     let reminderIntervalId = null;
 
-
-    window.scrollToGraph = () => {
-      document.querySelector('.chart-container').scrollIntoView({ behavior: 'smooth' });
+    // --- Core Utilities ---
+    const showToast = (msg, type = 'info') => {
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.innerHTML = `${type==='success'?'✅':type==='error'?'⚠️':'ℹ️'} ${msg}`;
+      els.toast.appendChild(t);
+      setTimeout(() => { t.classList.add('fade-out'); setTimeout(()=>t.remove(), 300); }, 3000);
     };
 
-    window.navigateToMonthlyReport = () => {
-      // IMPORTANT: This function navigates to 'monthly_report.html'.
-      // You MUST CREATE this 'monthly_report.html' file yourself.
-      // If the file does not exist in the same directory, your browser will show a "File not found" error.
-      // This script CANNOT create that file for you.
-      window.location.href = 'monthly_report.html';
-    };
-
-    const openDb = () => {
-      const request = indexedDB.open(dbName, 1);
-      request.onerror = (event) => console.error('Error opening DB:', event.target.error);
-      request.onsuccess = (event) => {
-        db = event.target.result;
-        loadTransactions();
-        startReminderSystem(); // Initialize reminder system after DB and transactions loaded
+    const animateValue = (obj, start, end, duration) => {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const current = progress * (end - start) + start;
+        obj.innerHTML = `₹${current.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
+        if (progress < 1) window.requestAnimationFrame(step);
+        else obj.innerHTML = `₹${end.toLocaleString('en-IN', {maximumFractionDigits: 2})}`; // final exact
       };
-      request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        const store = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
-        store.createIndex('month', 'month');
-        store.createIndex('date', 'date');
-      };
+      window.requestAnimationFrame(step);
     };
 
-    const saveTransaction = (month, date, amount, reason, category) => {
-      const transaction = { month, date, amount, reason, category };
-      const transactionDb = db.transaction(['transactions'], 'readwrite');
-      const store = transactionDb.objectStore('transactions');
-      const addRequest = store.add(transaction);
-      addRequest.onsuccess = () => {
-        loadTransactions();
-        if (typeof confetti === 'function') {
-          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    // --- DB Wrapper ---
+    const dbWrapper = {
+      dbName: 'MoneyNotebookMVP', version: 1, storeName: 'txs', db: null,
+      init: () => new Promise((res, rej) => {
+        const req = indexedDB.open(dbWrapper.dbName, dbWrapper.version);
+        req.onupgradeneeded = e => { if(!e.target.result.objectStoreNames.contains(dbWrapper.storeName)) e.target.result.createObjectStore(dbWrapper.storeName, { keyPath: 'id', autoIncrement: true }); };
+        req.onsuccess = e => { dbWrapper.db = e.target.result; res(); };
+        req.onerror = e => rej(e.target.error);
+      }),
+      getAll: () => new Promise((res, rej) => {
+        const req = dbWrapper.db.transaction([dbWrapper.storeName], 'readonly').objectStore(dbWrapper.storeName).getAll();
+        req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error);
+      }),
+      add: (data) => new Promise((res, rej) => {
+        const req = dbWrapper.db.transaction([dbWrapper.storeName], 'readwrite').objectStore(dbWrapper.storeName).add(data);
+        req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error);
+      }),
+      delete: (id) => new Promise((res, rej) => {
+        const req = dbWrapper.db.transaction([dbWrapper.storeName], 'readwrite').objectStore(dbWrapper.storeName).delete(id);
+        req.onsuccess = () => res(); req.onerror = () => rej(req.error);
+      })
+    };
+
+    // --- Core Logic ---
+    async function loadTransactions() {
+      cachedTransactions = await dbWrapper.getAll();
+      
+      const newBalance = cachedTransactions.reduce((acc, t) => acc + t.amount, 0);
+      if(newBalance !== currentBalance) {
+        animateValue(els.balance, currentBalance, newBalance, 1000);
+        currentBalance = newBalance;
+      } else {
+        els.balance.innerHTML = `₹${currentBalance.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+      }
+
+      renderTransactions(cachedTransactions);
+      renderChart(cachedTransactions);
+      updateLimits();
+    }
+
+    async function handleTransaction(isReserve) {
+      const amt = parseFloat(els.amount.value);
+      const rsn = els.reason.value.trim();
+      const cat = els.category.value;
+      const dte = els.date.value || new Date().toISOString().split('T')[0];
+      
+      if(isNaN(amt) || amt <= 0 || !rsn || cat === 'nil') return showToast('Fill all fields correctly.', 'error');
+
+      const now = new Date();
+      await dbWrapper.add({
+        date: dte, amount: isReserve ? amt : -amt, reason: rsn, category: cat,
+        time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
+      });
+
+      showToast(isReserve ? 'Reserves added!' : 'Expense recorded!', 'success');
+      if (isReserve) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors:['#00ff88','#ffffff'] });
+      
+      els.amount.value = ''; els.reason.value = ''; els.category.value = 'nil';
+      loadTransactions();
+    }
+
+    async function deleteTransaction(id) {
+      await dbWrapper.delete(id);
+      showToast('Deleted', 'info');
+      loadTransactions();
+    }
+
+    // --- Rendering ---
+    function renderTransactions(data) {
+      const filter = els.search.value.toLowerCase().trim();
+      els.list.innerHTML = '';
+      
+      const filtered = data.filter(t => !filter || `${t.reason} ${t.category} ${t.amount}`.toLowerCase().includes(filter));
+      if(filtered.length === 0) {
+        els.list.innerHTML = `<div class="empty-state"><div>🍃</div><p>No activity found.</p></div>`;
+        return;
+      }
+
+      const grouped = filtered.reduce((acc, t) => {
+        const d = new Intl.DateTimeFormat('en-GB', { day:'2-digit', month:'short', year:'numeric'}).format(new Date(t.date));
+        if(!acc[d]) acc[d] = []; acc[d].push(t); return acc;
+      }, {});
+
+      let delay = 0;
+      Object.keys(grouped).sort((a,b)=>new Date(b)-new Date(a)).forEach(day => {
+        const dayTotal = grouped[day].reduce((sum, t) => sum + t.amount, 0);
+        const grpEl = document.createElement('div');
+        grpEl.className = 'day-group';
+        grpEl.style.animationDelay = `${delay}s`; delay += 0.1;
+        
+        let txHTML = grouped[day].sort((a,b)=>b.id-a.id).map(t => {
+          const isSpend = t.amount < 0;
+          return `
+            <div class="tx-item ${isSpend ? 'tx-spend' : 'tx-reserve'}">
+              <div class="tx-left">
+                <div class="tx-icon">${catMap[t.category] || '✨'}</div>
+                <div class="tx-meta">
+                  <h4>${t.reason}</h4>
+                  <p>${t.category} • ${t.time || ''}</p>
+                </div>
+              </div>
+              <div class="tx-right">
+                <span class="tx-amount">${isSpend?'-':'+'}₹${Math.abs(t.amount).toLocaleString('en-IN')}</span>
+                <button class="btn-delete" onclick="deleteTransaction(${t.id})">✖</button>
+              </div>
+            </div>`;
+        }).join('');
+
+        grpEl.innerHTML = `
+          <div class="day-header"><span>${day}</span><span>₹${dayTotal.toLocaleString('en-IN')}</span></div>
+          ${txHTML}
+        `;
+        els.list.appendChild(grpEl);
+      });
+    }
+
+    function renderChart(data) {
+      const exp = data.filter(t => t.amount < 0);
+      if(!exp.length) { els.chart.style.display = 'none'; return; }
+      
+      els.chart.style.display = 'block';
+      const cats = [...new Set(exp.map(t=>t.category))];
+      const cData = cats.map(c => exp.filter(t=>t.category===c).reduce((s,t)=>s+Math.abs(t.amount),0));
+      
+      if(expenseChart) expenseChart.destroy();
+      expenseChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: { labels: cats, datasets: [{ data: cData, backgroundColor: ['#00e5ff','#ff3366','#00ff88','#ffd700','#bb86fc','#ff9800'], borderWidth: 0, hoverOffset: 10 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: '80%',
+          plugins: {
+            legend: { position: 'right', labels: { color: '#8a8f98', font: { family: 'Outfit', size: 13 } } },
+            tooltip: { backgroundColor: 'rgba(20,20,25,0.9)', titleColor: '#fff', bodyColor: '#00e5ff', padding: 12, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }
+          }
         }
-      };
-      addRequest.onerror = (event) => console.error('Error saving transaction:', event.target.error);
-    };
-
-    const deleteTransaction = (id) => {
-      const transactionDb = db.transaction(['transactions'], 'readwrite');
-      const store = transactionDb.objectStore('transactions');
-      const deleteRequest = store.delete(id);
-      deleteRequest.onsuccess = () => loadTransactions();
-      deleteRequest.onerror = (event) => console.error('Error deleting transaction:', event.target.error);
-    };
-
-    const formatDate = (dateString) => {
-      if (!dateString) return 'Invalid Date';
-      try {
-        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-        return new Intl.DateTimeFormat('en-GB', options).format(new Date(dateString));
-      } catch (e) { return dateString; }
-    };
-
-    const renderTransactions = (data) => {
-      const filterText = searchInput.value.toLowerCase().trim();
-      monthsDiv.innerHTML = '';
-      const daysData = {};
-
-      const filteredData = data.filter(transaction => {
-        if (!filterText) return true;
-        const { date, amount, reason, category } = transaction;
-        const formattedDateForSearch = formatDate(date).toLowerCase();
-        const reasonLower = reason ? reason.toLowerCase() : '';
-        const categoryLower = category ? category.toLowerCase() : '';
-
-        if (formattedDateForSearch.includes(filterText)) return true;
-        if (reasonLower.includes(filterText)) return true;
-        if (categoryLower.includes(filterText)) return true;
-        if (filterText === '+' && amount >= 0) return true;
-        if (filterText === '-' && amount < 0) return true;
-        const numericFilter = parseFloat(filterText);
-        if (!isNaN(numericFilter) && amount === numericFilter) return true;
-        return false;
       });
+    }
 
-      filteredData
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .forEach((transaction) => {
-          const { date } = transaction;
-          const formattedDate = formatDate(date);
-          if (!daysData[formattedDate]) daysData[formattedDate] = [];
-          daysData[formattedDate].push({ ...transaction, formattedDate });
-        });
+    function updateLimits() {
+      const now = new Date();
+      const currMo = now.getMonth(), currYr = now.getFullYear(), today = now.toISOString().split('T')[0];
 
-      for (const [day, transactionsForDay] of Object.entries(daysData)) {
-        const daySection = document.createElement('div');
-        daySection.classList.add('month-section');
-        const total = transactionsForDay.reduce((sum, t) => sum + t.amount, 0);
-        daySection.innerHTML = `
-          <div class="month-header"><span>${day}</span><span>₹${total.toFixed(2)}</span></div>
-          <div class="transaction-list">
-            ${transactionsForDay.map(({ id, amount, reason, category }) => `
-              <div class="transaction-item ${amount >= 0 ? 'positive' : 'negative'}">
-                <span class="desc">${reason} (${category})</span>
-                <span class="amount">
-                  ${amount >= 0 ? `+₹${amount.toFixed(2)}` : `-₹${Math.abs(amount).toFixed(2)}`}
-                  <span class="delete-symbol" onclick="deleteTransaction(${id})">🗑️</span>
-                </span></div>`).join('')}
-          </div>`;
-        monthsDiv.appendChild(daySection);
-      }
-      const items = monthsDiv.querySelectorAll('.month-section, .transaction-item');
-      items.forEach(item => {
-        item.style.opacity = '0';
-        setTimeout(() => item.style.opacity = '1', 50);
-      });
-    };
-
-    const renderChart = (data) => {
-      // Chart rendering logic remains the same
-      if (!data) { if (expenseChart) expenseChart.destroy(); return; }
-      const expenseData = data.filter(t => t.amount < 0);
-      if (expenseData.length === 0) { if (expenseChart) expenseChart.destroy(); return; }
-      const categories = ['Food', 'Entertainment', 'Bills', 'Travel', 'Shopping', 'Other'];
-      const categoryData = categories.map(cat => expenseData.filter(t => t.category === cat).reduce((s, t) => s + Math.abs(t.amount), 0));
-      if (expenseChart) expenseChart.destroy();
-      expenseChart = new Chart(ctx, { type: 'pie', data: { labels: categories, datasets: [{ label: 'Expenses', data: categoryData, backgroundColor: ['#ff4d4d','#ff9800','#2196f3','#8e24aa','#ff5722','#777777'], borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#ffffff' } } } } });
-    };
-
-    const loadTransactions = () => {
-      if (!db) return;
-      const transactionDb = db.transaction(['transactions'], 'readonly');
-      const store = transactionDb.objectStore('transactions');
-      const allTransactionsRequest = store.getAll();
-      allTransactionsRequest.onsuccess = (event) => {
-        cachedTransactions = event.target.result;
-        renderTransactions(cachedTransactions);
-        renderChart(cachedTransactions);
-        updateLimitDisplays();
+      const updateWidget = (type, limit, spends) => {
+        const cont = document.getElementById(`${type}ProgressContainer`);
+        if(!limit) { cont.style.display = 'none'; return; }
+        cont.style.display = 'flex';
+        
+        const pct = Math.min((spends/limit)*100, 100);
+        const isOver = spends > limit;
+        document.getElementById(`${type}Text`).innerText = `₹${spends.toLocaleString('en-IN')} / ₹${limit.toLocaleString('en-IN')}`;
+        const bar = document.getElementById(`${type}Bar`);
+        bar.style.width = `${pct}%`;
+        
+        const warn = document.getElementById(`${type}Warning`);
+        if(isOver) { bar.classList.add('danger'); warn.style.display = 'block'; document.getElementById(`${type}OverAmt`).innerText = (spends-limit).toLocaleString('en-IN'); }
+        else { bar.classList.remove('danger'); warn.style.display = 'none'; }
       };
-      allTransactionsRequest.onerror = (event) => console.error('Error loading transactions:', event.target.error);
-    };
 
-    const handleTransaction = (isReserve) => {
-      const amountVal = parseFloat(amountInput.value);
-      const reasonVal = reasonInput.value.trim();
-      const selectedCategory = categoryInput.value;
-      const selectedDate = dateInput.value;
-      const dateVal = selectedDate || new Date().toISOString().split('T')[0];
-      const monthVal = new Date(dateVal).toLocaleString('default', { month: 'long', year: 'numeric' });
+      const moSpends = cachedTransactions.filter(t => t.amount < 0 && new Date(t.date).getMonth()===currMo && new Date(t.date).getFullYear()===currYr).reduce((s,t)=>s+Math.abs(t.amount),0);
+      updateWidget('monthly', currentMonthlyLimit, moSpends);
 
-      if (isNaN(amountVal) || amountVal <= 0 || !reasonVal || selectedCategory === 'nil') {
-        alert('Please enter a valid amount, reason, and select a category.'); return;
+      const daSpends = cachedTransactions.filter(t => t.amount < 0 && t.date === today).reduce((s,t)=>s+Math.abs(t.amount),0);
+      updateWidget('daily', currentDailyLimit, daSpends);
+    }
+
+    // --- Settings & Reminders ---
+    function openSettings() {
+      document.getElementById('modalMonthlyLimit').value = currentMonthlyLimit || '';
+      document.getElementById('modalDailyLimit').value = currentDailyLimit || '';
+      document.getElementById('modalReminderTime').value = dailyReminderTime;
+      document.getElementById('settingsModal').style.display = 'flex';
+    }
+    function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
+    function saveSettings() {
+      currentMonthlyLimit = parseFloat(document.getElementById('modalMonthlyLimit').value) || 0;
+      currentDailyLimit = parseFloat(document.getElementById('modalDailyLimit').value) || 0;
+      dailyReminderTime = document.getElementById('modalReminderTime').value;
+      
+      localStorage.setItem('mn_monthlyLimit', currentMonthlyLimit);
+      localStorage.setItem('mn_dailyLimit', currentDailyLimit);
+      if(dailyReminderTime) {
+        localStorage.setItem('mn_reminderTime', dailyReminderTime);
+        if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission();
+      } else localStorage.removeItem('mn_reminderTime');
+
+      updateLimits(); closeSettings(); showToast('Settings Updated', 'success');
+      if(reminderIntervalId) clearInterval(reminderIntervalId);
+      if(dailyReminderTime) reminderIntervalId = setInterval(checkReminder, 60000);
+    }
+    
+    function checkReminder() {
+      const now = new Date();
+      if (`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}` === dailyReminderTime) {
+        const today = now.toISOString().split('T')[0];
+        if(localStorage.getItem('mn_lastNotified') !== today && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification("Money Notebook", { body: "Time to log your daily expenses!" });
+          localStorage.setItem('mn_lastNotified', today);
+        }
       }
-      saveTransaction(monthVal, dateVal, isReserve ? amountVal : -amountVal, reasonVal, selectedCategory);
-      amountInput.value = ''; reasonInput.value = ''; dateInput.value = ''; categoryInput.value = 'nil';
-    };
+    }
 
+    // --- Init ---
+    document.getElementById('spendBtn').onclick = () => handleTransaction(false);
+    document.getElementById('reserveBtn').onclick = () => handleTransaction(true);
     window.filterTransactions = () => renderTransactions(cachedTransactions);
-    window.toggleSearchInput = () => {
-      searchInput.style.display = searchInput.style.display === 'block' ? 'none' : 'block';
-      if (searchInput.style.display === 'block') searchInput.focus();
-    };
+    window.scrollToGraph = () => { if(els.chart.style.display !== 'none') els.chart.scrollIntoView({behavior:'smooth'}); else showToast('No data to chart yet!'); };
 
-    const updateLimitDisplays = () => {
-        const today = new Date().toISOString().split('T')[0];
-        const currentFullDate = new Date();
-        const currentMonth = currentFullDate.getMonth();
-        const currentYear = currentFullDate.getFullYear();
-
-        if (isMonthlyLimitOn && currentMonthlyLimit > 0) {
-            const monthlySpends = cachedTransactions
-                .filter(t => {
-                    const tDate = new Date(t.date);
-                    return t.amount < 0 && tDate.getMonth() === currentMonth && tDate.getFullYear() === currentYear;
-                })
-                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-            const remainingMonthly = currentMonthlyLimit - monthlySpends;
-            monthlyLimitDisplay.innerHTML = `Month Limit: ₹${currentMonthlyLimit.toFixed(2)}<br>Spent: ₹${monthlySpends.toFixed(2)}<br>Rem: ₹${remainingMonthly.toFixed(2)}`;
-            monthlyLimitDisplay.style.color = remainingMonthly < 0 ? '#ff4d4d' : '#4caf50';
-        } else {
-            monthlyLimitDisplay.innerHTML = ''; // Show nothing if limit is off or not set
-        }
-
-        if (isDailyLimitOn && currentDailyLimit > 0) {
-            const dailySpends = cachedTransactions
-                .filter(t => t.amount < 0 && t.date === today)
-                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
-            const remainingDaily = currentDailyLimit - dailySpends;
-            dailyLimitDisplay.innerHTML = `Daily Limit: ₹${currentDailyLimit.toFixed(2)}<br>Spent: ₹${dailySpends.toFixed(2)}<br>Rem: ₹${remainingDaily.toFixed(2)}`;
-            dailyLimitDisplay.style.color = remainingDaily < 0 ? '#ff4d4d' : '#4caf50';
-        } else {
-            dailyLimitDisplay.innerHTML = ''; // Show nothing if limit is off or not set
-        }
-    };
-
-    window.toggleMonthlyLimit = () => {
-        if (isMonthlyLimitOn) {
-            isMonthlyLimitOn = false; localStorage.setItem(LS_IS_MONTHLY_LIMIT_ON, 'false'); alert('Monthly limit turned OFF.');
-        } else {
-            const limitInput = prompt('Enter monthly spending limit (₹):', currentMonthlyLimit > 0 ? currentMonthlyLimit : '5000');
-            if (limitInput !== null) {
-                const limitAmount = parseFloat(limitInput);
-                if (!isNaN(limitAmount) && limitAmount > 0) {
-                    currentMonthlyLimit = limitAmount; isMonthlyLimitOn = true;
-                    localStorage.setItem(LS_MONTHLY_LIMIT, currentMonthlyLimit);
-                    localStorage.setItem(LS_IS_MONTHLY_LIMIT_ON, 'true');
-                    alert(`Monthly limit set to ₹${currentMonthlyLimit.toFixed(2)}.`);
-                } else if (limitInput !== "") { alert('Invalid amount. Monthly limit not set.');
-                } else { isMonthlyLimitOn = false; localStorage.setItem(LS_IS_MONTHLY_LIMIT_ON, 'false');}
-            }
-        }
-        updateLimitDisplays();
-    };
-
-    window.toggleDailyLimit = () => {
-        if (isDailyLimitOn) {
-            isDailyLimitOn = false; localStorage.setItem(LS_IS_DAILY_LIMIT_ON, 'false'); alert('Daily limit turned OFF.');
-        } else {
-            const limitInput = prompt('Enter daily spending limit (₹):', currentDailyLimit > 0 ? currentDailyLimit : '500');
-            if (limitInput !== null) {
-                const limitAmount = parseFloat(limitInput);
-                if (!isNaN(limitAmount) && limitAmount > 0) {
-                    currentDailyLimit = limitAmount; isDailyLimitOn = true;
-                    localStorage.setItem(LS_DAILY_LIMIT, currentDailyLimit);
-                    localStorage.setItem(LS_IS_DAILY_LIMIT_ON, 'true');
-                    alert(`Daily limit set to ₹${currentDailyLimit.toFixed(2)}.`);
-                } else if (limitInput !== "") { alert('Invalid amount. Daily limit not set.');
-                } else { isDailyLimitOn = false; localStorage.setItem(LS_IS_DAILY_LIMIT_ON, 'false');}
-            }
-        }
-        updateLimitDisplays();
-    };
-
-    // --- Daily Reminder Functions ---
-    function checkTimeToShowReminder() {
-        if (!isDailyReminderEnabled || !dailyReminderTime) return;
-
-        const now = new Date();
-        const currentTimeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-
-        if (currentTimeStr === dailyReminderTime) {
-            const todayDateStr = now.toISOString().split('T')[0];
-            const lastNotificationDate = localStorage.getItem(LS_LAST_NOTIFICATION_DATE);
-
-            if (lastNotificationDate !== todayDateStr) {
-                new Notification("Money Notebook Reminder", {
-                    body: "It's time for your daily check-in with your finances!",
-                    icon: "https://img.icons8.com/fluency/48/money-bag.png" // Optional: Add an icon URL
-                });
-                localStorage.setItem(LS_LAST_NOTIFICATION_DATE, todayDateStr);
-            }
-        }
-    }
-
-    function startReminderSystem() {
-        if (reminderIntervalId) clearInterval(reminderIntervalId); // Clear existing interval
-        if (isDailyReminderEnabled && dailyReminderTime) {
-            reminderIntervalId = setInterval(checkTimeToShowReminder, 60000); // Check every minute
-            checkTimeToShowReminder(); // Check immediately in case the time has just passed
-        }
-    }
-
-    window.handleDailyReminder = () => {
-        if (!('Notification' in window)) {
-            alert('This browser does not support desktop notification.');
-            return;
-        }
-
-        Notification.requestPermission().then(permission => {
-            if (permission === 'granted') {
-                let newTime = prompt("Set daily notification time (HH:MM, e.g., 09:00 or 17:30).\nA notification will be shown daily at this time.\nLeave blank to disable reminder.", dailyReminderTime || "09:00");
-
-                if (newTime === null) return; // User cancelled
-
-                if (newTime.trim() === "") { // User wants to disable
-                    isDailyReminderEnabled = false;
-                    dailyReminderTime = "";
-                    localStorage.setItem(LS_IS_DAILY_REMINDER_ENABLED, 'false');
-                    localStorage.removeItem(LS_DAILY_REMINDER_TIME);
-                    if (reminderIntervalId) clearInterval(reminderIntervalId);
-                    alert("Daily reminder disabled.");
-                    return;
-                }
-
-                const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-                if (timeRegex.test(newTime)) {
-                    dailyReminderTime = newTime;
-                    isDailyReminderEnabled = true;
-                    localStorage.setItem(LS_DAILY_REMINDER_TIME, dailyReminderTime);
-                    localStorage.setItem(LS_IS_DAILY_REMINDER_ENABLED, 'true');
-                    alert(`Daily reminder set for ${dailyReminderTime}. You will receive a notification if the app is open in your browser.`);
-                    startReminderSystem(); // Restart with new time
-                } else {
-                    alert("Invalid time format. Please use HH:MM (e.g., 09:00 or 17:30).");
-                }
-            } else if (permission === 'denied') {
-                alert("Notification permission was denied. Please enable notifications in browser settings to use this feature.");
-            } else { // default or other states
-                alert("Notification permission was not granted. You might need to allow notifications for this site in your browser settings.");
-            }
-        });
-    };
-
-
-    spendBtn.addEventListener('click', () => handleTransaction(false));
-    reserveBtn.addEventListener('click', () => handleTransaction(true));
-
-    document.addEventListener('DOMContentLoaded', () => {
-        openDb(); // This will also call startReminderSystem after DB is ready
+    document.addEventListener('DOMContentLoaded', async () => {
+      await dbWrapper.init();
+      loadTransactions();
+      if(dailyReminderTime) reminderIntervalId = setInterval(checkReminder, 60000);
     });
   </script>
 </body>
 </html>
+
+
