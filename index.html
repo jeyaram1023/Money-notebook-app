@@ -6,19 +6,18 @@
     <title>Money Notebook Pro</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #030303; color: #e2e8f0; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
-        input[type="date"]:focus::-webkit-calendar-picker-indicator { opacity: 1; }
+        
+        /* Date Picker Calendar Icon Enhanced */
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
+        input[type="date"]:focus::-webkit-calendar-picker-indicator, input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
 
         @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
@@ -49,6 +48,9 @@
         .text-shine { background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; }
         @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
         .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
+
+        #cloudLoader { display: none; }
+        #cloudLoader.active { display: flex; }
     </style>
 </head>
 <body class="selection:bg-blue-500/30 text-[15px] relative overflow-x-hidden">
@@ -60,112 +62,98 @@
 
     <div id="toastContainer" class="fixed top-safe pt-4 left-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-[90%] md:max-w-sm"></div>
 
+    <div id="cloudLoader" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-[#121212] border border-white/10 p-5 rounded-2xl flex items-center gap-4 shadow-2xl">
+            <i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-2xl"></i>
+            <span class="text-white font-bold tracking-wide" id="loaderText">Syncing with Cloud...</span>
+        </div>
+    </div>
+
     <div id="syncConfirmModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-sm p-6 relative transform scale-95 transition-transform duration-300 text-center border-emerald-500/30">
             <div class="w-16 h-16 mx-auto bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-2xl mb-4 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
             </div>
             <h3 class="text-lg font-bold text-white mb-2">Sync Successful!</h3>
-            <p class="text-[13px] text-slate-300 mb-6 leading-relaxed">Your data is safely stored in your Google Sheet.<br><br>Do you want to clear your local device storage to save space? (Your history will stay visible on screen right now. Next time you open the app, simply click Sync to view it again).</p>
+            <p class="text-[13px] text-slate-300 mb-6 leading-relaxed">Your Users and Transactions are safely stored in Google Sheets.<br><br>Do you want to clear your local device storage to save space? (Your history remains visible on screen now. Next time you open the app, simply click Sync to fetch it again).</p>
             <div class="space-y-3">
-                <button onclick="confirmClearSyncedData()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                    <i class="fa-solid fa-check"></i> Yes, Clear Local Data
-                </button>
-                <button onclick="closeSyncConfirmModal()" class="w-full bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-3.5 rounded-xl transition-all active:scale-95 border border-white/10">
-                    No, Keep Everything Local
-                </button>
+                <button onclick="confirmClearSyncedData()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.3)]"><i class="fa-solid fa-check"></i> Yes, Clear Local Data</button>
+                <button onclick="closeSyncConfirmModal()" class="w-full bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-3.5 rounded-xl transition-all active:scale-95 border border-white/10">No, Keep Everything Local</button>
             </div>
         </div>
     </div>
 
     <div id="guideModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-lg flex flex-col max-h-[90vh] relative transform scale-95 transition-transform duration-300 hover:translate-y-0" id="guideModalContent">
-            
             <div class="flex justify-between items-center p-5 border-b border-white/10 sticky top-0 z-10 bg-[#030303]/90 backdrop-blur-xl rounded-t-[28px]">
                 <h3 class="text-lg font-bold flex items-center gap-2 text-white"><i class="fa-solid fa-file-excel text-emerald-400"></i> Configuration Guide</h3>
-                <button onclick="toggleGuideModal(false)" class="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-slate-400 hover:text-white transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <button onclick="toggleGuideModal(false)" class="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-slate-400 hover:text-white transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            
             <div class="p-6 overflow-y-auto space-y-8 text-sm text-slate-300 custom-scrollbar">
                 <div class="space-y-3">
                     <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">1</span> Create Spreadsheet</h4>
-                    <p class="leading-relaxed">Open <a href="https://sheets.google.com" target="_blank" class="text-blue-400 hover:underline font-medium">Google Sheets</a> and create a <b>Blank spreadsheet</b>. Name it "Money Notebook Database".</p>
+                    <p class="leading-relaxed">Open <a href="https://sheets.google.com" target="_blank" class="text-blue-400 hover:underline font-medium">Google Sheets</a> and create a <b>Blank spreadsheet</b>.</p>
                 </div>
-
                 <div class="space-y-3">
-                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">2</span> Setup Columns</h4>
-                    <p class="leading-relaxed">In the very first row (Row 1), type these exact headers from Column A to J:</p>
-                    <div class="flex flex-wrap gap-2">
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">ID</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">User ID</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Type</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Amount</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Category</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Reason</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Date</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Time</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">UPI ID</span>
-                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Payment App</span>
-                    </div>
+                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">2</span> Automated Setup</h4>
+                    <p class="leading-relaxed">You don't need to manually create any tabs or columns! The script below will automatically provision a <b>Transactions</b> tab and a <b>Users</b> tab for you upon your first sync.</p>
                 </div>
-
                 <div class="space-y-3">
                     <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">3</span> Add the Script</h4>
                     <p class="leading-relaxed">Click <b>Extensions > Apps Script</b>. Delete existing code, then paste:</p>
                     <div class="relative bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-4 group">
-                        <button onclick="copyScriptCode()" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all active:scale-90 flex items-center gap-1">
-                            <i class="fa-regular fa-copy"></i> Copy
-                        </button>
+                        <button onclick="copyScriptCode()" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all active:scale-90 flex items-center gap-1"><i class="fa-regular fa-copy"></i> Copy</button>
                         <pre id="scriptCodeBlock" class="text-emerald-400 text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var txSheet = ss.getSheetByName('Transactions');
+  if (!txSheet) { txSheet = ss.insertSheet('Transactions'); txSheet.appendRow(['ID', 'User ID', 'Type', 'Amount', 'Category', 'Reason', 'Date', 'Time', 'UPI ID', 'Payment App']); }
+  var userSheet = ss.getSheetByName('Users');
+  if (!userSheet) { userSheet = ss.insertSheet('Users'); userSheet.appendRow(['ID', 'Name', 'Initial Savings', 'Running Income', 'Running Expense', 'Running Savings']); }
+
   try {
-    var data = JSON.parse(e.postData.contents);
-    var txs = data.transactions || [];
+    var data = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {transactions: [], users: []};
+    var txs = data.transactions || []; var users = data.users || [];
     
-    // Check existing IDs to prevent duplicates
-    var existingData = sheet.getDataRange().getValues();
-    var existingIds = {};
-    for(var r = 1; r < existingData.length; r++) {
-       existingIds[existingData[r][0]] = true; 
+    if (users.length > 0) {
+      if (userSheet.getLastRow() > 1) { userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent(); }
+      for (var i = 0; i < users.length; i++) { userSheet.appendRow([users[i].id, users[i].name, users[i].initialSavings, users[i].runningIncome || 0, users[i].runningExpense || 0, users[i].runningSavings || 0]); }
     }
     
-    // Append ONLY new transactions
-    for (var i = txs.length - 1; i >= 0; i--) {
-      if(!existingIds[txs[i].id]) {
-        sheet.appendRow([txs[i].id, txs[i].userId, txs[i].type, txs[i].amount, txs[i].category, txs[i].reason, txs[i].date, txs[i].time, txs[i].upiId || '', txs[i].paymentPlatform || '']);
-        existingIds[txs[i].id] = true;
-      }
+    if (txs.length > 0) {
+        var existingData = txSheet.getDataRange().getValues(); var existingIds = {};
+        for(var r = 1; r < existingData.length; r++) { existingIds[existingData[r][0]] = true; }
+        for (var i = txs.length - 1; i >= 0; i--) {
+          if(!existingIds[txs[i].id]) {
+            txSheet.appendRow([txs[i].id, txs[i].userId, txs[i].type, txs[i].amount, txs[i].category, txs[i].reason, txs[i].date, txs[i].time, txs[i].upiId || '', txs[i].paymentPlatform || '']);
+            existingIds[txs[i].id] = true;
+          }
+        }
     }
 
-    // Retrieve entire sheet to send back to the app
-    var finalData = sheet.getDataRange().getValues();
-    var allTxs = [];
-    for(var r = 1; r < finalData.length; r++) {
-      allTxs.push({
-        id: finalData[r][0], userId: finalData[r][1], type: finalData[r][2],
-        amount: finalData[r][3], category: finalData[r][4], reason: finalData[r][5],
-        date: finalData[r][6], time: finalData[r][7],
-        upiId: finalData[r][8] || '', paymentPlatform: finalData[r][9] || ''
-      });
+    var finalTx = txSheet.getDataRange().getValues(); var allTxs = [];
+    for(var r = 1; r < finalTx.length; r++) {
+      allTxs.push({ id: finalTx[r][0].toString(), userId: finalTx[r][1].toString(), type: finalTx[r][2], amount: Number(finalTx[r][3]), category: finalTx[r][4], reason: finalTx[r][5], date: finalTx[r][6], time: finalTx[r][7], upiId: finalTx[r][8] || '', paymentPlatform: finalTx[r][9] || '' });
+    }
+
+    var finalUsers = userSheet.getDataRange().getValues(); var allUsers = [];
+    for(var r = 1; r < finalUsers.length; r++) {
+      allUsers.push({ id: finalUsers[r][0].toString(), name: finalUsers[r][1], initialSavings: Number(finalUsers[r][2]), runningIncome: Number(finalUsers[r][3]), runningExpense: Number(finalUsers[r][4]), runningSavings: Number(finalUsers[r][5]) });
     }
     
-    return ContentService.createTextOutput(JSON.stringify({"status": "success", "transactions": allTxs})).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({"status": "success", "transactions": allTxs, "users": allUsers})).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({"status": "error"})).setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()})).setMimeType(ContentService.MimeType.JSON);
   }
 }</pre>
                     </div>
                 </div>
-
                 <div class="space-y-3 pb-4">
                     <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">4</span> Deploy & Connect</h4>
                     <ul class="list-disc pl-5 space-y-2 text-slate-400 leading-relaxed">
                         <li>Click <b>Deploy > New deployment</b>.</li>
                         <li>Select type: <b>Web app</b>.</li>
                         <li>Set 'Execute as' to <b class="text-white">Me</b>, and 'Who has access' to <b class="text-white">Anyone</b>.</li>
-                        <li>Click Deploy, authorize permissions, copy the Web App URL, and paste it here or in Settings!</li>
+                        <li>Click Deploy, copy Web App URL, and paste in Settings!</li>
                     </ul>
                 </div>
             </div>
@@ -177,63 +165,55 @@
             <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none"></div>
             <div class="flex justify-center mb-6 relative z-10">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-                    <i class="fa-solid fa-rocket text-3xl text-white"></i>
+                    <i class="fa-solid fa-cloud text-3xl text-white"></i>
                 </div>
             </div>
-            <h1 class="text-2xl font-extrabold text-center mb-2 tracking-tight text-white relative z-10">Welcome to Money Pro</h1>
-            <p class="text-slate-400 text-center text-sm mb-6 relative z-10">Configure your app securely. All preferences are stored entirely locally.</p>
+            <h1 class="text-2xl font-extrabold text-center mb-2 tracking-tight text-white relative z-10">Cloud First Setup</h1>
+            <p class="text-slate-400 text-center text-sm mb-6 relative z-10">Connect your Google Sheet. Your data will be stored securely in the cloud.</p>
             <form id="setupForm" class="space-y-5 relative z-10">
                 <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud text-blue-400"></i> Cloud Database (Optional)</h3>
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-link text-blue-400"></i> Cloud Database URL</h3>
                     <input id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
-                    
-                    <button type="button" onclick="toggleGuideModal(true)" class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-xs mt-3 flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
-                    </button>
+                    <button type="button" onclick="toggleGuideModal(true)" class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-xs mt-3 flex justify-center items-center gap-2"><i class="fa-solid fa-file-excel"></i> View Excel Setup Guide</button>
                 </div>
                 <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-brands fa-google-pay text-emerald-400"></i> Local UPI Setup (Optional)</h3>
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-brands fa-google-pay text-emerald-400"></i> UPI Setup (Optional)</h3>
                     <div class="space-y-3">
                         <input id="setupUpiId" type="text" placeholder="username@upi" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
                         <select id="setupPaymentApp" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none appearance-none transition-all cursor-pointer">
-                            <option value="generic">Default UPI App</option>
-                            <option value="gpay">Google Pay (GPay)</option>
-                            <option value="phonepe">PhonePe</option>
-                            <option value="paytm">Paytm</option>
-                            <option value="bhim">BHIM</option>
+                            <option value="generic">Default UPI App</option><option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option>
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="w-full bg-white text-black hover:bg-slate-200 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-lg">Save Settings & Launch</button>
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.4)]">Connect & Launch</button>
                 <div class="relative py-1 flex items-center justify-center">
                     <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div>
                     <span class="relative bg-[#030303] px-4 text-xs text-slate-500 font-semibold uppercase tracking-wider">OR</span>
                 </div>
-                <button type="button" onclick="closeSetup()" class="w-full bg-transparent hover:bg-white/5 text-slate-400 font-semibold py-3 rounded-2xl transition-all active:scale-95 text-sm flex justify-center items-center gap-2 border border-transparent hover:border-white/10">Skip Setup for Now</button>
+                <button type="button" onclick="closeSetup()" class="w-full bg-transparent hover:bg-white/5 text-slate-400 font-semibold py-3 rounded-2xl transition-all active:scale-95 text-sm flex justify-center items-center gap-2 border border-transparent hover:border-white/10">Use Local Mode Only</button>
             </form>
         </div>
     </div>
 
     <div id="main-app" style="display: none;">
-    <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
-        <div class="max-w-2xl mx-auto px-5 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
-                    <img src="https://uploads.onecompiler.io/42q5e2pr5/433anht9u/1000084234.png" alt="Money Note Book Logo" class="w-full h-full object-cover" />
+        <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
+            <div class="max-w-2xl mx-auto px-5 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+                        <img src="https://uploads.onecompiler.io/42q5e2pr5/433anht9u/1000084234.png" alt="Money Note Book Logo" class="w-full h-full object-cover" />
+                    </div>
+                    <h1 class="text-xl font-extrabold tracking-tight text-shine">Money Note Book</h1>
                 </div>
-                
-                <h1 class="text-xl font-extrabold tracking-tight text-shine">Money Note Book</h1>
+                <div class="flex items-center gap-2">
+                    <button onclick="syncData(true)" id="syncBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/30 transition-all active:scale-90" title="Force Sync">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+                    <button onclick="switchView('settings')" id="settingsNavBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-90" title="Settings">
+                        <i class="fa-solid fa-gear"></i>
+                    </button>
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="syncData(true)" id="syncBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/30 transition-all active:scale-90" title="Force Sync">
-                    <i class="fa-solid fa-arrows-rotate"></i>
-                </button>
-                <button onclick="switchView('settings')" id="settingsNavBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-90" title="Settings">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
-            </div>
-        </div>
-    </header>
+        </header>
 
         <main class="max-w-2xl mx-auto px-5 pt-6 pb-32">
             
@@ -270,7 +250,7 @@
                             </div>
                             <div>
                                 <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Date</label>
-                                <input id="expDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 font-semibold focus:outline-none transition-all" style="color-scheme:dark">
+                                <input id="expDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 font-semibold focus:outline-none transition-all cursor-pointer" style="color-scheme:dark">
                             </div>
                         </div>
                         <div>
@@ -321,7 +301,7 @@
                             </div>
                             <div>
                                 <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Date</label>
-                                <input id="savDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 focus:outline-none transition-all" style="color-scheme:dark">
+                                <input id="savDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 focus:outline-none transition-all cursor-pointer" style="color-scheme:dark">
                             </div>
                         </div>
                         <div>
@@ -356,11 +336,7 @@
                         <div>
                             <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Preferred Payment App</label>
                             <select id="setPaymentApp" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm appearance-none transition-all cursor-pointer">
-                                <option value="generic">Default System Chooser</option>
-                                <option value="gpay">Google Pay (GPay)</option>
-                                <option value="phonepe">PhonePe</option>
-                                <option value="paytm">Paytm</option>
-                                <option value="bhim">BHIM</option>
+                                <option value="generic">Default System Chooser</option><option value="gpay">Google Pay (GPay)</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option>
                             </select>
                         </div>
                         <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)]">Save Payment Preferences</button>
@@ -383,14 +359,12 @@
                         </div>
                     </form>
 
-                    <button type="button" onclick="toggleGuideModal(true)" class="w-full mt-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-3 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-sm flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
-                    </button>
+                    <button type="button" onclick="toggleGuideModal(true)" class="w-full mt-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-3 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-sm flex justify-center items-center gap-2"><i class="fa-solid fa-file-excel"></i> View Excel Setup Guide</button>
 
                     <div class="flex items-center justify-between mt-6">
                         <div>
                             <p class="font-bold text-white text-sm">Auto Sync</p>
-                            <p class="text-[11px] text-slate-500">Sync immediately upon entry</p>
+                            <p class="text-[11px] text-slate-500">Sync to Cloud instantly</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input type="checkbox" id="setAutoSync" class="sr-only peer">
@@ -401,8 +375,8 @@
 
                 <div class="bento-card p-6 border-rose-500/20 bg-rose-500/5 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(244,63,94,0.15)]" style="animation-delay: 0.2s">
                     <h3 class="text-lg font-extrabold mb-2 text-rose-400">Danger Zone</h3>
-                    <p class="text-xs text-slate-400 mb-5 leading-relaxed">Clearing local data removes it from this device. If connected to Cloud, history remains online.</p>
-                    <button onclick="clearLocalData()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3.5 px-6 rounded-2xl transition-all active:scale-95 text-sm w-full shadow-[0_0_15px_rgba(244,63,94,0.3)]">Erase Local Device Data</button>
+                    <p class="text-xs text-slate-400 mb-5 leading-relaxed">Clearing local data forces the app to redownload everything from the Cloud next time you sync.</p>
+                    <button onclick="clearLocalData()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3.5 px-6 rounded-2xl transition-all active:scale-95 text-sm w-full shadow-[0_0_15px_rgba(244,63,94,0.3)]">Erase Local Cache</button>
                 </div>
             </div>
         </main>
@@ -427,12 +401,11 @@
     </div>
 
     <script>
-        // --- State Management ---
         let state = {
             view: '', users: [], transactions: [],
             currentUser: localStorage.getItem('mn_currentUser') || '',
             sheetUrl: localStorage.getItem('mn_sheetUrl') || '',
-            autoSync: localStorage.getItem('mn_autoSync') === 'true',
+            autoSync: localStorage.getItem('mn_autoSync') !== 'false', 
             skipSetup: localStorage.getItem('mn_skipSetup') === 'true',
             upiId: localStorage.getItem('mn_upiId') || '',
             paymentApp: localStorage.getItem('mn_paymentApp') || 'generic',
@@ -479,28 +452,21 @@
             container.appendChild(toast); setTimeout(() => toast.remove(), 3500);
         };
 
-        // --- Modals ---
-        const toggleGuideModal = (show) => {
-            const modal = document.getElementById('guideModal');
-            const content = document.getElementById('guideModalContent');
-            if (show) {
-                modal.classList.remove('hidden'); modal.classList.add('flex');
-                setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10);
-            } else {
-                modal.classList.add('opacity-0'); content.classList.add('scale-95');
-                setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
-            }
+        const showCloudLoader = (show, text = 'Syncing with Cloud...') => {
+            const loader = document.getElementById('cloudLoader');
+            document.getElementById('loaderText').innerText = text;
+            if(show) { loader.classList.remove('hidden'); loader.classList.add('flex'); } 
+            else { loader.classList.add('hidden'); loader.classList.remove('flex'); }
         };
 
-        const closeSyncConfirmModal = () => {
-            const modal = document.getElementById('syncConfirmModal');
-            modal.classList.add('opacity-0'); modal.firstElementChild.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        const toggleGuideModal = (show) => {
+            const modal = document.getElementById('guideModal'); const content = document.getElementById('guideModalContent');
+            if (show) { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10); } 
+            else { modal.classList.add('opacity-0'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); }
         };
 
         const copyScriptCode = () => {
-            const code = document.getElementById('scriptCodeBlock').innerText;
-            navigator.clipboard.writeText(code).then(() => { showToast('Script Copied!', 'success'); }).catch(() => { showToast('Copy failed. Select manually.', 'error'); });
+            navigator.clipboard.writeText(document.getElementById('scriptCodeBlock').innerText).then(() => { showToast('Script Copied!', 'success'); }).catch(() => { showToast('Copy failed.', 'error'); });
         };
 
         const playRewardAnimation = () => {
@@ -523,77 +489,71 @@
                 const txs = await dbStore('transactions', 'getAll');
                 state.transactions = txs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
                 
-                const urlParams = new URLSearchParams(window.location.search);
-                const targetView = urlParams.get('view') || 'transactions';
-
-                if(state.sheetUrl || state.skipSetup) { switchView(targetView); } 
-                else { switchView('setup'); }
-
                 document.getElementById('setSheetUrl').value = state.sheetUrl;
                 document.getElementById('setAutoSync').checked = state.autoSync;
                 document.getElementById('setUpiId').value = state.upiId;
                 document.getElementById('setPaymentApp').value = state.paymentApp;
                 updateConnectionBadge();
-            } catch(e) { showToast('Local DB Error', 'error'); }
+
+                const targetView = new URLSearchParams(window.location.search).get('view') || 'transactions';
+                if(state.sheetUrl || state.skipSetup) { switchView(targetView); } else { switchView('setup'); }
+
+                if(state.sheetUrl) {
+                    try {
+                        const response = await fetch(state.sheetUrl, { 
+                            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                            body: JSON.stringify({}) 
+                        });
+                        const result = await response.json();
+                        if (result.status === 'success') { updateLocalFromCloud(result.transactions, result.users); }
+                    } catch(err) { console.log("Offline or sync failed, using local cache."); }
+                }
+            } catch(e) { showToast('Initialization Error', 'error'); }
+        }
+
+        async function updateLocalFromCloud(cloudTxs, cloudUsers) {
+            state.transactions = cloudTxs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+            if (cloudUsers && cloudUsers.length > 0) state.users = cloudUsers;
+            
+            const dbInstance = await initDB();
+            const txStore = dbInstance.transaction(['transactions'], 'readwrite').objectStore('transactions');
+            txStore.clear();
+            for(let t of state.transactions) { txStore.put(t); }
+
+            const uStore = dbInstance.transaction(['users'], 'readwrite').objectStore('users');
+            uStore.clear();
+            for(let u of state.users) { uStore.put(u); }
+
+            renderApp();
         }
 
         async function syncData(force = false) {
             if (!state.sheetUrl || (!state.autoSync && !force)) return;
             const btn = document.getElementById('syncBtn'); const icon = btn.querySelector('i'); icon.classList.add('fa-spin', 'text-white');
-            
+            if(force) showCloudLoader(true, 'Fetching Cloud Data...');
+
             try {
-                // Using text/plain forces the Apps Script to skip CORS preflight, allowing us to read the JSON response.
                 const response = await fetch(state.sheetUrl, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify({ transactions: state.transactions, users: state.users }) 
                 });
-                
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    // Update our memory state with the full cloud history returned by the script
-                    state.transactions = result.transactions.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
-                    renderApp(); // Immediately render the full cloud history to the screen
-                    
-                    if(force) {
-                        showToast('Cloud Data Downloaded!', 'success');
-                        const modal = document.getElementById('syncConfirmModal');
-                        modal.classList.remove('hidden'); modal.classList.add('flex');
-                        setTimeout(() => { modal.classList.remove('opacity-0'); modal.firstElementChild.classList.remove('scale-95'); }, 10);
-                    }
-                } else {
-                    showToast('Sync Error: ' + (result.message || 'Unknown'), 'error');
-                }
-            } catch (err) { 
-                showToast('Sync Failed - Check URL', 'error'); 
-            } 
+                    await updateLocalFromCloud(result.transactions, result.users);
+                    if(force) showToast('Cloud Sync Complete', 'success');
+                } else { showToast('Sync Error: Cloud configuration issue', 'error'); }
+            } catch (err) { showToast('Sync Failed - Check Internet/URL', 'error'); } 
             finally { 
                 setTimeout(() => icon.classList.remove('fa-spin', 'text-white'), 600); 
+                showCloudLoader(false);
             }
         }
 
-        // --- Post-Sync Local Clearing Logic ---
-        async function confirmClearSyncedData() {
-            closeSyncConfirmModal();
-            
-            const dbInstance = await initDB();
-            const tx = dbInstance.transaction(['transactions'], 'readwrite');
-            
-            // Clear only the physical device storage
-            tx.objectStore('transactions').clear();
-            
-            // We DO NOT clear state.transactions here, meaning the UI stays perfectly populated 
-            // for the current session based on the cloud data we just fetched!
-            showToast('Local storage cleared. History remains visible.', 'success');
-        }
-
         function switchView(newView) {
-            state.view = newView;
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            if(newView === 'setup') {
-                document.getElementById('main-app').style.display = 'none'; document.getElementById('view-setup').classList.add('active');
-            } else {
+            state.view = newView; document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            if(newView === 'setup') { document.getElementById('main-app').style.display = 'none'; document.getElementById('view-setup').classList.add('active'); } 
+            else {
                 document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display = 'block'; document.getElementById(`view-${newView}`).classList.add('active');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -606,9 +566,8 @@
             }
         }
 
-        document.getElementById('setupForm').onsubmit = (e) => {
-            e.preventDefault();
-            const url = document.getElementById('setupUrl').value.trim(); const upiId = document.getElementById('setupUpiId').value.trim(); const payApp = document.getElementById('setupPaymentApp').value;
+        document.getElementById('setupForm').onsubmit = async (e) => {
+            e.preventDefault(); const url = document.getElementById('setupUrl').value.trim(); const upiId = document.getElementById('setupUpiId').value.trim(); const payApp = document.getElementById('setupPaymentApp').value;
             if(upiId) {
                 if(!/^[\w.-]+@[\w.-]+$/.test(upiId)) return showToast('Invalid UPI ID format', 'error');
                 state.upiId = upiId; state.paymentApp = payApp; localStorage.setItem('mn_upiId', upiId); localStorage.setItem('mn_paymentApp', payApp);
@@ -616,18 +575,18 @@
             }
             if(url) {
                 state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); document.getElementById('setSheetUrl').value = url;
-                state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); showToast('Database & App Configured!', 'success');
-            } else {
-                state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); showToast('Local Mode Configured!', 'info');
-            }
-            switchView('transactions'); playRewardAnimation(); syncData();
+                state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); showToast('Database Connected!', 'success');
+            } else { state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); showToast('Local Mode Configured!', 'info'); }
+            
+            switchView('transactions'); playRewardAnimation(); 
+            if(state.sheetUrl) await syncData(true);
         };
 
         const closeSetup = () => { localStorage.setItem('mn_skipSetup', 'true'); state.skipSetup = true; state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); switchView('transactions'); showToast('Started in Local Mode', 'info'); };
 
         function updateConnectionBadge() {
             const badge = document.getElementById('connectionStatusBadge');
-            if(state.sheetUrl) { badge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-500/30 bg-blue-500/10 text-blue-400 flex items-center gap-1.5'; badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div> Cloud Linked'; } 
+            if(state.sheetUrl) { badge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-500/30 bg-blue-500/10 text-blue-400 flex items-center gap-1.5'; badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div> Cloud Mode'; } 
             else { badge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-slate-500/30 bg-slate-800/50 text-slate-400 flex items-center gap-1.5'; badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div> Local Mode'; }
         }
 
@@ -637,14 +596,25 @@
             state.upiId = upiId; state.paymentApp = payApp; localStorage.setItem('mn_upiId', upiId); localStorage.setItem('mn_paymentApp', payApp); showToast('Payment Preferences Saved', 'success');
         };
 
-        document.getElementById('settingsConnectionForm').onsubmit = (e) => {
+        document.getElementById('settingsConnectionForm').onsubmit = async (e) => {
             e.preventDefault(); const url = document.getElementById('setSheetUrl').value.trim();
-            if(url) { state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); showToast('Cloud Database Updated', 'success'); updateConnectionBadge(); syncData(true); } 
-            else { showToast('Enter URL or select Local Mode', 'error'); }
+            if(url) { 
+                state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); 
+                showToast('Cloud Database Updated', 'success'); updateConnectionBadge(); await syncData(true); 
+            } else { showToast('Enter URL or select Local Mode', 'error'); }
         };
 
         const switchToLocalMode = () => { state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); document.getElementById('setSheetUrl').value = ''; state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); updateConnectionBadge(); showToast('Switched to Local Mode.', 'info'); };
         document.getElementById('setAutoSync').onchange = (e) => { state.autoSync = e.target.checked; localStorage.setItem('mn_autoSync', e.target.checked); };
+
+        async function clearLocalData() { 
+            if(confirm('Erase local cache? If connected to Cloud, data will redownload on next sync.')) { 
+                const dbInstance = await initDB(); 
+                dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('users').clear(); 
+                dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('transactions').clear(); 
+                state.users = []; state.transactions = []; state.currentUser = ''; renderApp(); showToast('Local Cache Wiped', 'info'); 
+            } 
+        }
 
         function renderApp() { renderUserSelectors(); renderStats(); renderTransactionLists(); }
         
@@ -662,9 +632,10 @@
             let uInc = 0, uExp = 0, uSav = 0;
             if(state.currentUser) {
                 const u = state.users.find(x => x.id === state.currentUser);
-                uSav = u ? u.initialSavings : 0;
-                
-                // Because state.transactions now holds the full cloud truth, we calculate straight from it
+                uSav = u ? (u.initialSavings + (u.runningSavings || 0)) : 0;
+                uInc = u ? (u.runningIncome || 0) : 0;
+                uExp = u ? (u.runningExpense || 0) : 0;
+
                 state.transactions.forEach(t => { 
                     if(t.userId === state.currentUser) { 
                         if(t.type === 'income') uInc += t.amount; 
@@ -681,37 +652,73 @@
         function renderTransactionLists() {
             const containers = document.querySelectorAll('.transaction-list-container');
             if(state.view !== 'transactions' && state.view !== 'savings') return;
-            let filtered = state.transactions.filter(t => { if(state.view === 'transactions' && t.type === 'savings_deposit') return false; if(state.view === 'savings' && t.type !== 'savings_deposit') return false; if(!state.searchQuery) return true; const q = state.searchQuery.toLowerCase(); return t.reason.toLowerCase().includes(q) || t.amount.toString().includes(q) || t.category.toLowerCase().includes(q); });
-            const html = `<div class="space-y-4"><div class="flex justify-between items-center mb-5 px-1"><h3 class="text-lg font-extrabold text-white">History</h3><div class="relative"><i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" placeholder="Search..." oninput="handleSearch(this.value)" value="${state.searchQuery}" class="bg-black/30 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white font-medium focus:outline-none focus:border-blue-500 w-36 transition-all focus:w-48"></div></div>${filtered.length === 0 ? '<div class="bento-card p-10 text-center"><i class="fa-solid fa-leaf text-4xl mb-4 text-white/10"></i><p class="text-slate-400 font-semibold">No records found.</p></div>' : ''}<div class="space-y-3">${filtered.map((tx, idx) => {
+            
+            let filtered = state.transactions.filter(t => { 
+                if(state.view === 'transactions' && t.type === 'savings_deposit') return false; 
+                if(state.view === 'savings' && t.type !== 'savings_deposit') return false; 
+                if(!state.searchQuery) return true; 
+                const q = state.searchQuery.toLowerCase(); 
+                
+                // Allow searching by exact YYYY-MM-DD or formatted "May 31" strings
+                const formattedDate = new Date(t.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}).toLowerCase();
+                
+                return t.reason.toLowerCase().includes(q) || 
+                       t.amount.toString().includes(q) || 
+                       t.category.toLowerCase().includes(q) ||
+                       t.date.includes(q) ||
+                       formattedDate.includes(q); 
+            });
+
+            const html = `<div class="space-y-4"><div class="flex justify-between items-center mb-5 px-1"><h3 class="text-lg font-extrabold text-white">History</h3><div class="relative"><i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" placeholder="Search (Date, Cat, etc)..." oninput="handleSearch(this.value)" value="${state.searchQuery}" class="bg-black/30 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white font-medium focus:outline-none focus:border-blue-500 w-36 transition-all focus:w-48"></div></div>${filtered.length === 0 ? '<div class="bento-card p-10 text-center"><i class="fa-solid fa-leaf text-4xl mb-4 text-white/10"></i><p class="text-slate-400 font-semibold">No records found.</p></div>' : ''}<div class="space-y-3">${filtered.map((tx, idx) => {
                 const user = state.users.find(u => u.id === tx.userId); let icon = 'fa-money-bill-transfer'; let colorClass = 'text-slate-400 bg-slate-800/50 group-hover:bg-slate-700/50'; let amountClass = 'text-slate-300'; let sign = '';
                 if (tx.type === 'expense') { icon = 'fa-arrow-up-right-from-square'; colorClass = 'bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20'; amountClass = 'text-rose-400'; sign = '-'; } else if (tx.type === 'income') { icon = 'fa-arrow-down-left-from-square'; colorClass = 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20'; amountClass = 'text-white'; sign = '+'; } else if (tx.type === 'savings_deposit') { icon = 'fa-piggy-bank'; colorClass = 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20'; amountClass = 'text-emerald-400'; sign = '+'; }
                 const appNames = { gpay: 'GPay', phonepe: 'PhonePe', paytm: 'Paytm', bhim: 'BHIM', generic: 'UPI App' }; const metaExtra = tx.upiId ? ` &bull; <i class="fa-brands fa-google-pay"></i> ${appNames[tx.paymentPlatform]} (${tx.upiId})` : '';
-                return `<div class="tx-anim flex justify-between items-center p-4.5 bg-white-[0.02] border border-white/5 rounded-2xl hover:bg-white/5 hover:-translate-y-0.5 hover:shadow-lg transition-all group cursor-default" style="animation-delay: ${idx * 0.04}s;"><div class="flex items-center gap-4"><div class="p-3 rounded-2xl flex items-center justify-center w-12 h-12 transition-colors ${colorClass}"><i class="fa-solid ${icon} text-lg"></i></div><div><p class="font-extrabold text-white text-[15px]">${tx.reason}</p><p class="text-xs font-medium text-slate-500 mt-0.5">${user?.name || 'Unknown'} &bull; ${tx.category}${metaExtra}</p></div></div><div class="flex items-center gap-3"><div class="text-right"><span class="font-extrabold text-[15px] block ${amountClass}">${sign}₹${tx.amount.toLocaleString()}</span><span class="text-[10px] font-semibold text-slate-500 uppercase">${new Date(tx.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span></div><button onclick="deleteTx(${tx.id})" class="text-slate-600 hover:text-rose-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-2 rounded-xl hover:bg-rose-500/10 active:scale-90"><i class="fa-solid fa-trash-can"></i></button></div></div>`;
+                return `<div class="tx-anim flex justify-between items-center p-4.5 bg-white-[0.02] border border-white/5 rounded-2xl hover:bg-white/5 hover:-translate-y-0.5 hover:shadow-lg transition-all group cursor-default" style="animation-delay: ${idx * 0.04}s;"><div class="flex items-center gap-4"><div class="p-3 rounded-2xl flex items-center justify-center w-12 h-12 transition-colors ${colorClass}"><i class="fa-solid ${icon} text-lg"></i></div><div><p class="font-extrabold text-white text-[15px]">${tx.reason}</p><p class="text-xs font-medium text-slate-500 mt-0.5">${user?.name || 'Unknown'} &bull; ${tx.category}${metaExtra}</p></div></div><div class="flex items-center gap-3"><div class="text-right"><span class="font-extrabold text-[15px] block ${amountClass}">${sign}₹${tx.amount.toLocaleString()}</span><span class="text-[10px] font-semibold text-slate-500 uppercase">${new Date(tx.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span></div></div></div>`;
             }).join('')}</div></div>`;
             containers.forEach(c => c.innerHTML = html);
         }
 
         function handleSearch(val) { state.searchQuery = val; renderTransactionLists(); }
 
-        document.getElementById('addUserForm').onsubmit = async (e) => { e.preventDefault(); const newUser = { id: Date.now().toString(), name: document.getElementById('newUserName').value.trim(), initialSavings: parseFloat(document.getElementById('newUserSavings').value) || 0 }; await dbStore('users', 'add', newUser); state.users.push(newUser); selectUser(newUser.id); e.target.reset(); showToast('User Added!', 'success'); syncData(); };
-        document.getElementById('expCategory').onchange = (e) => { if(e.target.value === 'Savings') switchView('savings'); };
-        document.getElementById('expenseForm').onsubmit = async (e) => { e.preventDefault(); if(!state.currentUser) return showToast('Select a user profile first', 'error'); const cat = document.getElementById('expCategory').value; if(cat === 'Savings') { switchView('savings'); return; } const isIncome = incomeCategories.includes(cat); const tx = { id: Date.now(), userId: state.currentUser, type: isIncome ? 'income' : 'expense', amount: parseFloat(document.getElementById('expAmount').value), reason: document.getElementById('expReason').value.trim(), category: cat, date: document.getElementById('expDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); e.target.reset(); document.getElementById('expDate').value = new Date().toISOString().split('T')[0]; showToast(isIncome ? 'Income Logged' : 'Expense Logged', 'success'); playRewardAnimation(); renderApp(); syncData(); };
+        document.getElementById('addUserForm').onsubmit = async (e) => { 
+            e.preventDefault(); showCloudLoader(true, 'Adding User to Cloud...');
+            const newUser = { id: Date.now().toString(), name: document.getElementById('newUserName').value.trim(), initialSavings: parseFloat(document.getElementById('newUserSavings').value) || 0, runningIncome: 0, runningExpense: 0, runningSavings: 0 }; 
+            await dbStore('users', 'add', newUser); state.users.push(newUser); selectUser(newUser.id); e.target.reset(); 
+            await syncData(); showToast('User Added!', 'success'); showCloudLoader(false);
+        };
         
-        async function handleManualSavings() { if(!state.currentUser) return showToast('Select a user profile first', 'error'); const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error'); const tx = { id: Date.now(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: document.getElementById('savNotes').value.trim() || 'Savings Deposit', category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; showToast('Savings Secured', 'success'); playRewardAnimation(); renderApp(); syncData(); }
+        document.getElementById('expCategory').onchange = (e) => { if(e.target.value === 'Savings') switchView('savings'); };
+        
+        document.getElementById('expenseForm').onsubmit = async (e) => { 
+            e.preventDefault(); if(!state.currentUser) return showToast('Select a user profile first', 'error'); 
+            const cat = document.getElementById('expCategory').value; if(cat === 'Savings') { switchView('savings'); return; } 
+            showCloudLoader(true, 'Saving to Cloud...');
+            const isIncome = incomeCategories.includes(cat); const tx = { id: Date.now().toString(), userId: state.currentUser, type: isIncome ? 'income' : 'expense', amount: parseFloat(document.getElementById('expAmount').value), reason: document.getElementById('expReason').value.trim(), category: cat, date: document.getElementById('expDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; 
+            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); e.target.reset(); document.getElementById('expDate').value = new Date().toISOString().split('T')[0]; 
+            await syncData(); showToast(isIncome ? 'Income Logged' : 'Expense Logged', 'success'); playRewardAnimation(); showCloudLoader(false);
+        };
+        
+        async function handleManualSavings() { 
+            if(!state.currentUser) return showToast('Select a user profile first', 'error'); 
+            const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error'); 
+            showCloudLoader(true, 'Saving to Cloud...');
+            const tx = { id: Date.now().toString(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: document.getElementById('savNotes').value.trim() || 'Savings Deposit', category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; 
+            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
+            await syncData(); showToast('Savings Secured', 'success'); playRewardAnimation(); showCloudLoader(false);
+        }
+        
         async function handleUpiPayment() {
             if(!state.currentUser) return showToast('Select a user profile first', 'error'); const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error');
             if(!state.upiId) { showToast('Please configure your UPI ID in Settings first.', 'error'); setTimeout(() => switchView('settings'), 2000); return; }
+            showCloudLoader(true, 'Preparing Intent & Saving...');
             const nts = document.getElementById('savNotes').value.trim() || 'Savings Deposit'; const user = state.users.find(u => u.id === state.currentUser);
             const pn = encodeURIComponent(user ? user.name : 'User'); const pa = encodeURIComponent(state.upiId); const am = encodeURIComponent(amt); const tn = encodeURIComponent(nts);
             let prefix = 'upi://pay'; if(state.paymentApp === 'gpay') prefix = 'tez://upi/pay'; else if(state.paymentApp === 'phonepe') prefix = 'phonepe://pay'; else if(state.paymentApp === 'paytm') prefix = 'paytmmp://pay'; else if(state.paymentApp === 'bhim') prefix = 'bhim://pay';
             const uri = `${prefix}?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}`;
-            const tx = { id: Date.now(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: nts, category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), upiId: state.upiId, paymentPlatform: state.paymentApp };
-            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; renderApp(); syncData();
-            showToast('Launching Payment App...', 'info'); setTimeout(() => { window.location.href = uri; }, 500);
+            const tx = { id: Date.now().toString(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: nts, category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), upiId: state.upiId, paymentPlatform: state.paymentApp };
+            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
+            await syncData(); showCloudLoader(false); showToast('Launching Payment App...', 'info'); setTimeout(() => { window.location.href = uri; }, 500);
         }
-
-        async function deleteTx(id) { await dbStore('transactions', 'delete', id); state.transactions = state.transactions.filter(t => t.id !== id); showToast('Deleted'); renderApp(); syncData(); }
-        async function clearLocalData() { if(confirm('Erase all local app data? This cannot be undone on this device.')) { await dbStore('users', 'clear'); const dbInstance = await initDB(); dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('users').clear(); dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('transactions').clear(); state.users = []; state.transactions = []; state.currentUser = ''; state.sheetUrl = ''; state.skipSetup = false; state.upiId = ''; state.paymentApp = 'generic'; localStorage.clear(); renderApp(); switchView('setup'); showToast('Local Data Wiped'); } }
 
         window.onload = loadInitialData;
     </script>
