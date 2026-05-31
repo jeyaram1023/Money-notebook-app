@@ -6,17 +6,17 @@
     <title>Money Pro Analytics</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #030303; color: #e2e8f0; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
+        input[type="month"]:focus::-webkit-calendar-picker-indicator, input[type="month"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
 
         @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
@@ -27,13 +27,16 @@
         .nav-active .nav-bg { background-color: rgba(255,255,255,0.1); transform: scale(1.1); }
         .nav-active span { color: #fff; font-weight: 700; }
         
-        select:focus { box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3); border-color: rgba(168, 85, 247, 0.8) !important; }
+        input:focus, select:focus { box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3); border-color: rgba(168, 85, 247, 0.8) !important; }
         option { background: #050505; color: #e2e8f0; font-weight: 400; }
 
         @keyframes shine { to { background-position: 200% center; } }
         .text-shine { background: linear-gradient(to right, #c084fc, #f472b6, #60a5fa, #c084fc); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; }
         @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
         .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
+
+        #cloudLoader { display: none; }
+        #cloudLoader.active { display: flex; }
     </style>
 </head>
 <body class="selection:bg-purple-500/30 text-[15px] relative overflow-x-hidden">
@@ -41,6 +44,13 @@
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
         <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-pink-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
+    </div>
+
+    <div id="cloudLoader" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-[#121212] border border-white/10 p-5 rounded-2xl flex items-center gap-4 shadow-2xl">
+            <i class="fa-solid fa-circle-notch fa-spin text-purple-500 text-2xl"></i>
+            <span class="text-white font-bold tracking-wide">Fetching Cloud Data...</span>
+        </div>
     </div>
 
     <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
@@ -64,23 +74,28 @@
                 <i class="fa-solid fa-filter"></i> Insight Filters
             </h2>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <select id="filterYear" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
-                    <option value="all">All Years</option>
-                </select>
-                <select id="filterMonth" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
-                    <option value="all">All Months</option>
-                    <option value="01">January</option><option value="02">February</option><option value="03">March</option>
-                    <option value="04">April</option><option value="05">May</option><option value="06">June</option>
-                    <option value="07">July</option><option value="08">August</option><option value="09">September</option>
-                    <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-                </select>
-                <select id="filterUser" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
-                    <option value="all">All Users</option>
-                </select>
-                <select id="filterCategory" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
-                    <option value="all">All Categories</option>
-                </select>
+                <div class="flex flex-col">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Start Month</label>
+                    <input type="month" id="filterStartMonth" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none cursor-pointer" style="color-scheme:dark">
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">End Month</label>
+                    <input type="month" id="filterEndMonth" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none cursor-pointer" style="color-scheme:dark">
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Profile</label>
+                    <select id="filterUser" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer h-full">
+                        <option value="all">All Users</option>
+                    </select>
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Category</label>
+                    <select id="filterCategory" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer h-full">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
             </div>
+            <button onclick="clearFilters()" class="mt-3 text-[11px] font-bold text-pink-400 hover:text-pink-300 uppercase tracking-wider transition-colors"><i class="fa-solid fa-rotate-left"></i> Reset Range</button>
         </div>
 
         <div class="grid grid-cols-2 gap-4 mb-6">
@@ -146,17 +161,12 @@
     </nav>
 
     <script>
-        // --- State Management ---
-        let state = { users: [], transactions: [] };
+        let state = { users: [], transactions: [], sheetUrl: localStorage.getItem('mn_sheetUrl') || '' };
         
-        // Chart Instances
         let pieChartInstance = null;
         let lineChartInstance = null;
 
-        // --- Database Connection ---
-        const DB_NAME = 'MoneyNotebookData'; 
-        const DB_VERSION = 1; 
-        let db;
+        const DB_NAME = 'MoneyNotebookData'; const DB_VERSION = 1; let db;
 
         const initDB = () => {
             return new Promise((resolve, reject) => {
@@ -164,7 +174,6 @@
                 request.onsuccess = (e) => { db = e.target.result; resolve(db); };
                 request.onerror = (e) => reject(e.target.error);
                 request.onupgradeneeded = (e) => {
-                    // Just in case graph is loaded absolutely first, init structure
                     const database = e.target.result;
                     if (!database.objectStoreNames.contains('users')) database.createObjectStore('users', { keyPath: 'id' });
                     if (!database.objectStoreNames.contains('transactions')) database.createObjectStore('transactions', { keyPath: 'id' });
@@ -181,74 +190,78 @@
             });
         };
 
-        // --- Initialization ---
+        const showCloudLoader = (show) => {
+            const loader = document.getElementById('cloudLoader');
+            if(show) { loader.classList.remove('hidden'); loader.classList.add('flex'); } 
+            else { loader.classList.add('hidden'); loader.classList.remove('flex'); }
+        };
+
         async function loadAnalyticsData() {
             try {
                 await initDB();
+                
+                // Load Cache First
                 state.users = await dbStore('users');
                 state.transactions = await dbStore('transactions');
                 
+                // Cloud Sync
+                if(state.sheetUrl) {
+                    showCloudLoader(true);
+                    try {
+                        const response = await fetch(state.sheetUrl, { 
+                            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                            body: JSON.stringify({}) // Empty payload forces Read Only
+                        });
+                        const result = await response.json();
+                        if (result.status === 'success') {
+                            state.transactions = result.transactions.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+                            if (result.users && result.users.length > 0) state.users = result.users;
+                        }
+                    } catch(err) { console.log("Offline or sync failed, using local cache."); }
+                    showCloudLoader(false);
+                }
+
                 populateFilters();
                 updateDashboard();
-            } catch (e) {
-                console.error("DB Error in Analytics", e);
-            }
+            } catch (e) { console.error("DB Error in Analytics", e); showCloudLoader(false); }
         }
 
-        // --- Filters Logic ---
         function populateFilters() {
-            // Populate Users
             const userFilter = document.getElementById('filterUser');
-            state.users.forEach(u => {
-                const opt = document.createElement('option');
-                opt.value = u.id; opt.innerText = u.name;
-                userFilter.appendChild(opt);
-            });
+            state.users.forEach(u => { const opt = document.createElement('option'); opt.value = u.id; opt.innerText = u.name; userFilter.appendChild(opt); });
 
-            // Populate Years & Categories dynamically based on Data
-            const years = new Set();
             const categories = new Set();
-
-            state.transactions.forEach(t => {
-                years.add(t.date.split('-')[0]);
-                categories.add(t.category);
-            });
-
-            const yearFilter = document.getElementById('filterYear');
-            Array.from(years).sort().reverse().forEach(y => {
-                const opt = document.createElement('option');
-                opt.value = y; opt.innerText = y;
-                yearFilter.appendChild(opt);
-            });
-            // Default to current year if exists
-            const currentYear = new Date().getFullYear().toString();
-            if(years.has(currentYear)) yearFilter.value = currentYear;
+            state.transactions.forEach(t => { categories.add(t.category); });
 
             const categoryFilter = document.getElementById('filterCategory');
-            Array.from(categories).sort().forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c; opt.innerText = c;
-                categoryFilter.appendChild(opt);
-            });
+            Array.from(categories).sort().forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; categoryFilter.appendChild(opt); });
 
-            // Attach listeners
-            ['filterYear', 'filterMonth', 'filterUser', 'filterCategory'].forEach(id => {
+            // Ensure start and end months handle updates properly
+            ['filterStartMonth', 'filterEndMonth', 'filterUser', 'filterCategory'].forEach(id => {
                 document.getElementById(id).addEventListener('change', updateDashboard);
             });
         }
 
-        // --- Data Crunching & Dashboard Update ---
+        function clearFilters() {
+            document.getElementById('filterStartMonth').value = '';
+            document.getElementById('filterEndMonth').value = '';
+            document.getElementById('filterUser').value = 'all';
+            document.getElementById('filterCategory').value = 'all';
+            updateDashboard();
+        }
+
         function updateDashboard() {
-            const fYear = document.getElementById('filterYear').value;
-            const fMonth = document.getElementById('filterMonth').value;
+            const fStart = document.getElementById('filterStartMonth').value; // format: "YYYY-MM"
+            const fEnd = document.getElementById('filterEndMonth').value;     // format: "YYYY-MM"
             const fUser = document.getElementById('filterUser').value;
             const fCat = document.getElementById('filterCategory').value;
 
-            // 1. Filter Transactions
+            // 1. Filter Transactions based on Date Range
             const filteredTxs = state.transactions.filter(t => {
-                const [y, m] = t.date.split('-');
-                if(fYear !== 'all' && y !== fYear) return false;
-                if(fMonth !== 'all' && m !== fMonth) return false;
+                const txMonth = t.date.substring(0, 7); // Extracts "YYYY-MM" from "YYYY-MM-DD"
+                
+                if(fStart && txMonth < fStart) return false;
+                if(fEnd && txMonth > fEnd) return false;
                 if(fUser !== 'all' && t.userId !== fUser) return false;
                 if(fCat !== 'all' && t.category !== fCat) return false;
                 return true;
@@ -256,20 +269,14 @@
 
             // 2. Calculate KPIs
             let tInc = 0, tExp = 0, tSav = 0;
-            
-            // Note: Base savings from user setup must be accounted for if 'All Time' is effectively viewed
+            const isGlobalView = (!fStart && !fEnd && fCat === 'all'); // If isolated timeline/category, only show raw sums.
+
             let baseSavings = 0;
             state.users.forEach(u => {
-                // If specific user filtered, only add their base savings
                 if(fUser === 'all' || fUser === u.id) {
-                    baseSavings += u.initialSavings || 0;
+                    baseSavings += (u.initialSavings || 0) + (u.runningSavings || 0);
                 }
             });
-
-            // If a specific timeframe/category is filtered, baseSavings shouldn't be blindly added 
-            // unless we only care about total current portfolio. For simplicity in timeframe analytics,
-            // we will only show savings deposited *during* the filtered period.
-            const isGlobalView = (fYear === 'all' && fMonth === 'all' && fCat === 'all');
 
             filteredTxs.forEach(t => {
                 if(t.type === 'income') tInc += t.amount;
@@ -280,33 +287,27 @@
             const displaySav = isGlobalView ? (tSav + baseSavings) : tSav;
             const netPos = tInc - tExp;
 
-            // Update DOM KPIs
             document.getElementById('kpi-income').innerText = `₹${tInc.toLocaleString()}`;
             document.getElementById('kpi-expense').innerText = `₹${tExp.toLocaleString()}`;
             document.getElementById('kpi-savings').innerText = `₹${displaySav.toLocaleString()}`;
             document.getElementById('kpi-net').innerText = `${netPos >= 0 ? '' : '-'}₹${Math.abs(netPos).toLocaleString()}`;
             document.getElementById('kpi-net').className = `text-2xl font-extrabold ${netPos >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
 
-            // 3. Render User Breakdown Grid
             renderUserBreakdown(filteredTxs, isGlobalView);
 
-            // 4. Render Charts
-            Chart.defaults.color = '#94a3b8';
-            Chart.defaults.font.family = 'Inter';
+            Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = 'Inter';
             renderPieChart(filteredTxs);
-            renderLineChart(filteredTxs, fMonth !== 'all');
+            
+            // If they pick the same start and end month, show daily breakdown. Otherwise show monthly.
+            const showDaily = (fStart && fEnd && fStart === fEnd);
+            renderLineChart(filteredTxs, showDaily);
         }
 
-        // --- Component Renderers ---
         function renderUserBreakdown(txs, isGlobalView) {
             const container = document.getElementById('userBreakdownContainer');
-            if(state.users.length === 0) {
-                container.innerHTML = `<div class="text-sm text-slate-500 text-center py-4">No users found.</div>`;
-                return;
-            }
+            if(state.users.length === 0) { container.innerHTML = `<div class="text-sm text-slate-500 text-center py-4">No users found.</div>`; return; }
 
             let html = '';
-            // Determine active user list based on filter
             const fUser = document.getElementById('filterUser').value;
             const activeUsers = fUser === 'all' ? state.users : state.users.filter(u => u.id === fUser);
 
@@ -320,8 +321,12 @@
                     }
                 });
                 
-                const userDisplaySav = isGlobalView ? (uSav + u.initialSavings) : uSav;
-                const balance = uInc - uExp;
+                // Base numbers if not filtered by date/category
+                const baseInc = isGlobalView ? (u.runningIncome || 0) : 0;
+                const baseExp = isGlobalView ? (u.runningExpense || 0) : 0;
+
+                const userDisplaySav = isGlobalView ? (uSav + (u.initialSavings||0) + (u.runningSavings||0)) : uSav;
+                const balance = (uInc + baseInc) - (uExp + baseExp);
 
                 html += `
                 <div class="bg-black/30 border border-white/5 rounded-2xl p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
@@ -333,8 +338,8 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap gap-4 text-right">
-                        <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Sent</span><span class="text-rose-400 text-sm font-bold">₹${uExp.toLocaleString()}</span></div>
-                        <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Recv</span><span class="text-blue-400 text-sm font-bold">₹${uInc.toLocaleString()}</span></div>
+                        <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Sent</span><span class="text-rose-400 text-sm font-bold">₹${(uExp+baseExp).toLocaleString()}</span></div>
+                        <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Recv</span><span class="text-blue-400 text-sm font-bold">₹${(uInc+baseInc).toLocaleString()}</span></div>
                         <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Vault</span><span class="text-emerald-400 text-sm font-bold">₹${userDisplaySav.toLocaleString()}</span></div>
                     </div>
                 </div>`;
@@ -344,52 +349,29 @@
 
         function renderPieChart(txs) {
             const catSpends = {};
-            txs.forEach(t => {
-                if(t.type === 'expense') {
-                    catSpends[t.category] = (catSpends[t.category] || 0) + t.amount;
-                }
-            });
+            txs.forEach(t => { if(t.type === 'expense') { catSpends[t.category] = (catSpends[t.category] || 0) + t.amount; } });
 
-            const pLabels = Object.keys(catSpends);
-            const pData = Object.values(catSpends);
-            const ctx = document.getElementById('pieChart').getContext('2d');
-            const noDataLabel = document.getElementById('noDataPie');
+            const pLabels = Object.keys(catSpends); const pData = Object.values(catSpends);
+            const ctx = document.getElementById('pieChart').getContext('2d'); const noDataLabel = document.getElementById('noDataPie');
 
             if(pieChartInstance) pieChartInstance.destroy();
 
-            if(pData.length === 0) {
-                noDataLabel.classList.remove('hidden');
-            } else {
+            if(pData.length === 0) { noDataLabel.classList.remove('hidden'); } 
+            else {
                 noDataLabel.classList.add('hidden');
                 pieChartInstance = new Chart(ctx, {
                     type: 'doughnut',
-                    data: { 
-                        labels: pLabels, 
-                        datasets: [{ 
-                            data: pData, 
-                            backgroundColor: ['#f472b6','#c084fc','#60a5fa','#34d399','#fbbf24','#f87171','#818cf8'], 
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }] 
-                    },
-                    options: { 
-                        responsive: true, maintainAspectRatio: false, cutout: '70%', 
-                        plugins: { 
-                            legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: {size: 11, weight: '600'} } },
-                            tooltip: { callbacks: { label: function(context) { return ' ₹' + context.raw.toLocaleString(); } } }
-                        } 
-                    }
+                    data: { labels: pLabels, datasets: [{ data: pData, backgroundColor: ['#f472b6','#c084fc','#60a5fa','#34d399','#fbbf24','#f87171','#818cf8'], borderWidth: 0, hoverOffset: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: {size: 11, weight: '600'} } }, tooltip: { callbacks: { label: function(context) { return ' ₹' + context.raw.toLocaleString(); } } } } }
                 });
             }
         }
 
-        function renderLineChart(txs, isMonthlyView) {
-            // Group data temporarily based on view
-            // If viewing specific month, group by Day (DD). Otherwise, group by YYYY-MM
+        function renderLineChart(txs, isDailyView) {
             const temporalData = {};
             
             txs.forEach(t => {
-                const dateKey = isMonthlyView ? t.date.split('-')[2] : t.date.substring(0,7);
+                const dateKey = isDailyView ? t.date : t.date.substring(0,7);
                 if(!temporalData[dateKey]) temporalData[dateKey] = { inc: 0, exp: 0, sav: 0 };
                 
                 if(t.type === 'income') temporalData[dateKey].inc += t.amount;
@@ -397,15 +379,15 @@
                 if(t.type === 'savings_deposit') temporalData[dateKey].sav += t.amount;
             });
 
-            // Sort dates chronologically
             const sortedKeys = Object.keys(temporalData).sort();
             
-            // Format labels
             const labels = sortedKeys.map(k => {
-                if(isMonthlyView) return `Day ${k}`;
-                const [y, m] = k.split('-');
-                const date = new Date(y, parseInt(m)-1);
-                return date.toLocaleString('default', { month: 'short', year: '2-digit' });
+                if(isDailyView) {
+                    const [y, m, d] = k.split('-'); return `${m}/${d}`;
+                } else {
+                    const [y, m] = k.split('-'); const date = new Date(y, parseInt(m)-1);
+                    return date.toLocaleString('default', { month: 'short', year: '2-digit' });
+                }
             });
 
             const dataInc = sortedKeys.map(k => temporalData[k].inc);
@@ -424,20 +406,13 @@
                     ]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: { 
-                        x: { grid: { display: false, drawBorder: false } }, 
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } 
-                    },
-                    plugins: { 
-                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {size: 11, weight:'bold'} } }
-                    }
+                    responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                    scales: { x: { grid: { display: false, drawBorder: false } }, y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } },
+                    plugins: { legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {size: 11, weight:'bold'} } } }
                 }
             });
         }
 
-        // --- Start up ---
         window.onload = loadAnalyticsData;
     </script>
 </body>
