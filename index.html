@@ -60,6 +60,76 @@
 
     <div id="toastContainer" class="fixed top-safe pt-4 left-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-[90%] md:max-w-sm"></div>
 
+    <!-- GUIDE MODAL -->
+    <div id="guideModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <div class="bento-card w-full max-w-lg flex flex-col max-h-[90vh] relative transform scale-95 transition-transform duration-300 hover:translate-y-0" id="guideModalContent">
+            
+            <div class="flex justify-between items-center p-5 border-b border-white/10 sticky top-0 z-10 bg-[#030303]/90 backdrop-blur-xl rounded-t-[28px]">
+                <h3 class="text-lg font-bold flex items-center gap-2 text-white"><i class="fa-solid fa-file-excel text-emerald-400"></i> Configuration Guide</h3>
+                <button onclick="toggleGuideModal(false)" class="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-slate-400 hover:text-white transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-8 text-sm text-slate-300 custom-scrollbar">
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">1</span> Create Spreadsheet</h4>
+                    <p class="leading-relaxed">Open <a href="https://sheets.google.com" target="_blank" class="text-blue-400 hover:underline font-medium">Google Sheets</a> and create a <b>Blank spreadsheet</b>. Name it "Money Notebook Database".</p>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">2</span> Setup Columns</h4>
+                    <p class="leading-relaxed">In the very first row (Row 1), type these exact headers from Column A to H:</p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">ID</span>
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">User ID</span>
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Type</span>
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Amount</span>
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Category</span>
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Reason</span>
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Date</span>
+                        <span class="bg-white/10 border border-white/5 px-3 py-1.5 rounded-lg text-xs font-medium text-white shadow-sm">Time</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">3</span> Add the Script</h4>
+                    <p class="leading-relaxed">Click <b>Extensions > Apps Script</b>. Delete existing code, then paste:</p>
+                    <div class="relative bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-4 group">
+                        <button onclick="copyScriptCode()" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all active:scale-90 flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                        <pre id="scriptCodeBlock" class="text-emerald-400 text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var txs = data.transactions;
+    if(sheet.getLastRow() > 1) sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).clearContent();
+    for (var i = txs.length - 1; i >= 0; i--) {
+      sheet.appendRow([txs[i].id, txs[i].userId, txs[i].type, txs[i].amount, txs[i].category, txs[i].reason, txs[i].date, txs[i].time]);
+    }
+    return ContentService.createTextOutput(JSON.stringify({"status": "success"})).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error"})).setMimeType(ContentService.MimeType.JSON);
+  }
+}</pre>
+                    </div>
+                </div>
+
+                <div class="space-y-3 pb-4">
+                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">4</span> Deploy & Connect</h4>
+                    <ul class="list-disc pl-5 space-y-2 text-slate-400 leading-relaxed">
+                        <li>Click <b>Deploy > New deployment</b>.</li>
+                        <li>Select type: <b>Web app</b>.</li>
+                        <li>Set 'Execute as' to <b class="text-white">Me</b>, and 'Who has access' to <b class="text-white">Anyone</b>.</li>
+                        <li>Click Deploy, authorize permissions, copy the Web App URL, and paste it here or in Settings!</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ONBOARDING SETUP -->
     <div id="view-setup" class="min-h-screen items-center justify-center p-5 relative z-50">
         <div class="bento-card w-full max-w-md p-8 relative overflow-hidden hover:translate-y-0">
             <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none"></div>
@@ -68,12 +138,17 @@
                     <i class="fa-solid fa-rocket text-3xl text-white"></i>
                 </div>
             </div>
-            <h1 class="text-2xl font-extrabold text-center mb-2 tracking-tight text-white relative z-10">Welcome to Money Pro</h1>
+            <h1 class="text-2xl font-extrabold text-center mb-2 tracking-tight text-white relative z-10">Welcome to Money Note Book</h1>
             <p class="text-slate-400 text-center text-sm mb-6 relative z-10">Configure your app securely. All preferences are stored entirely locally.</p>
             <form id="setupForm" class="space-y-5 relative z-10">
                 <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud text-blue-400"></i> Cloud Database (Optional)</h3>
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud text-blue-400"></i> Cloud Database</h3>
                     <input id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
+                    
+                    <!-- GUIDE BUTTON BENEATH CLOUD DATA URL -->
+                    <button type="button" onclick="toggleGuideModal(true)" class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-xs mt-3 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
+                    </button>
                 </div>
                 <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
                     <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-brands fa-google-pay text-emerald-400"></i> Local UPI Setup (Optional)</h3>
@@ -98,6 +173,7 @@
         </div>
     </div>
 
+    <!-- MAIN APP WRAPPER -->
     <div id="main-app" style="display: none;">
     <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
         <div class="max-w-2xl mx-auto px-5 h-16 flex items-center justify-between">
@@ -266,6 +342,12 @@
                             <button type="button" onclick="switchToLocalMode()" class="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm">Use Local Mode</button>
                         </div>
                     </form>
+
+                    <!-- GUIDE BUTTON ABOVE AUTO SYNC -->
+                    <button type="button" onclick="toggleGuideModal(true)" class="w-full mt-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-3 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-sm flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
+                    </button>
+
                     <div class="flex items-center justify-between mt-6">
                         <div>
                             <p class="font-bold text-white text-sm">Auto Sync</p>
@@ -356,6 +438,36 @@
             toast.className = `flex items-center gap-3 px-5 py-3.5 rounded-[20px] shadow-2xl border border-white/10 bg-[#1a1a1a]/95 text-white backdrop-blur-xl toast-msg absolute left-1/2 -translate-x-1/2 w-max`;
             toast.innerHTML = `${icon} <span class="text-sm font-bold tracking-wide">${message}</span>`;
             container.appendChild(toast); setTimeout(() => toast.remove(), 3500);
+        };
+
+        // Modal Functions
+        const toggleGuideModal = (show) => {
+            const modal = document.getElementById('guideModal');
+            const content = document.getElementById('guideModalContent');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    content.classList.remove('scale-95');
+                }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                content.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+        };
+
+        const copyScriptCode = () => {
+            const code = document.getElementById('scriptCodeBlock').innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Script Copied!', 'success');
+            }).catch(() => {
+                showToast('Copy failed. Select manually.', 'error');
+            });
         };
 
         const playRewardAnimation = () => {
