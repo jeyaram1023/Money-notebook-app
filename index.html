@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Money Notebook Pro</title>
 
+    <!-- PWA Manifest & App Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#030303">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Money Pro">
+    <link rel="apple-touch-icon" href="https://uploads.onecompiler.io/42q5e2pr5/433anht9u/1000084234.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,10 +22,8 @@
         body { font-family: 'Inter', sans-serif; background-color: #030303; color: #e2e8f0; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
         ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        /* Date Picker Calendar Icon Enhanced */
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
-        input[type="date"]:focus::-webkit-calendar-picker-indicator, input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
+        input[type="date"]:focus::-webkit-calendar-picker-indicator { opacity: 1; }
 
         @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
@@ -49,17 +55,20 @@
         @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
         .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
 
+        /* Loader Overlay for Cloud Ops */
         #cloudLoader { display: none; }
         #cloudLoader.active { display: flex; }
     </style>
 </head>
 <body class="selection:bg-blue-500/30 text-[15px] relative overflow-x-hidden">
 
+    <!-- Global Background Elements -->
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
         <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
     </div>
 
+    <!-- UI Overlays -->
     <div id="toastContainer" class="fixed top-safe pt-4 left-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-[90%] md:max-w-sm"></div>
 
     <div id="cloudLoader" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
@@ -69,6 +78,7 @@
         </div>
     </div>
 
+    <!-- POST-SYNC CONFIRMATION MODAL -->
     <div id="syncConfirmModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-sm p-6 relative transform scale-95 transition-transform duration-300 text-center border-emerald-500/30">
             <div class="w-16 h-16 mx-auto bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-2xl mb-4 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
@@ -77,18 +87,26 @@
             <h3 class="text-lg font-bold text-white mb-2">Sync Successful!</h3>
             <p class="text-[13px] text-slate-300 mb-6 leading-relaxed">Your Users and Transactions are safely stored in Google Sheets.<br><br>Do you want to clear your local device storage to save space? (Your history remains visible on screen now. Next time you open the app, simply click Sync to fetch it again).</p>
             <div class="space-y-3">
-                <button onclick="confirmClearSyncedData()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.3)]"><i class="fa-solid fa-check"></i> Yes, Clear Local Data</button>
-                <button onclick="closeSyncConfirmModal()" class="w-full bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-3.5 rounded-xl transition-all active:scale-95 border border-white/10">No, Keep Everything Local</button>
+                <button onclick="confirmClearSyncedData()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                    <i class="fa-solid fa-check"></i> Yes, Clear Local Data
+                </button>
+                <button onclick="closeSyncConfirmModal()" class="w-full bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-3.5 rounded-xl transition-all active:scale-95 border border-white/10">
+                    No, Keep Everything Local
+                </button>
             </div>
         </div>
     </div>
 
+    <!-- GUIDE MODAL -->
     <div id="guideModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-lg flex flex-col max-h-[90vh] relative transform scale-95 transition-transform duration-300 hover:translate-y-0" id="guideModalContent">
             <div class="flex justify-between items-center p-5 border-b border-white/10 sticky top-0 z-10 bg-[#030303]/90 backdrop-blur-xl rounded-t-[28px]">
                 <h3 class="text-lg font-bold flex items-center gap-2 text-white"><i class="fa-solid fa-file-excel text-emerald-400"></i> Configuration Guide</h3>
-                <button onclick="toggleGuideModal(false)" class="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-slate-400 hover:text-white transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30"><i class="fa-solid fa-xmark"></i></button>
+                <button onclick="toggleGuideModal(false)" class="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-slate-400 hover:text-white transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
+            
             <div class="p-6 overflow-y-auto space-y-8 text-sm text-slate-300 custom-scrollbar">
                 <div class="space-y-3">
                     <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">1</span> Create Spreadsheet</h4>
@@ -106,22 +124,34 @@
                         <pre id="scriptCodeBlock" class="text-emerald-400 text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">function doPost(e) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var txSheet = ss.getSheetByName('Transactions');
-  if (!txSheet) { txSheet = ss.insertSheet('Transactions'); txSheet.appendRow(['ID', 'User ID', 'Type', 'Amount', 'Category', 'Reason', 'Date', 'Time', 'UPI ID', 'Payment App']); }
+  if (!txSheet) {
+    txSheet = ss.insertSheet('Transactions');
+    txSheet.appendRow(['ID', 'User ID', 'Type', 'Amount', 'Category', 'Reason', 'Date', 'Time', 'UPI ID', 'Payment App']);
+  }
+  
   var userSheet = ss.getSheetByName('Users');
-  if (!userSheet) { userSheet = ss.insertSheet('Users'); userSheet.appendRow(['ID', 'Name', 'Initial Savings', 'Running Income', 'Running Expense', 'Running Savings']); }
+  if (!userSheet) {
+    userSheet = ss.insertSheet('Users');
+    userSheet.appendRow(['ID', 'Name', 'Initial Savings', 'Running Income', 'Running Expense', 'Running Savings']);
+  }
 
   try {
     var data = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {transactions: [], users: []};
-    var txs = data.transactions || []; var users = data.users || [];
+    var txs = data.transactions || [];
+    var users = data.users || [];
     
     if (users.length > 0) {
       if (userSheet.getLastRow() > 1) { userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent(); }
-      for (var i = 0; i < users.length; i++) { userSheet.appendRow([users[i].id, users[i].name, users[i].initialSavings, users[i].runningIncome || 0, users[i].runningExpense || 0, users[i].runningSavings || 0]); }
+      for (var i = 0; i < users.length; i++) {
+        userSheet.appendRow([users[i].id, users[i].name, users[i].initialSavings, users[i].runningIncome || 0, users[i].runningExpense || 0, users[i].runningSavings || 0]);
+      }
     }
     
     if (txs.length > 0) {
-        var existingData = txSheet.getDataRange().getValues(); var existingIds = {};
+        var existingData = txSheet.getDataRange().getValues();
+        var existingIds = {};
         for(var r = 1; r < existingData.length; r++) { existingIds[existingData[r][0]] = true; }
+        
         for (var i = txs.length - 1; i >= 0; i--) {
           if(!existingIds[txs[i].id]) {
             txSheet.appendRow([txs[i].id, txs[i].userId, txs[i].type, txs[i].amount, txs[i].category, txs[i].reason, txs[i].date, txs[i].time, txs[i].upiId || '', txs[i].paymentPlatform || '']);
@@ -130,12 +160,14 @@
         }
     }
 
-    var finalTx = txSheet.getDataRange().getValues(); var allTxs = [];
+    var finalTx = txSheet.getDataRange().getValues();
+    var allTxs = [];
     for(var r = 1; r < finalTx.length; r++) {
       allTxs.push({ id: finalTx[r][0].toString(), userId: finalTx[r][1].toString(), type: finalTx[r][2], amount: Number(finalTx[r][3]), category: finalTx[r][4], reason: finalTx[r][5], date: finalTx[r][6], time: finalTx[r][7], upiId: finalTx[r][8] || '', paymentPlatform: finalTx[r][9] || '' });
     }
 
-    var finalUsers = userSheet.getDataRange().getValues(); var allUsers = [];
+    var finalUsers = userSheet.getDataRange().getValues();
+    var allUsers = [];
     for(var r = 1; r < finalUsers.length; r++) {
       allUsers.push({ id: finalUsers[r][0].toString(), name: finalUsers[r][1], initialSavings: Number(finalUsers[r][2]), runningIncome: Number(finalUsers[r][3]), runningExpense: Number(finalUsers[r][4]), runningSavings: Number(finalUsers[r][5]) });
     }
@@ -160,6 +192,7 @@
         </div>
     </div>
 
+    <!-- ONBOARDING SETUP VIEW -->
     <div id="view-setup" class="min-h-screen items-center justify-center p-5 relative z-50">
         <div class="bento-card w-full max-w-md p-8 relative overflow-hidden hover:translate-y-0">
             <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none"></div>
@@ -174,7 +207,9 @@
                 <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
                     <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-link text-blue-400"></i> Cloud Database URL</h3>
                     <input id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
-                    <button type="button" onclick="toggleGuideModal(true)" class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-xs mt-3 flex justify-center items-center gap-2"><i class="fa-solid fa-file-excel"></i> View Excel Setup Guide</button>
+                    <button type="button" onclick="toggleGuideModal(true)" class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-xs mt-3 flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
+                    </button>
                 </div>
                 <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
                     <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-brands fa-google-pay text-emerald-400"></i> UPI Setup (Optional)</h3>
@@ -195,6 +230,7 @@
         </div>
     </div>
 
+    <!-- MAIN APP WRAPPER -->
     <div id="main-app" style="display: none;">
         <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
             <div class="max-w-2xl mx-auto px-5 h-16 flex items-center justify-between">
@@ -336,7 +372,7 @@
                         <div>
                             <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Preferred Payment App</label>
                             <select id="setPaymentApp" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm appearance-none transition-all cursor-pointer">
-                                <option value="generic">Default System Chooser</option><option value="gpay">Google Pay (GPay)</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option>
+                                <option value="generic">Default System Chooser</option><option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option>
                             </select>
                         </div>
                         <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)]">Save Payment Preferences</button>
@@ -359,7 +395,9 @@
                         </div>
                     </form>
 
-                    <button type="button" onclick="toggleGuideModal(true)" class="w-full mt-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-3 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-sm flex justify-center items-center gap-2"><i class="fa-solid fa-file-excel"></i> View Excel Setup Guide</button>
+                    <button type="button" onclick="toggleGuideModal(true)" class="w-full mt-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-3 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-sm flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
+                    </button>
 
                     <div class="flex items-center justify-between mt-6">
                         <div>
@@ -465,6 +503,12 @@
             else { modal.classList.add('opacity-0'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); }
         };
 
+        const closeSyncConfirmModal = () => {
+            const modal = document.getElementById('syncConfirmModal');
+            modal.classList.add('opacity-0'); modal.firstElementChild.classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
+        };
+
         const copyScriptCode = () => {
             navigator.clipboard.writeText(document.getElementById('scriptCodeBlock').innerText).then(() => { showToast('Script Copied!', 'success'); }).catch(() => { showToast('Copy failed.', 'error'); });
         };
@@ -485,6 +529,7 @@
         async function loadInitialData() {
             try {
                 await initDB();
+                
                 state.users = await dbStore('users', 'getAll');
                 const txs = await dbStore('transactions', 'getAll');
                 state.transactions = txs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
@@ -505,7 +550,9 @@
                             body: JSON.stringify({}) 
                         });
                         const result = await response.json();
-                        if (result.status === 'success') { updateLocalFromCloud(result.transactions, result.users); }
+                        if (result.status === 'success') {
+                            updateLocalFromCloud(result.transactions, result.users);
+                        }
                     } catch(err) { console.log("Offline or sync failed, using local cache."); }
                 }
             } catch(e) { showToast('Initialization Error', 'error'); }
@@ -541,13 +588,25 @@
                 
                 if (result.status === 'success') {
                     await updateLocalFromCloud(result.transactions, result.users);
-                    if(force) showToast('Cloud Sync Complete', 'success');
+                    if(force) {
+                        showToast('Cloud Sync Complete', 'success');
+                        const modal = document.getElementById('syncConfirmModal');
+                        modal.classList.remove('hidden'); modal.classList.add('flex');
+                        setTimeout(() => { modal.classList.remove('opacity-0'); modal.firstElementChild.classList.remove('scale-95'); }, 10);
+                    }
                 } else { showToast('Sync Error: Cloud configuration issue', 'error'); }
             } catch (err) { showToast('Sync Failed - Check Internet/URL', 'error'); } 
             finally { 
                 setTimeout(() => icon.classList.remove('fa-spin', 'text-white'), 600); 
                 showCloudLoader(false);
             }
+        }
+
+        async function confirmClearSyncedData() {
+            closeSyncConfirmModal();
+            const dbInstance = await initDB();
+            dbInstance.transaction(['transactions'], 'readwrite').objectStore('transactions').clear();
+            showToast('Local storage cleared. History remains visible.', 'success');
         }
 
         function switchView(newView) {
@@ -659,7 +718,6 @@
                 if(!state.searchQuery) return true; 
                 const q = state.searchQuery.toLowerCase(); 
                 
-                // Allow searching by exact YYYY-MM-DD or formatted "May 31" strings
                 const formattedDate = new Date(t.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}).toLowerCase();
                 
                 return t.reason.toLowerCase().includes(q) || 
@@ -721,6 +779,15 @@
         }
 
         window.onload = loadInitialData;
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
