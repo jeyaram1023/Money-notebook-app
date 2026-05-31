@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Money Pro Analytics</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #030303; color: #e2e8f0; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+        ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
+        .bento-card:hover { box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+
+        @keyframes navSlideUp { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .nav-container { animation: navSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .nav-active .nav-bg { background-color: rgba(255,255,255,0.1); transform: scale(1.1); }
+        .nav-active span { color: #fff; font-weight: 700; }
+        
+        select:focus { box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.3); border-color: rgba(168, 85, 247, 0.8) !important; }
+        option { background: #050505; color: #e2e8f0; font-weight: 400; }
+
+        @keyframes shine { to { background-position: 200% center; } }
+        .text-shine { background: linear-gradient(to right, #c084fc, #f472b6, #60a5fa, #c084fc); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; }
+        @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+        .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
+    </style>
+</head>
+<body class="selection:bg-purple-500/30 text-[15px] relative overflow-x-hidden">
+
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
+        <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-pink-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
+    </div>
+
+    <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
+        <div class="max-w-3xl mx-auto px-5 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 via-pink-500 to-rose-500 flex items-center justify-center text-white font-extrabold text-lg shadow-lg">
+                    <i class="fa-solid fa-chart-pie text-sm"></i>
+                </div>
+                <h1 class="text-xl font-extrabold tracking-tight text-shine">Analytics Pro</h1>
+            </div>
+            <a href="index.html" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-90" title="Exit Analytics">
+                <i class="fa-solid fa-xmark"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-5 pt-6 pb-32">
+        
+        <div class="bento-card p-5 mb-6 relative overflow-hidden" style="animation-delay: 0.05s">
+            <h2 class="text-sm font-extrabold mb-4 text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-filter"></i> Insight Filters
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <select id="filterYear" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
+                    <option value="all">All Years</option>
+                </select>
+                <select id="filterMonth" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
+                    <option value="all">All Months</option>
+                    <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+                    <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+                    <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+                    <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                </select>
+                <select id="filterUser" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
+                    <option value="all">All Users</option>
+                </select>
+                <select id="filterCategory" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bento-card p-5 hover:-translate-y-1 text-center" style="animation-delay: 0.1s">
+                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-wallet text-sm"></i></div>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Total Received</p>
+                <p class="text-2xl font-extrabold text-white" id="kpi-income">₹0</p>
+            </div>
+            <div class="bento-card p-5 hover:-translate-y-1 text-center" style="animation-delay: 0.15s">
+                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400"><i class="fa-solid fa-cart-shopping text-sm"></i></div>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Total Spent</p>
+                <p class="text-2xl font-extrabold text-white" id="kpi-expense">₹0</p>
+            </div>
+            <div class="bento-card p-5 hover:-translate-y-1 text-center" style="animation-delay: 0.2s">
+                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-piggy-bank text-sm"></i></div>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Vault / Savings</p>
+                <p class="text-2xl font-extrabold text-white" id="kpi-savings">₹0</p>
+            </div>
+            <div class="bento-card p-5 hover:-translate-y-1 text-center" style="animation-delay: 0.25s">
+                <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400"><i class="fa-solid fa-scale-balanced text-sm"></i></div>
+                <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Net Position</p>
+                <p class="text-2xl font-extrabold text-white" id="kpi-net">₹0</p>
+            </div>
+        </div>
+
+        <div class="bento-card p-6 mb-6 hover:-translate-y-1" style="animation-delay: 0.3s">
+            <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-chart-line text-blue-400"></i> Temporal Trends</h3>
+            <div class="h-64 relative w-full"><canvas id="lineChart"></canvas></div>
+        </div>
+
+        <div class="bento-card p-6 mb-6 hover:-translate-y-1" style="animation-delay: 0.35s">
+            <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-chart-pie text-pink-400"></i> Spending Distribution</h3>
+            <div class="h-64 relative w-full flex items-center justify-center">
+                <canvas id="pieChart"></canvas>
+                <div id="noDataPie" class="absolute hidden text-slate-500 font-semibold text-sm">No expenses to display</div>
+            </div>
+        </div>
+
+        <div class="bento-card p-6 mb-8 hover:-translate-y-1" style="animation-delay: 0.4s">
+            <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-users text-indigo-400"></i> User Financial Position</h3>
+            <div id="userBreakdownContainer" class="space-y-3">
+                </div>
+        </div>
+
+    </main>
+
+    <nav class="nav-container fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#121212]/80 backdrop-blur-3xl border border-white/10 rounded-[28px] px-2 py-2 w-[90%] max-w-[360px] flex justify-between shadow-2xl pb-safe-nav">
+        <a href="index.html?view=savings" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
+            <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
+            <i class="fa-solid fa-piggy-bank text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Savings</span>
+        </a>
+        <a href="index.html?view=transactions" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
+            <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
+            <i class="fa-solid fa-money-bill-transfer text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Transact</span>
+        </a>
+        <button class="nav-active text-purple-400 flex flex-col items-center gap-1 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
+            <div class="nav-bg bg-white/10 absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-100 opacity-100"></div>
+            <i class="fa-solid fa-chart-simple text-xl relative z-10 mb-0.5"></i>
+            <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Analytics</span>
+        </button>
+    </nav>
+
+    <script>
+        // --- State Management ---
+        let state = { users: [], transactions: [] };
+        
+        // Chart Instances
+        let pieChartInstance = null;
+        let lineChartInstance = null;
+
+        // --- Database Connection ---
+        const DB_NAME = 'MoneyNotebookData'; 
+        const DB_VERSION = 1; 
+        let db;
+
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onsuccess = (e) => { db = e.target.result; resolve(db); };
+                request.onerror = (e) => reject(e.target.error);
+                request.onupgradeneeded = (e) => {
+                    // Just in case graph is loaded absolutely first, init structure
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('users')) database.createObjectStore('users', { keyPath: 'id' });
+                    if (!database.objectStoreNames.contains('transactions')) database.createObjectStore('transactions', { keyPath: 'id' });
+                };
+            });
+        };
+
+        const dbStore = (storeName) => {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction([storeName], 'readonly');
+                const request = tx.objectStore(storeName).getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        };
+
+        // --- Initialization ---
+        async function loadAnalyticsData() {
+            try {
+                await initDB();
+                state.users = await dbStore('users');
+                state.transactions = await dbStore('transactions');
+                
+                populateFilters();
+                updateDashboard();
+            } catch (e) {
+                console.error("DB Error in Analytics", e);
+            }
+        }
+
+        // --- Filters Logic ---
+        function populateFilters() {
+            // Populate Users
+            const userFilter = document.getElementById('filterUser');
+            state.users.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.id; opt.innerText = u.name;
+                userFilter.appendChild(opt);
+            });
+
+            // Populate Years & Categories dynamically based on Data
+            const years = new Set();
+            const categories = new Set();
+
+            state.transactions.forEach(t => {
+                years.add(t.date.split('-')[0]);
+                categories.add(t.category);
+            });
+
+            const yearFilter = document.getElementById('filterYear');
+            Array.from(years).sort().reverse().forEach(y => {
+                const opt = document.createElement('option');
+                opt.value = y; opt.innerText = y;
+                yearFilter.appendChild(opt);
+            });
+            // Default to current year if exists
+            const currentYear = new Date().getFullYear().toString();
+            if(years.has(currentYear)) yearFilter.value = currentYear;
+
+            const categoryFilter = document.getElementById('filterCategory');
+            Array.from(categories).sort().forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.innerText = c;
+                categoryFilter.appendChild(opt);
+            });
+
+            // Attach listeners
+            ['filterYear', 'filterMonth', 'filterUser', 'filterCategory'].forEach(id => {
+                document.getElementById(id).addEventListener('change', updateDashboard);
+            });
+        }
+
+        // --- Data Crunching & Dashboard Update ---
+        function updateDashboard() {
+            const fYear = document.getElementById('filterYear').value;
+            const fMonth = document.getElementById('filterMonth').value;
+            const fUser = document.getElementById('filterUser').value;
+            const fCat = document.getElementById('filterCategory').value;
+
+            // 1. Filter Transactions
+            const filteredTxs = state.transactions.filter(t => {
+                const [y, m] = t.date.split('-');
+                if(fYear !== 'all' && y !== fYear) return false;
+                if(fMonth !== 'all' && m !== fMonth) return false;
+                if(fUser !== 'all' && t.userId !== fUser) return false;
+                if(fCat !== 'all' && t.category !== fCat) return false;
+                return true;
+            });
+
+            // 2. Calculate KPIs
+            let tInc = 0, tExp = 0, tSav = 0;
+            
+            // Note: Base savings from user setup must be accounted for if 'All Time' is effectively viewed
+            let baseSavings = 0;
+            state.users.forEach(u => {
+                // If specific user filtered, only add their base savings
+                if(fUser === 'all' || fUser === u.id) {
+                    baseSavings += u.initialSavings || 0;
+                }
+            });
+
+            // If a specific timeframe/category is filtered, baseSavings shouldn't be blindly added 
+            // unless we only care about total current portfolio. For simplicity in timeframe analytics,
+            // we will only show savings deposited *during* the filtered period.
+            const isGlobalView = (fYear === 'all' && fMonth === 'all' && fCat === 'all');
+
+            filteredTxs.forEach(t => {
+                if(t.type === 'income') tInc += t.amount;
+                if(t.type === 'expense') tExp += t.amount;
+                if(t.type === 'savings_deposit') tSav += t.amount;
+            });
+
+            const displaySav = isGlobalView ? (tSav + baseSavings) : tSav;
+            const netPos = tInc - tExp;
+
+            // Update DOM KPIs
+            document.getElementById('kpi-income').innerText = `₹${tInc.toLocaleString()}`;
+            document.getElementById('kpi-expense').innerText = `₹${tExp.toLocaleString()}`;
+            document.getElementById('kpi-savings').innerText = `₹${displaySav.toLocaleString()}`;
+            document.getElementById('kpi-net').innerText = `${netPos >= 0 ? '' : '-'}₹${Math.abs(netPos).toLocaleString()}`;
+            document.getElementById('kpi-net').className = `text-2xl font-extrabold ${netPos >= 0 ? 'text-emerald-400' : 'text-rose-400'}`;
+
+            // 3. Render User Breakdown Grid
+            renderUserBreakdown(filteredTxs, isGlobalView);
+
+            // 4. Render Charts
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = 'Inter';
+            renderPieChart(filteredTxs);
+            renderLineChart(filteredTxs, fMonth !== 'all');
+        }
+
+        // --- Component Renderers ---
+        function renderUserBreakdown(txs, isGlobalView) {
+            const container = document.getElementById('userBreakdownContainer');
+            if(state.users.length === 0) {
+                container.innerHTML = `<div class="text-sm text-slate-500 text-center py-4">No users found.</div>`;
+                return;
+            }
+
+            let html = '';
+            // Determine active user list based on filter
+            const fUser = document.getElementById('filterUser').value;
+            const activeUsers = fUser === 'all' ? state.users : state.users.filter(u => u.id === fUser);
+
+            activeUsers.forEach(u => {
+                let uInc = 0, uExp = 0, uSav = 0;
+                txs.forEach(t => {
+                    if(t.userId === u.id) {
+                        if(t.type === 'income') uInc += t.amount;
+                        if(t.type === 'expense') uExp += t.amount;
+                        if(t.type === 'savings_deposit') uSav += t.amount;
+                    }
+                });
+                
+                const userDisplaySav = isGlobalView ? (uSav + u.initialSavings) : uSav;
+                const balance = uInc - uExp;
+
+                html += `
+                <div class="bg-black/30 border border-white/5 rounded-2xl p-4 flex flex-col md:flex-row justify-between md:items-center gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center"><i class="fa-solid fa-user"></i></div>
+                        <div>
+                            <p class="font-bold text-white">${u.name}</p>
+                            <p class="text-[11px] text-slate-500 font-medium">Net Bal: <span class="${balance>=0?'text-emerald-400':'text-rose-400'}">${balance>=0?'+':'-'}₹${Math.abs(balance).toLocaleString()}</span></p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-4 text-right">
+                        <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Sent</span><span class="text-rose-400 text-sm font-bold">₹${uExp.toLocaleString()}</span></div>
+                        <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Recv</span><span class="text-blue-400 text-sm font-bold">₹${uInc.toLocaleString()}</span></div>
+                        <div><span class="block text-[10px] text-slate-500 uppercase tracking-wide">Vault</span><span class="text-emerald-400 text-sm font-bold">₹${userDisplaySav.toLocaleString()}</span></div>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderPieChart(txs) {
+            const catSpends = {};
+            txs.forEach(t => {
+                if(t.type === 'expense') {
+                    catSpends[t.category] = (catSpends[t.category] || 0) + t.amount;
+                }
+            });
+
+            const pLabels = Object.keys(catSpends);
+            const pData = Object.values(catSpends);
+            const ctx = document.getElementById('pieChart').getContext('2d');
+            const noDataLabel = document.getElementById('noDataPie');
+
+            if(pieChartInstance) pieChartInstance.destroy();
+
+            if(pData.length === 0) {
+                noDataLabel.classList.remove('hidden');
+            } else {
+                noDataLabel.classList.add('hidden');
+                pieChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { 
+                        labels: pLabels, 
+                        datasets: [{ 
+                            data: pData, 
+                            backgroundColor: ['#f472b6','#c084fc','#60a5fa','#34d399','#fbbf24','#f87171','#818cf8'], 
+                            borderWidth: 0,
+                            hoverOffset: 4
+                        }] 
+                    },
+                    options: { 
+                        responsive: true, maintainAspectRatio: false, cutout: '70%', 
+                        plugins: { 
+                            legend: { position: 'right', labels: { boxWidth: 10, usePointStyle: true, font: {size: 11, weight: '600'} } },
+                            tooltip: { callbacks: { label: function(context) { return ' ₹' + context.raw.toLocaleString(); } } }
+                        } 
+                    }
+                });
+            }
+        }
+
+        function renderLineChart(txs, isMonthlyView) {
+            // Group data temporarily based on view
+            // If viewing specific month, group by Day (DD). Otherwise, group by YYYY-MM
+            const temporalData = {};
+            
+            txs.forEach(t => {
+                const dateKey = isMonthlyView ? t.date.split('-')[2] : t.date.substring(0,7);
+                if(!temporalData[dateKey]) temporalData[dateKey] = { inc: 0, exp: 0, sav: 0 };
+                
+                if(t.type === 'income') temporalData[dateKey].inc += t.amount;
+                if(t.type === 'expense') temporalData[dateKey].exp += t.amount;
+                if(t.type === 'savings_deposit') temporalData[dateKey].sav += t.amount;
+            });
+
+            // Sort dates chronologically
+            const sortedKeys = Object.keys(temporalData).sort();
+            
+            // Format labels
+            const labels = sortedKeys.map(k => {
+                if(isMonthlyView) return `Day ${k}`;
+                const [y, m] = k.split('-');
+                const date = new Date(y, parseInt(m)-1);
+                return date.toLocaleString('default', { month: 'short', year: '2-digit' });
+            });
+
+            const dataInc = sortedKeys.map(k => temporalData[k].inc);
+            const dataExp = sortedKeys.map(k => temporalData[k].exp);
+
+            const ctx = document.getElementById('lineChart').getContext('2d');
+            if(lineChartInstance) lineChartInstance.destroy();
+
+            lineChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Received', data: dataInc, borderColor: '#60a5fa', backgroundColor: 'rgba(96, 165, 250, 0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#030303' },
+                        { label: 'Spent', data: dataExp, borderColor: '#fb7185', backgroundColor: 'rgba(251, 113, 133, 0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#030303' }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: { 
+                        x: { grid: { display: false, drawBorder: false } }, 
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true } 
+                    },
+                    plugins: { 
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8, font: {size: 11, weight:'bold'} } }
+                    }
+                }
+            });
+        }
+
+        // --- Start up ---
+        window.onload = loadAnalyticsData;
+    </script>
+</body>
+</html>
