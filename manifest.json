@@ -1,6 +1,6 @@
 {
-  "name": "Money Notebook Pro",
-  "short_name": "Money Pro",
+  "name": "Money Notebook",
+  "short_name": "Money Note",
   "description": "A privacy-first, local-syncing financial tracker.",
   "start_url": "/index.html",
   "display": "standalone",
@@ -9,13 +9,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "iconsicon-192x192",
+      "src": "https://uploads.onecompiler.io/43zn28up5/44qw7bwzc/iconsicon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "iconsicon-512x512",
+      "src": "https://uploads.onecompiler.io/43zn28up5/44qw7bwzc/iconsicon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
