@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Money Pro Analytics</title>
 
+    <!-- PWA Manifest & App Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#030303">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Money Pro">
+    <link rel="apple-touch-icon" href="https://uploads.onecompiler.io/42q5e2pr5/433anht9u/1000084234.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -41,11 +49,13 @@
 </head>
 <body class="selection:bg-purple-500/30 text-[15px] relative overflow-x-hidden">
 
+    <!-- Ambient Animated Background -->
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
         <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-pink-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
     </div>
 
+    <!-- Cloud Loader -->
     <div id="cloudLoader" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
         <div class="bg-[#121212] border border-white/10 p-5 rounded-2xl flex items-center gap-4 shadow-2xl">
             <i class="fa-solid fa-circle-notch fa-spin text-purple-500 text-2xl"></i>
@@ -69,6 +79,7 @@
 
     <main class="max-w-3xl mx-auto px-5 pt-6 pb-32">
         
+        <!-- Interactive Data Filters -->
         <div class="bento-card p-5 mb-6 relative overflow-hidden" style="animation-delay: 0.05s">
             <h2 class="text-sm font-extrabold mb-4 text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 <i class="fa-solid fa-filter"></i> Insight Filters
@@ -98,6 +109,7 @@
             <button onclick="clearFilters()" class="mt-3 text-[11px] font-bold text-pink-400 hover:text-pink-300 uppercase tracking-wider transition-colors"><i class="fa-solid fa-rotate-left"></i> Reset Range</button>
         </div>
 
+        <!-- Global KPIs -->
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div class="bento-card p-5 hover:-translate-y-1 text-center" style="animation-delay: 0.1s">
                 <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-wallet text-sm"></i></div>
@@ -121,11 +133,13 @@
             </div>
         </div>
 
+        <!-- Trend Line Chart -->
         <div class="bento-card p-6 mb-6 hover:-translate-y-1" style="animation-delay: 0.3s">
             <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-chart-line text-blue-400"></i> Temporal Trends</h3>
             <div class="h-64 relative w-full"><canvas id="lineChart"></canvas></div>
         </div>
 
+        <!-- Category Doughnut Chart -->
         <div class="bento-card p-6 mb-6 hover:-translate-y-1" style="animation-delay: 0.35s">
             <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-chart-pie text-pink-400"></i> Spending Distribution</h3>
             <div class="h-64 relative w-full flex items-center justify-center">
@@ -134,10 +148,12 @@
             </div>
         </div>
 
+        <!-- User Specific Financial Positions -->
         <div class="bento-card p-6 mb-8 hover:-translate-y-1" style="animation-delay: 0.4s">
             <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-users text-indigo-400"></i> User Financial Position</h3>
             <div id="userBreakdownContainer" class="space-y-3">
-                </div>
+                <!-- User Cards Populated by JS -->
+            </div>
         </div>
 
     </main>
@@ -200,17 +216,15 @@
             try {
                 await initDB();
                 
-                // Load Cache First
                 state.users = await dbStore('users');
                 state.transactions = await dbStore('transactions');
                 
-                // Cloud Sync
                 if(state.sheetUrl) {
                     showCloudLoader(true);
                     try {
                         const response = await fetch(state.sheetUrl, { 
                             method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                            body: JSON.stringify({}) // Empty payload forces Read Only
+                            body: JSON.stringify({})
                         });
                         const result = await response.json();
                         if (result.status === 'success') {
@@ -236,7 +250,6 @@
             const categoryFilter = document.getElementById('filterCategory');
             Array.from(categories).sort().forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; categoryFilter.appendChild(opt); });
 
-            // Ensure start and end months handle updates properly
             ['filterStartMonth', 'filterEndMonth', 'filterUser', 'filterCategory'].forEach(id => {
                 document.getElementById(id).addEventListener('change', updateDashboard);
             });
@@ -251,14 +264,13 @@
         }
 
         function updateDashboard() {
-            const fStart = document.getElementById('filterStartMonth').value; // format: "YYYY-MM"
-            const fEnd = document.getElementById('filterEndMonth').value;     // format: "YYYY-MM"
+            const fStart = document.getElementById('filterStartMonth').value; 
+            const fEnd = document.getElementById('filterEndMonth').value;     
             const fUser = document.getElementById('filterUser').value;
             const fCat = document.getElementById('filterCategory').value;
 
-            // 1. Filter Transactions based on Date Range
             const filteredTxs = state.transactions.filter(t => {
-                const txMonth = t.date.substring(0, 7); // Extracts "YYYY-MM" from "YYYY-MM-DD"
+                const txMonth = t.date.substring(0, 7); 
                 
                 if(fStart && txMonth < fStart) return false;
                 if(fEnd && txMonth > fEnd) return false;
@@ -267,9 +279,8 @@
                 return true;
             });
 
-            // 2. Calculate KPIs
             let tInc = 0, tExp = 0, tSav = 0;
-            const isGlobalView = (!fStart && !fEnd && fCat === 'all'); // If isolated timeline/category, only show raw sums.
+            const isGlobalView = (!fStart && !fEnd && fCat === 'all'); 
 
             let baseSavings = 0;
             state.users.forEach(u => {
@@ -298,7 +309,6 @@
             Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = 'Inter';
             renderPieChart(filteredTxs);
             
-            // If they pick the same start and end month, show daily breakdown. Otherwise show monthly.
             const showDaily = (fStart && fEnd && fStart === fEnd);
             renderLineChart(filteredTxs, showDaily);
         }
@@ -321,7 +331,6 @@
                     }
                 });
                 
-                // Base numbers if not filtered by date/category
                 const baseInc = isGlobalView ? (u.runningIncome || 0) : 0;
                 const baseExp = isGlobalView ? (u.runningExpense || 0) : 0;
 
@@ -414,6 +423,15 @@
         }
 
         window.onload = loadAnalyticsData;
+
+        // --- PWA Service Worker Registration ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
