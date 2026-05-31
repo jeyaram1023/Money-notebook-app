@@ -1,776 +1,521 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Money Notebook Pro</title>
-  
-  <!-- Premium Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-  
-  <!-- Chart & Confetti -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Money Notebook Pro</title>
 
-  <style>
-    /* --- Core Variables & Reset --- */
-    :root {
-      --bg-color: #050505;
-      --surface: rgba(255, 255, 255, 0.03);
-      --surface-border: rgba(255, 255, 255, 0.08);
-      --text-main: #ffffff;
-      --text-muted: #8a8f98;
-      --accent: #00e5ff;
-      --accent-glow: rgba(0, 229, 255, 0.3);
-      --success: #00ff88;
-      --success-glow: rgba(0, 255, 136, 0.2);
-      --danger: #ff3366;
-      --danger-glow: rgba(255, 51, 102, 0.2);
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Outfit', sans-serif;
-      background: radial-gradient(circle at top left, #120e2a, var(--bg-color) 40%),
-                  radial-gradient(circle at bottom right, #091221, var(--bg-color) 40%);
-      color: var(--text-main);
-      min-height: 100vh;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* --- Animations --- */
-    @keyframes slideUpFade {
-      0% { opacity: 0; transform: translateY(30px); }
-      100% { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.95); }
-      100% { opacity: 1; transform: scale(1); }
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
-    @keyframes pulseGlow {
-      0%, 100% { box-shadow: 0 0 15px var(--danger-glow); }
-      50% { box-shadow: 0 0 25px rgba(255, 51, 102, 0.5); }
-    }
-
-    /* --- Layout & Glassmorphism --- */
-    .container {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    .glass-card {
-      background: var(--surface);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--surface-border);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      animation: popIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    /* --- Header & Hero --- */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 30px;
-      animation: slideUpFade 0.5s ease-out;
-    }
-    .logo {
-      font-size: 24px;
-      font-weight: 700;
-      background: linear-gradient(90deg, #fff, var(--text-muted));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
-    }
-
-    .hero-balance {
-      text-align: center;
-      margin-bottom: 40px;
-      animation: slideUpFade 0.7s ease-out forwards;
-    }
-    .hero-balance p {
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    .hero-balance h1 {
-      font-size: 56px;
-      font-weight: 700;
-      text-shadow: 0 4px 20px rgba(255,255,255,0.1);
-      letter-spacing: -2px;
-    }
-
-    /* --- Progress Widgets --- */
-    .limits-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 30px;
-    }
-    .limit-widget {
-      display: none; /* Hidden if 0 */
-      flex-direction: column;
-      gap: 8px;
-    }
-    .limit-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-    .limit-header span.val { color: var(--text-main); }
-    .progress-track {
-      height: 8px;
-      background: rgba(0,0,0,0.4);
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-    }
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), #00b4d8);
-      width: 0%;
-      border-radius: 8px;
-      transition: width 1s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
-      box-shadow: 0 0 10px var(--accent-glow);
-    }
-    .progress-fill.danger {
-      background: linear-gradient(90deg, #ff416c, var(--danger));
-      box-shadow: 0 0 15px var(--danger-glow);
-    }
-    .limit-warning {
-      color: var(--danger);
-      font-size: 12px;
-      font-weight: 600;
-      display: none;
-      animation: popIn 0.3s ease;
-    }
-
-    /* --- Input Form --- */
-    .input-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-    @media(max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    .input-group { position: relative; }
-    .input-group input, .input-group select {
-      width: 100%;
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--surface-border);
-      padding: 16px 16px 16px 45px;
-      border-radius: 12px;
-      color: white;
-      font-family: inherit;
-      font-size: 15px;
-      transition: all 0.3s ease;
-    }
-    .input-group input:focus, .input-group select:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-glow);
-      background: rgba(0,0,0,0.4);
-    }
-    .input-group i {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 18px;
-      pointer-events: none;
-    }
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    .action-buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .btn {
-      padding: 16px;
-      border: none;
-      border-radius: 12px;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 16px;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .btn-spend {
-      background: rgba(255, 51, 102, 0.1);
-      color: var(--danger);
-      border: 1px solid rgba(255, 51, 102, 0.2);
-    }
-    .btn-spend:hover {
-      background: var(--danger);
-      color: white;
-      box-shadow: 0 8px 20px var(--danger-glow);
-      transform: translateY(-2px);
-    }
-    .btn-reserve {
-      background: rgba(0, 255, 136, 0.1);
-      color: var(--success);
-      border: 1px solid rgba(0, 255, 136, 0.2);
-    }
-    .btn-reserve:hover {
-      background: var(--success);
-      color: #000;
-      box-shadow: 0 8px 20px var(--success-glow);
-      transform: translateY(-2px);
-    }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    /* --- Transactions --- */
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin: 40px 0 20px;
-    }
-    .toolbar h3 { font-size: 20px; font-weight: 600; }
-    .search-box {
-      position: relative;
-      width: 200px;
-    }
-    .search-box input {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      padding: 8px 16px 8px 36px;
-      border-radius: 20px;
-      color: white;
-      font-size: 13px;
-      transition: all 0.3s;
-    }
-    .search-box input:focus { width: 250px; border-color: var(--accent); outline: none; }
-    .search-box i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--text-muted); }
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    .day-group {
-      margin-bottom: 24px;
-      animation: slideUpFade 0.5s ease-out backwards;
-    }
-    .day-header {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 600;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-      padding: 0 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .tx-item {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid var(--surface-border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.3s ease;
-    }
-    .tx-item:hover {
-      background: rgba(255,255,255,0.05);
-      transform: translateX(5px);
-    }
-    .tx-left { display: flex; align-items: center; gap: 16px; }
-    .tx-icon {
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      display: flex; justify-content: center; align-items: center;
-      font-size: 20px;
-    }
-    .tx-spend .tx-icon { background: rgba(255, 51, 102, 0.1); }
-    .tx-reserve .tx-icon { background: rgba(0, 255, 136, 0.1); }
-    
-    .tx-meta h4 { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
-    .tx-meta p { font-size: 12px; color: var(--text-muted); }
-    
-    .tx-right { display: flex; align-items: center; gap: 15px; }
-    .tx-amount { font-size: 16px; font-weight: 700; }
-    .tx-spend .tx-amount { color: var(--danger); }
-    .tx-reserve .tx-amount { color: var(--success); }
-    
-    .btn-delete {
-      background: none; border: none;
-      color: var(--text-muted);
-      cursor: pointer;
-      opacity: 0;
-      transition: all 0.3s;
-      padding: 8px;
-    }
-    .tx-item:hover .btn-delete { opacity: 1; color: var(--danger); }
-    
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
-    }
-    .empty-state div { font-size: 48px; margin-bottom: 15px; opacity: 0.5; animation: float 6s infinite ease-in-out; }
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #030303; color: #e2e8f0; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
+        ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
+        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
+        input[type="date"]:focus::-webkit-calendar-picker-indicator { opacity: 1; }
 
-    /* --- Chart Area --- */
-    .chart-wrapper {
-      margin-top: 40px;
-      height: 300px;
-      display: none;
-    }
+        @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+        .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
+        .bento-card:hover { box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
 
-    /* --- Controls & Modals --- */
-    .icon-btn {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      color: white;
-      width: 40px; height: 40px;
-      border-radius: 12px;
-      display: flex; justify-content: center; align-items: center;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .icon-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.05); }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .view-section { display: none; animation: fadeInScale 0.3s ease-out forwards; }
+        .view-section.active { display: block; }
+        #view-setup { display: none; }
+        #view-setup.active { display: flex; }
 
-    .modal-overlay {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(8px);
-      z-index: 2000;
-      display: none;
-      justify-content: center; align-items: center;
-      animation: fadeIn 0.3s;
-    }
-    .modal-content {
-      width: 90%; max-width: 400px;
-      border: 1px solid rgba(255,255,255,0.1);
-    }
-    .modal-content h2 { margin-bottom: 20px; font-size: 20px; }
-    
-    /* --- Toasts --- */
-    .toast-container {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; gap: 10px; z-index: 9999;
-    }
-    .toast {
-      background: rgba(20, 20, 25, 0.95);
-      backdrop-filter: blur(10px);
-      color: #fff;
-      padding: 14px 24px;
-      border-radius: 100px;
-      font-size: 14px; font-weight: 500;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      border: 1px solid var(--surface-border);
-      animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .toast.success { border-left: 4px solid var(--success); }
-    .toast.error { border-left: 4px solid var(--danger); }
-    .toast.fade-out { animation: popIn 0.3s reverse forwards; opacity: 0;}
+        @keyframes toastFade { 0% { opacity: 0; transform: translateY(-20px) translateX(-50%) scale(0.9); } 10% { opacity: 1; transform: translateY(0) translateX(-50%) scale(1); } 90% { opacity: 1; transform: translateY(0) translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateY(-20px) translateX(-50%) scale(0.9); } }
+        .toast-msg { animation: toastFade 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-    @keyframes fadeIn { from {opacity: 0;} to {opacity: 1;} }
-  </style>
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
+        .tx-anim { animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+
+        @keyframes navSlideUp { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .nav-container { animation: navSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .nav-active .nav-bg { background-color: rgba(255,255,255,0.1); transform: scale(1.1); }
+        .nav-active span { color: #fff; font-weight: 700; }
+        
+        input:focus, select:focus { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); border-color: rgba(59, 130, 246, 0.8) !important; }
+        optgroup { background: #0f172a; color: #94a3b8; font-weight: 600; font-style: normal; }
+        option { background: #050505; color: #e2e8f0; font-weight: 400; }
+
+        @keyframes shine { to { background-position: 200% center; } }
+        .text-shine { background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; }
+        @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+        .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
+    </style>
 </head>
-<body>
+<body class="selection:bg-blue-500/30 text-[15px] relative overflow-x-hidden">
 
-  <!-- Toast Container -->
-  <div id="toastContainer" class="toast-container"></div>
-
-  <!-- Settings Modal -->
-  <div id="settingsModal" class="modal-overlay">
-    <div class="glass-card modal-content">
-      <h2>⚙️ Limits & Alerts</h2>
-      
-      <div class="input-grid" style="grid-template-columns: 1fr; gap: 12px; margin-bottom: 24px;">
-        <div class="input-group">
-          <i>📅</i>
-          <input type="number" id="modalMonthlyLimit" placeholder="Monthly Limit (₹)" min="0">
-        </div>
-        <div class="input-group">
-          <i>☀️</i>
-          <input type="number" id="modalDailyLimit" placeholder="Daily Limit (₹)" min="0">
-        </div>
-        <div class="input-group">
-          <i>🔔</i>
-          <input type="time" id="modalReminderTime" title="Daily Notification Time">
-        </div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn" style="background: rgba(255,255,255,0.05); color: white;" onclick="closeSettings()">Cancel</button>
-        <button class="btn" style="background: var(--text-main); color: #000;" onclick="saveSettings()">Save</button>
-      </div>
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
+        <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
     </div>
-  </div>
 
-  <div class="container">
-    
-    <header>
-      <div class="logo">MoneyNotebook.</div>
-      <div style="display: flex; gap: 10px;">
-        <button class="icon-btn" onclick="scrollToGraph()" title="View Chart">📊</button>
-        <button class="icon-btn" onclick="openSettings()" title="Settings">⚙️</button>
-      </div>
+    <div id="toastContainer" class="fixed top-safe pt-4 left-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-[90%] md:max-w-sm"></div>
+
+    <div id="view-setup" class="min-h-screen items-center justify-center p-5 relative z-50">
+        <div class="bento-card w-full max-w-md p-8 relative overflow-hidden hover:translate-y-0">
+            <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none"></div>
+            <div class="flex justify-center mb-6 relative z-10">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.4)]">
+                    <i class="fa-solid fa-rocket text-3xl text-white"></i>
+                </div>
+            </div>
+            <h1 class="text-2xl font-extrabold text-center mb-2 tracking-tight text-white relative z-10">Welcome to Money Pro</h1>
+            <p class="text-slate-400 text-center text-sm mb-6 relative z-10">Configure your app securely. All preferences are stored entirely locally.</p>
+            <form id="setupForm" class="space-y-5 relative z-10">
+                <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-cloud text-blue-400"></i> Cloud Database (Optional)</h3>
+                    <input id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
+                </div>
+                <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
+                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-brands fa-google-pay text-emerald-400"></i> Local UPI Setup (Optional)</h3>
+                    <div class="space-y-3">
+                        <input id="setupUpiId" type="text" placeholder="username@upi" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
+                        <select id="setupPaymentApp" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none appearance-none transition-all cursor-pointer">
+                            <option value="generic">Default UPI App</option>
+                            <option value="gpay">Google Pay (GPay)</option>
+                            <option value="phonepe">PhonePe</option>
+                            <option value="paytm">Paytm</option>
+                            <option value="bhim">BHIM</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-white text-black hover:bg-slate-200 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-lg">Save Settings & Launch</button>
+                <div class="relative py-1 flex items-center justify-center">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div>
+                    <span class="relative bg-[#030303] px-4 text-xs text-slate-500 font-semibold uppercase tracking-wider">OR</span>
+                </div>
+                <button type="button" onclick="closeSetup()" class="w-full bg-transparent hover:bg-white/5 text-slate-400 font-semibold py-3 rounded-2xl transition-all active:scale-95 text-sm flex justify-center items-center gap-2 border border-transparent hover:border-white/10">Skip Setup for Now</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" style="display: none;">
+    <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
+        <div class="max-w-2xl mx-auto px-5 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+                    <img src="https://uploads.onecompiler.io/42q5e2pr5/433anht9u/1000084234.png" alt="Money Note Book Logo" class="w-full h-full object-cover" />
+                </div>
+                
+                <h1 class="text-xl font-extrabold tracking-tight text-shine">Money Note Book</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="syncData(true)" id="syncBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/30 transition-all active:scale-90" title="Force Sync">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <button onclick="switchView('settings')" id="settingsNavBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-90" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </div>
     </header>
 
-    <!-- Animated Hero Balance -->
-    <div class="hero-balance">
-      <p>Total Balance</p>
-      <h1 id="totalBalanceDisplay">₹0</h1>
-    </div>
-
-    <!-- Glowing Progress Limits -->
-    <div class="limits-grid">
-      <div id="monthlyProgressContainer" class="glass-card limit-widget">
-        <div class="limit-header">
-          <span>Monthly</span>
-          <span class="val" id="monthlyText">₹0 / ₹0</span>
-        </div>
-        <div class="progress-track"><div id="monthlyBar" class="progress-fill"></div></div>
-        <div id="monthlyWarning" class="limit-warning">⚠️ Over by ₹<span id="monthlyOverAmt"></span></div>
-      </div>
-      
-      <div id="dailyProgressContainer" class="glass-card limit-widget">
-        <div class="limit-header">
-          <span>Daily</span>
-          <span class="val" id="dailyText">₹0 / ₹0</span>
-        </div>
-        <div class="progress-track"><div id="dailyBar" class="progress-fill"></div></div>
-        <div id="dailyWarning" class="limit-warning">⚠️ Over by ₹<span id="dailyOverAmt"></span></div>
-      </div>
-    </div>
-
-    <!-- Action Form -->
-    <div class="glass-card">
-      <div class="input-grid">
-        <div class="input-group">
-          <i>₹</i>
-          <input type="number" id="amount" placeholder="Amount" min="0" step="any">
-        </div>
-        <div class="input-group">
-          <i>📝</i>
-          <input type="text" id="reason" placeholder="What was this for?">
-        </div>
-        <div class="input-group">
-          <i>🏷️</i>
-          <select id="category">
-            <option value="nil">Select Category...</option>
-            <option value="Food">Food</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Bills">Bills</option>
-            <option value="Savings">Savings</option>
-            <option value="Travel">Travel</option>
-            <option value="Shopping">Shopping</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <i>📅</i>
-          <input type="date" id="date" style="color-scheme: dark;">
-        </div>
-      </div>
-      <div class="action-buttons">
-        <button id="spendBtn" class="btn btn-spend">↓ Spend</button>
-        <button id="reserveBtn" class="btn btn-reserve">↑ Reserve</button>
-      </div>
-    </div>
-
-    <!-- Chart -->
-    <div class="glass-card chart-wrapper" id="chartWrapper">
-      <canvas id="expenseChart"></canvas>
-    </div>
-
-    <!-- Transaction List Area -->
-    <div class="toolbar">
-      <h3>Recent Activity</h3>
-      <div class="search-box">
-        <i>🔍</i>
-        <input type="text" id="searchInput" placeholder="Search..." oninput="filterTransactions()">
-      </div>
-    </div>
-
-    <div id="months"></div>
-
-  </div>
-
-  <script>
-    // --- Configuration & Elements ---
-    const catMap = { 'Food':'🍔', 'Entertainment':'🎬', 'Bills':'🧾', 'Savings':'🏦', 'Travel':'✈️', 'Shopping':'🛍️', 'Other':'📦', 'nil':'✨' };
-    const els = {
-      amount: document.getElementById('amount'),
-      reason: document.getElementById('reason'),
-      category: document.getElementById('category'),
-      date: document.getElementById('date'),
-      search: document.getElementById('searchInput'),
-      list: document.getElementById('months'),
-      balance: document.getElementById('totalBalanceDisplay'),
-      chart: document.getElementById('chartWrapper'),
-      toast: document.getElementById('toastContainer')
-    };
-    const ctx = document.getElementById('expenseChart').getContext('2d');
-    let expenseChart, cachedTransactions = [], currentBalance = 0;
-
-    // Set default date
-    els.date.value = new Date().toISOString().split('T')[0];
-
-    // Settings
-    let currentMonthlyLimit = parseFloat(localStorage.getItem('mn_monthlyLimit')) || 0;
-    let currentDailyLimit = parseFloat(localStorage.getItem('mn_dailyLimit')) || 0;
-    let dailyReminderTime = localStorage.getItem('mn_reminderTime') || '';
-    let reminderIntervalId = null;
-
-    // --- Core Utilities ---
-    const showToast = (msg, type = 'info') => {
-      const t = document.createElement('div');
-      t.className = `toast ${type}`;
-      t.innerHTML = `${type==='success'?'✅':type==='error'?'⚠️':'ℹ️'} ${msg}`;
-      els.toast.appendChild(t);
-      setTimeout(() => { t.classList.add('fade-out'); setTimeout(()=>t.remove(), 300); }, 3000);
-    };
-
-    const animateValue = (obj, start, end, duration) => {
-      let startTimestamp = null;
-      const step = (timestamp) => {
-        if (!startTimestamp) startTimestamp = timestamp;
-        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        const current = progress * (end - start) + start;
-        obj.innerHTML = `₹${current.toLocaleString('en-IN', {maximumFractionDigits: 0})}`;
-        if (progress < 1) window.requestAnimationFrame(step);
-        else obj.innerHTML = `₹${end.toLocaleString('en-IN', {maximumFractionDigits: 2})}`; // final exact
-      };
-      window.requestAnimationFrame(step);
-    };
-
-    // --- DB Wrapper ---
-    const dbWrapper = {
-      dbName: 'MoneyNotebookMVP', version: 1, storeName: 'txs', db: null,
-      init: () => new Promise((res, rej) => {
-        const req = indexedDB.open(dbWrapper.dbName, dbWrapper.version);
-        req.onupgradeneeded = e => { if(!e.target.result.objectStoreNames.contains(dbWrapper.storeName)) e.target.result.createObjectStore(dbWrapper.storeName, { keyPath: 'id', autoIncrement: true }); };
-        req.onsuccess = e => { dbWrapper.db = e.target.result; res(); };
-        req.onerror = e => rej(e.target.error);
-      }),
-      getAll: () => new Promise((res, rej) => {
-        const req = dbWrapper.db.transaction([dbWrapper.storeName], 'readonly').objectStore(dbWrapper.storeName).getAll();
-        req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error);
-      }),
-      add: (data) => new Promise((res, rej) => {
-        const req = dbWrapper.db.transaction([dbWrapper.storeName], 'readwrite').objectStore(dbWrapper.storeName).add(data);
-        req.onsuccess = () => res(req.result); req.onerror = () => rej(req.error);
-      }),
-      delete: (id) => new Promise((res, rej) => {
-        const req = dbWrapper.db.transaction([dbWrapper.storeName], 'readwrite').objectStore(dbWrapper.storeName).delete(id);
-        req.onsuccess = () => res(); req.onerror = () => rej(req.error);
-      })
-    };
-
-    // --- Core Logic ---
-    async function loadTransactions() {
-      cachedTransactions = await dbWrapper.getAll();
-      
-      const newBalance = cachedTransactions.reduce((acc, t) => acc + t.amount, 0);
-      if(newBalance !== currentBalance) {
-        animateValue(els.balance, currentBalance, newBalance, 1000);
-        currentBalance = newBalance;
-      } else {
-        els.balance.innerHTML = `₹${currentBalance.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
-      }
-
-      renderTransactions(cachedTransactions);
-      renderChart(cachedTransactions);
-      updateLimits();
-    }
-
-    async function handleTransaction(isReserve) {
-      const amt = parseFloat(els.amount.value);
-      const rsn = els.reason.value.trim();
-      const cat = els.category.value;
-      const dte = els.date.value || new Date().toISOString().split('T')[0];
-      
-      if(isNaN(amt) || amt <= 0 || !rsn || cat === 'nil') return showToast('Fill all fields correctly.', 'error');
-
-      const now = new Date();
-      await dbWrapper.add({
-        date: dte, amount: isReserve ? amt : -amt, reason: rsn, category: cat,
-        time: `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`
-      });
-
-      showToast(isReserve ? 'Reserves added!' : 'Expense recorded!', 'success');
-      if (isReserve) confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 }, colors:['#00ff88','#ffffff'] });
-      
-      els.amount.value = ''; els.reason.value = ''; els.category.value = 'nil';
-      loadTransactions();
-    }
-
-    async function deleteTransaction(id) {
-      await dbWrapper.delete(id);
-      showToast('Deleted', 'info');
-      loadTransactions();
-    }
-
-    // --- Rendering ---
-    function renderTransactions(data) {
-      const filter = els.search.value.toLowerCase().trim();
-      els.list.innerHTML = '';
-      
-      const filtered = data.filter(t => !filter || `${t.reason} ${t.category} ${t.amount}`.toLowerCase().includes(filter));
-      if(filtered.length === 0) {
-        els.list.innerHTML = `<div class="empty-state"><div>🍃</div><p>No activity found.</p></div>`;
-        return;
-      }
-
-      const grouped = filtered.reduce((acc, t) => {
-        const d = new Intl.DateTimeFormat('en-GB', { day:'2-digit', month:'short', year:'numeric'}).format(new Date(t.date));
-        if(!acc[d]) acc[d] = []; acc[d].push(t); return acc;
-      }, {});
-
-      let delay = 0;
-      Object.keys(grouped).sort((a,b)=>new Date(b)-new Date(a)).forEach(day => {
-        const dayTotal = grouped[day].reduce((sum, t) => sum + t.amount, 0);
-        const grpEl = document.createElement('div');
-        grpEl.className = 'day-group';
-        grpEl.style.animationDelay = `${delay}s`; delay += 0.1;
-        
-        let txHTML = grouped[day].sort((a,b)=>b.id-a.id).map(t => {
-          const isSpend = t.amount < 0;
-          return `
-            <div class="tx-item ${isSpend ? 'tx-spend' : 'tx-reserve'}">
-              <div class="tx-left">
-                <div class="tx-icon">${catMap[t.category] || '✨'}</div>
-                <div class="tx-meta">
-                  <h4>${t.reason}</h4>
-                  <p>${t.category} • ${t.time || ''}</p>
+        <main class="max-w-2xl mx-auto px-5 pt-6 pb-32">
+            
+            <div id="view-transactions" class="view-section active">
+                <div class="user-selector-container mb-6 flex gap-3 overflow-x-auto pb-2 custom-scrollbar"></div>
+                
+                <div class="grid grid-cols-3 gap-3 mb-8">
+                    <div class="bento-card p-4 text-center hover:-translate-y-1" style="animation-delay: 0.05s">
+                        <div class="w-8 h-8 mx-auto mb-2 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-arrow-trend-up text-sm"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Income</p>
+                        <p class="text-lg font-extrabold text-white" id="tx-total-income">₹0</p>
+                    </div>
+                    <div class="bento-card p-4 text-center hover:-translate-y-1" style="animation-delay: 0.1s">
+                        <div class="w-8 h-8 mx-auto mb-2 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400"><i class="fa-solid fa-arrow-trend-down text-sm"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Expenses</p>
+                        <p class="text-lg font-extrabold text-white" id="tx-total-expenses">₹0</p>
+                    </div>
+                    <div class="bento-card p-4 text-center hover:-translate-y-1" style="animation-delay: 0.15s">
+                        <div class="w-8 h-8 mx-auto mb-2 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-vault text-sm"></i></div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Savings</p>
+                        <p class="text-lg font-extrabold text-white" id="tx-total-savings">₹0</p>
+                    </div>
                 </div>
-              </div>
-              <div class="tx-right">
-                <span class="tx-amount">${isSpend?'-':'+'}₹${Math.abs(t.amount).toLocaleString('en-IN')}</span>
-                <button class="btn-delete" onclick="deleteTransaction(${t.id})">✖</button>
-              </div>
-            </div>`;
-        }).join('');
 
-        grpEl.innerHTML = `
-          <div class="day-header"><span>${day}</span><span>₹${dayTotal.toLocaleString('en-IN')}</span></div>
-          ${txHTML}
-        `;
-        els.list.appendChild(grpEl);
-      });
-    }
+                <div class="bento-card p-6 mb-8 relative overflow-hidden hover:-translate-y-1" style="animation-delay: 0.2s">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none"></div>
+                    <h2 class="text-lg font-extrabold mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-bolt text-blue-400"></i> Quick Record</h2>
+                    
+                    <form id="expenseForm" class="space-y-5 relative z-10">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Amount (₹)</label>
+                                <input id="expAmount" type="number" min="0" step="any" required class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white font-semibold focus:outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Date</label>
+                                <input id="expDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 font-semibold focus:outline-none transition-all" style="color-scheme:dark">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Category</label>
+                            <select id="expCategory" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white font-medium focus:outline-none appearance-none transition-all cursor-pointer">
+                                <optgroup label="Income (Received)">
+                                    <option value="Salary">Salary 💰</option><option value="Business">Business 📈</option><option value="Gift">Gift 🎁</option><option value="Other Income">Other Income 💵</option>
+                                </optgroup>
+                                <optgroup label="Expenses (Sent)">
+                                    <option value="Food">Food 🍔</option><option value="Bills">Bills 🧾</option><option value="Shopping">Shopping 🛍️</option><option value="Travel">Travel ✈️</option><option value="Entertainment">Entertainment 🎬</option><option value="Other Expense">Other Expense 📦</option>
+                                </optgroup>
+                                <optgroup label="Savings"><option value="Savings">Savings 🏦 (Redirects)</option></optgroup>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Reason / Notes</label>
+                            <input id="expReason" type="text" required placeholder="What was this for?" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
+                        </div>
+                        <button type="submit" class="w-full bg-white text-black hover:bg-slate-200 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.15)]">Save Transaction</button>
+                    </form>
+                </div>
 
-    function renderChart(data) {
-      const exp = data.filter(t => t.amount < 0);
-      if(!exp.length) { els.chart.style.display = 'none'; return; }
-      
-      els.chart.style.display = 'block';
-      const cats = [...new Set(exp.map(t=>t.category))];
-      const cData = cats.map(c => exp.filter(t=>t.category===c).reduce((s,t)=>s+Math.abs(t.amount),0));
-      
-      if(expenseChart) expenseChart.destroy();
-      expenseChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: { labels: cats, datasets: [{ data: cData, backgroundColor: ['#00e5ff','#ff3366','#00ff88','#ffd700','#bb86fc','#ff9800'], borderWidth: 0, hoverOffset: 10 }] },
-        options: {
-          responsive: true, maintainAspectRatio: false, cutout: '80%',
-          plugins: {
-            legend: { position: 'right', labels: { color: '#8a8f98', font: { family: 'Outfit', size: 13 } } },
-            tooltip: { backgroundColor: 'rgba(20,20,25,0.9)', titleColor: '#fff', bodyColor: '#00e5ff', padding: 12, borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }
-          }
+                <div class="transaction-list-container" style="animation-delay: 0.3s"></div>
+            </div>
+
+            <div id="view-savings" class="view-section">
+                <div class="bento-card p-6 mb-6 relative overflow-hidden hover:-translate-y-1" style="animation-delay: 0.05s">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[50px] rounded-full pointer-events-none"></div>
+                    <h2 class="text-lg font-extrabold mb-4 flex items-center gap-2 text-white"><i class="fa-solid fa-user-plus text-indigo-400"></i> New User</h2>
+                    <form id="addUserForm" class="flex flex-col sm:flex-row gap-3 relative z-10">
+                        <input id="newUserName" type="text" placeholder="Name" required class="flex-1 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
+                        <input id="newUserSavings" type="number" placeholder="Initial Balance ₹" class="flex-1 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
+                        <button type="submit" class="bg-indigo-500 text-white px-6 py-3.5 rounded-2xl hover:bg-indigo-600 transition-all active:scale-95 font-bold"><i class="fa-solid fa-plus"></i></button>
+                    </form>
+                </div>
+
+                <div class="user-selector-container mb-6 flex gap-3 overflow-x-auto pb-2 custom-scrollbar" style="animation-delay: 0.1s"></div>
+
+                <div class="bento-card p-6 mb-8 relative overflow-hidden hover:-translate-y-1" style="animation-delay: 0.15s">
+                    <div class="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 blur-[60px] rounded-full pointer-events-none"></div>
+                    <h2 class="text-lg font-extrabold mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-piggy-bank text-emerald-400"></i> Deposit Savings</h2>
+                    
+                    <form id="savingsForm" class="space-y-5 relative z-10">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Amount (₹)</label>
+                                <input id="savAmount" type="number" min="0" step="any" required class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Date</label>
+                                <input id="savDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 focus:outline-none transition-all" style="color-scheme:dark">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Message / Note</label>
+                            <input id="savNotes" type="text" placeholder="e.g. Monthly transfer" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button type="button" onclick="handleUpiPayment()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(79,70,229,0.3)] flex justify-center items-center gap-2">
+                                <i class="fa-brands fa-google-pay text-lg"></i> Pay & Record (UPI)
+                            </button>
+                            <button type="button" onclick="handleManualSavings()" class="flex-1 bg-emerald-500 text-white hover:bg-emerald-600 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)] flex justify-center items-center gap-2">
+                                <i class="fa-solid fa-check"></i> Log Manually
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="transaction-list-container" style="animation-delay: 0.2s"></div>
+            </div>
+
+            <div id="view-settings" class="view-section space-y-6">
+                <h2 class="text-2xl font-extrabold mb-2 text-white" style="animation-delay: 0.05s">Settings</h2>
+                
+                <div class="bento-card p-6 hover:-translate-y-1" style="animation-delay: 0.1s">
+                    <h3 class="text-lg font-extrabold mb-5 flex items-center gap-2 text-white"><i class="fa-brands fa-google-pay text-emerald-400"></i> Payment Settings</h3>
+                    <form id="settingsUpiForm" class="space-y-4">
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Primary UPI ID</label>
+                            <input id="setUpiId" type="text" placeholder="username@upi" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm transition-all">
+                            <p class="text-[11px] text-slate-500 mt-2 ml-1">Used to generate local payment links. Never sent to our servers.</p>
+                        </div>
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Preferred Payment App</label>
+                            <select id="setPaymentApp" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm appearance-none transition-all cursor-pointer">
+                                <option value="generic">Default System Chooser</option>
+                                <option value="gpay">Google Pay (GPay)</option>
+                                <option value="phonepe">PhonePe</option>
+                                <option value="paytm">Paytm</option>
+                                <option value="bhim">BHIM</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)]">Save Payment Preferences</button>
+                    </form>
+                </div>
+
+                <div class="bento-card p-6 hover:-translate-y-1" style="animation-delay: 0.15s">
+                    <div class="flex justify-between items-start mb-5">
+                        <h3 class="text-lg font-extrabold flex items-center gap-2 text-white"><i class="fa-solid fa-database text-blue-400"></i> Database Sync</h3>
+                        <div id="connectionStatusBadge" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border"></div>
+                    </div>
+                    <form id="settingsConnectionForm" class="space-y-3">
+                        <div>
+                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Cloud Spreadsheet URL</label>
+                            <input id="setSheetUrl" type="url" placeholder="https://script.google.com/macros/s/..." class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm transition-all">
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">Save Cloud URL</button>
+                            <button type="button" onclick="switchToLocalMode()" class="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm">Use Local Mode</button>
+                        </div>
+                    </form>
+                    <div class="flex items-center justify-between mt-6">
+                        <div>
+                            <p class="font-bold text-white text-sm">Auto Sync</p>
+                            <p class="text-[11px] text-slate-500">Sync immediately upon entry</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="setAutoSync" class="sr-only peer">
+                            <div class="w-12 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="bento-card p-6 border-rose-500/20 bg-rose-500/5 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(244,63,94,0.15)]" style="animation-delay: 0.2s">
+                    <h3 class="text-lg font-extrabold mb-2 text-rose-400">Danger Zone</h3>
+                    <p class="text-xs text-slate-400 mb-5 leading-relaxed">Clearing local data removes it from this device. If connected to Cloud, history remains online.</p>
+                    <button onclick="clearLocalData()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3.5 px-6 rounded-2xl transition-all active:scale-95 text-sm w-full shadow-[0_0_15px_rgba(244,63,94,0.3)]">Erase Local Device Data</button>
+                </div>
+            </div>
+        </main>
+
+        <nav class="nav-container fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#121212]/80 backdrop-blur-3xl border border-white/10 rounded-[28px] px-2 py-2 w-[90%] max-w-[360px] flex justify-between shadow-2xl pb-safe-nav">
+            <button onclick="switchView('savings')" id="nav-savings" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
+                <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
+                <i class="fa-solid fa-piggy-bank text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Savings</span>
+            </button>
+            <button onclick="switchView('transactions')" id="nav-transactions" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
+                <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
+                <i class="fa-solid fa-money-bill-transfer text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Transact</span>
+            </button>
+            <a href="graph.html" id="nav-analytics" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
+                <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
+                <i class="fa-solid fa-chart-simple text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
+                <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Analytics</span>
+            </a>
+        </nav>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let state = {
+            view: '', users: [], transactions: [],
+            currentUser: localStorage.getItem('mn_currentUser') || '',
+            sheetUrl: localStorage.getItem('mn_sheetUrl') || '',
+            autoSync: localStorage.getItem('mn_autoSync') === 'true',
+            skipSetup: localStorage.getItem('mn_skipSetup') === 'true',
+            upiId: localStorage.getItem('mn_upiId') || '',
+            paymentApp: localStorage.getItem('mn_paymentApp') || 'generic',
+            searchQuery: ''
+        };
+
+        const incomeCategories = ['Salary', 'Business', 'Gift', 'Other Income'];
+        const DB_NAME = 'MoneyNotebookData'; const DB_VERSION = 1; let db;
+
+        const initDB = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const database = e.target.result;
+                    if (!database.objectStoreNames.contains('users')) database.createObjectStore('users', { keyPath: 'id' });
+                    if (!database.objectStoreNames.contains('transactions')) database.createObjectStore('transactions', { keyPath: 'id' });
+                };
+                request.onsuccess = (e) => { db = e.target.result; resolve(db); };
+                request.onerror = (e) => reject(e.target.error);
+            });
+        };
+
+        const dbStore = (storeName, action, data = null) => {
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction([storeName], action === 'getAll' ? 'readonly' : 'readwrite');
+                const store = tx.objectStore(storeName);
+                let request;
+                if (action === 'getAll') request = store.getAll();
+                if (action === 'add' || action === 'put') request = store.put(data);
+                if (action === 'delete') request = store.delete(data);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        };
+
+        const showToast = (message, type = 'info') => {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+            if(type === 'success') icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>'; 
+            if(type === 'error') icon = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i>';
+            toast.className = `flex items-center gap-3 px-5 py-3.5 rounded-[20px] shadow-2xl border border-white/10 bg-[#1a1a1a]/95 text-white backdrop-blur-xl toast-msg absolute left-1/2 -translate-x-1/2 w-max`;
+            toast.innerHTML = `${icon} <span class="text-sm font-bold tracking-wide">${message}</span>`;
+            container.appendChild(toast); setTimeout(() => toast.remove(), 3500);
+        };
+
+        const playRewardAnimation = () => {
+            if (typeof confetti !== 'function') return;
+            const end = Date.now() + 2000;
+            (function frame() {
+                confetti({ particleCount: 6, angle: 60, spread: 60, origin: { x: 0, y: 1 }, colors: ['#FFD700', '#10b981', '#3b82f6', '#ffffff'], gravity: 0.8, scalar: 1.2 });
+                confetti({ particleCount: 6, angle: 120, spread: 60, origin: { x: 1, y: 1 }, colors: ['#FFD700', '#10b981', '#3b82f6', '#ffffff'], gravity: 0.8, scalar: 1.2 });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        };
+
+        document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('savDate').value = new Date().toISOString().split('T')[0];
+
+        async function loadInitialData() {
+            try {
+                await initDB();
+                state.users = await dbStore('users', 'getAll');
+                const txs = await dbStore('transactions', 'getAll');
+                state.transactions = txs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
+                
+                // Read URL params to maintain state if returning from Graph.html
+                const urlParams = new URLSearchParams(window.location.search);
+                const targetView = urlParams.get('view') || 'transactions';
+
+                if(state.sheetUrl || state.skipSetup) { switchView(targetView); } 
+                else { switchView('setup'); }
+
+                document.getElementById('setSheetUrl').value = state.sheetUrl;
+                document.getElementById('setAutoSync').checked = state.autoSync;
+                document.getElementById('setUpiId').value = state.upiId;
+                document.getElementById('setPaymentApp').value = state.paymentApp;
+                updateConnectionBadge();
+            } catch(e) { showToast('Local DB Error', 'error'); }
         }
-      });
-    }
 
-    function updateLimits() {
-      const now = new Date();
-      const currMo = now.getMonth(), currYr = now.getFullYear(), today = now.toISOString().split('T')[0];
-
-      const updateWidget = (type, limit, spends) => {
-        const cont = document.getElementById(`${type}ProgressContainer`);
-        if(!limit) { cont.style.display = 'none'; return; }
-        cont.style.display = 'flex';
-        
-        const pct = Math.min((spends/limit)*100, 100);
-        const isOver = spends > limit;
-        document.getElementById(`${type}Text`).innerText = `₹${spends.toLocaleString('en-IN')} / ₹${limit.toLocaleString('en-IN')}`;
-        const bar = document.getElementById(`${type}Bar`);
-        bar.style.width = `${pct}%`;
-        
-        const warn = document.getElementById(`${type}Warning`);
-        if(isOver) { bar.classList.add('danger'); warn.style.display = 'block'; document.getElementById(`${type}OverAmt`).innerText = (spends-limit).toLocaleString('en-IN'); }
-        else { bar.classList.remove('danger'); warn.style.display = 'none'; }
-      };
-
-      const moSpends = cachedTransactions.filter(t => t.amount < 0 && new Date(t.date).getMonth()===currMo && new Date(t.date).getFullYear()===currYr).reduce((s,t)=>s+Math.abs(t.amount),0);
-      updateWidget('monthly', currentMonthlyLimit, moSpends);
-
-      const daSpends = cachedTransactions.filter(t => t.amount < 0 && t.date === today).reduce((s,t)=>s+Math.abs(t.amount),0);
-      updateWidget('daily', currentDailyLimit, daSpends);
-    }
-
-    // --- Settings & Reminders ---
-    function openSettings() {
-      document.getElementById('modalMonthlyLimit').value = currentMonthlyLimit || '';
-      document.getElementById('modalDailyLimit').value = currentDailyLimit || '';
-      document.getElementById('modalReminderTime').value = dailyReminderTime;
-      document.getElementById('settingsModal').style.display = 'flex';
-    }
-    function closeSettings() { document.getElementById('settingsModal').style.display = 'none'; }
-    function saveSettings() {
-      currentMonthlyLimit = parseFloat(document.getElementById('modalMonthlyLimit').value) || 0;
-      currentDailyLimit = parseFloat(document.getElementById('modalDailyLimit').value) || 0;
-      dailyReminderTime = document.getElementById('modalReminderTime').value;
-      
-      localStorage.setItem('mn_monthlyLimit', currentMonthlyLimit);
-      localStorage.setItem('mn_dailyLimit', currentDailyLimit);
-      if(dailyReminderTime) {
-        localStorage.setItem('mn_reminderTime', dailyReminderTime);
-        if ('Notification' in window && Notification.permission !== 'granted') Notification.requestPermission();
-      } else localStorage.removeItem('mn_reminderTime');
-
-      updateLimits(); closeSettings(); showToast('Settings Updated', 'success');
-      if(reminderIntervalId) clearInterval(reminderIntervalId);
-      if(dailyReminderTime) reminderIntervalId = setInterval(checkReminder, 60000);
-    }
-    
-    function checkReminder() {
-      const now = new Date();
-      if (`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}` === dailyReminderTime) {
-        const today = now.toISOString().split('T')[0];
-        if(localStorage.getItem('mn_lastNotified') !== today && 'Notification' in window && Notification.permission === 'granted') {
-          new Notification("Money Notebook", { body: "Time to log your daily expenses!" });
-          localStorage.setItem('mn_lastNotified', today);
+        async function syncData(force = false) {
+            if (!state.sheetUrl || (!state.autoSync && !force)) return;
+            const btn = document.getElementById('syncBtn'); const icon = btn.querySelector('i'); icon.classList.add('fa-spin', 'text-white');
+            try {
+                await fetch(state.sheetUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactions: state.transactions, users: state.users }) });
+                if(force) showToast('Cloud Sync Complete', 'success');
+            } catch (err) { showToast('Sync Failed', 'error'); } 
+            finally { setTimeout(() => icon.classList.remove('fa-spin', 'text-white'), 600); }
         }
-      }
-    }
 
-    // --- Init ---
-    document.getElementById('spendBtn').onclick = () => handleTransaction(false);
-    document.getElementById('reserveBtn').onclick = () => handleTransaction(true);
-    window.filterTransactions = () => renderTransactions(cachedTransactions);
-    window.scrollToGraph = () => { if(els.chart.style.display !== 'none') els.chart.scrollIntoView({behavior:'smooth'}); else showToast('No data to chart yet!'); };
+        function switchView(newView) {
+            state.view = newView;
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            if(newView === 'setup') {
+                document.getElementById('main-app').style.display = 'none'; document.getElementById('view-setup').classList.add('active');
+            } else {
+                document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display = 'block'; document.getElementById(`view-${newView}`).classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    if(btn.id !== 'nav-analytics') { btn.classList.remove('nav-active', 'text-blue-400', 'text-emerald-400', 'text-purple-400'); btn.classList.add('text-slate-400'); btn.querySelector('.nav-bg').style.opacity = '0'; btn.querySelector('.nav-bg').style.transform = 'scale(0.5)'; }
+                });
+                if(newView === 'transactions') { const b = document.getElementById('nav-transactions'); b.classList.add('nav-active', 'text-blue-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
+                else if(newView === 'savings') { const b = document.getElementById('nav-savings'); b.classList.add('nav-active', 'text-emerald-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
+                else if(newView === 'settings') { updateConnectionBadge(); }
+                renderApp();
+            }
+        }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      await dbWrapper.init();
-      loadTransactions();
-      if(dailyReminderTime) reminderIntervalId = setInterval(checkReminder, 60000);
-    });
-  </script>
+        document.getElementById('setupForm').onsubmit = (e) => {
+            e.preventDefault();
+            const url = document.getElementById('setupUrl').value.trim(); const upiId = document.getElementById('setupUpiId').value.trim(); const payApp = document.getElementById('setupPaymentApp').value;
+            if(upiId) {
+                if(!/^[\w.-]+@[\w.-]+$/.test(upiId)) return showToast('Invalid UPI ID format', 'error');
+                state.upiId = upiId; state.paymentApp = payApp; localStorage.setItem('mn_upiId', upiId); localStorage.setItem('mn_paymentApp', payApp);
+                document.getElementById('setUpiId').value = upiId; document.getElementById('setPaymentApp').value = payApp;
+            }
+            if(url) {
+                state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); document.getElementById('setSheetUrl').value = url;
+                state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); showToast('Database & App Configured!', 'success');
+            } else {
+                state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); showToast('Local Mode Configured!', 'info');
+            }
+            switchView('transactions'); playRewardAnimation(); syncData();
+        };
+
+        const closeSetup = () => { localStorage.setItem('mn_skipSetup', 'true'); state.skipSetup = true; state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); switchView('transactions'); showToast('Started in Local Mode', 'info'); };
+
+        function updateConnectionBadge() {
+            const badge = document.getElementById('connectionStatusBadge');
+            if(state.sheetUrl) { badge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-500/30 bg-blue-500/10 text-blue-400 flex items-center gap-1.5'; badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div> Cloud Linked'; } 
+            else { badge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-slate-500/30 bg-slate-800/50 text-slate-400 flex items-center gap-1.5'; badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div> Local Mode'; }
+        }
+
+        document.getElementById('settingsUpiForm').onsubmit = (e) => {
+            e.preventDefault(); const upiId = document.getElementById('setUpiId').value.trim(); const payApp = document.getElementById('setPaymentApp').value;
+            if(upiId && !/^[\w.-]+@[\w.-]+$/.test(upiId)) return showToast('Invalid UPI ID format', 'error');
+            state.upiId = upiId; state.paymentApp = payApp; localStorage.setItem('mn_upiId', upiId); localStorage.setItem('mn_paymentApp', payApp); showToast('Payment Preferences Saved', 'success');
+        };
+
+        document.getElementById('settingsConnectionForm').onsubmit = (e) => {
+            e.preventDefault(); const url = document.getElementById('setSheetUrl').value.trim();
+            if(url) { state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); showToast('Cloud Database Updated', 'success'); updateConnectionBadge(); syncData(true); } 
+            else { showToast('Enter URL or select Local Mode', 'error'); }
+        };
+
+        const switchToLocalMode = () => { state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); document.getElementById('setSheetUrl').value = ''; state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); updateConnectionBadge(); showToast('Switched to Local Mode.', 'info'); };
+        document.getElementById('setAutoSync').onchange = (e) => { state.autoSync = e.target.checked; localStorage.setItem('mn_autoSync', e.target.checked); };
+
+        function renderApp() { renderUserSelectors(); renderStats(); renderTransactionLists(); }
+        function renderUserSelectors() {
+            const containers = document.querySelectorAll('.user-selector-container');
+            const html = state.users.length === 0 ? '<div class="text-sm text-slate-400 italic px-2">No users found. Go to Savings to add a user.</div>' : state.users.map(u => `
+                <button onclick="selectUser('${u.id}')" class="flex items-center gap-2 px-5 py-3 rounded-[20px] font-bold text-sm transition-all active:scale-95 whitespace-nowrap ${state.currentUser === u.id ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10'}"><div class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center"><i class="fa-solid fa-user text-[10px]"></i></div> ${u.name}</button>
+            `).join('');
+            containers.forEach(c => c.innerHTML = html);
+        }
+
+        function selectUser(id) { state.currentUser = id; localStorage.setItem('mn_currentUser', id); renderApp(); }
+        function renderStats() {
+            let uInc = 0, uExp = 0, uSav = 0;
+            if(state.currentUser) {
+                const u = state.users.find(x => x.id === state.currentUser); uSav = u ? u.initialSavings : 0;
+                state.transactions.forEach(t => { if(t.userId === state.currentUser) { if(t.type === 'income') uInc += t.amount; if(t.type === 'expense') uExp += t.amount; if(t.type === 'savings_deposit') uSav += t.amount; } });
+            }
+            document.getElementById('tx-total-income').innerText = `₹${uInc.toLocaleString()}`; document.getElementById('tx-total-expenses').innerText = `₹${uExp.toLocaleString()}`; document.getElementById('tx-total-savings').innerText = `₹${uSav.toLocaleString()}`;
+        }
+
+        function renderTransactionLists() {
+            const containers = document.querySelectorAll('.transaction-list-container');
+            if(state.view !== 'transactions' && state.view !== 'savings') return;
+            let filtered = state.transactions.filter(t => { if(state.view === 'transactions' && t.type === 'savings_deposit') return false; if(state.view === 'savings' && t.type !== 'savings_deposit') return false; if(!state.searchQuery) return true; const q = state.searchQuery.toLowerCase(); return t.reason.toLowerCase().includes(q) || t.amount.toString().includes(q) || t.category.toLowerCase().includes(q); });
+            const html = `<div class="space-y-4"><div class="flex justify-between items-center mb-5 px-1"><h3 class="text-lg font-extrabold text-white">History</h3><div class="relative"><i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" placeholder="Search..." oninput="handleSearch(this.value)" value="${state.searchQuery}" class="bg-black/30 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white font-medium focus:outline-none focus:border-blue-500 w-36 transition-all focus:w-48"></div></div>${filtered.length === 0 ? '<div class="bento-card p-10 text-center"><i class="fa-solid fa-leaf text-4xl mb-4 text-white/10"></i><p class="text-slate-400 font-semibold">No records found.</p></div>' : ''}<div class="space-y-3">${filtered.map((tx, idx) => {
+                const user = state.users.find(u => u.id === tx.userId); let icon = 'fa-money-bill-transfer'; let colorClass = 'text-slate-400 bg-slate-800/50 group-hover:bg-slate-700/50'; let amountClass = 'text-slate-300'; let sign = '';
+                if (tx.type === 'expense') { icon = 'fa-arrow-up-right-from-square'; colorClass = 'bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20'; amountClass = 'text-rose-400'; sign = '-'; } else if (tx.type === 'income') { icon = 'fa-arrow-down-left-from-square'; colorClass = 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20'; amountClass = 'text-white'; sign = '+'; } else if (tx.type === 'savings_deposit') { icon = 'fa-piggy-bank'; colorClass = 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20'; amountClass = 'text-emerald-400'; sign = '+'; }
+                const appNames = { gpay: 'GPay', phonepe: 'PhonePe', paytm: 'Paytm', bhim: 'BHIM', generic: 'UPI App' }; const metaExtra = tx.upiId ? ` &bull; <i class="fa-brands fa-google-pay"></i> ${appNames[tx.paymentPlatform]} (${tx.upiId})` : '';
+                return `<div class="tx-anim flex justify-between items-center p-4.5 bg-white-[0.02] border border-white/5 rounded-2xl hover:bg-white/5 hover:-translate-y-0.5 hover:shadow-lg transition-all group cursor-default" style="animation-delay: ${idx * 0.04}s;"><div class="flex items-center gap-4"><div class="p-3 rounded-2xl flex items-center justify-center w-12 h-12 transition-colors ${colorClass}"><i class="fa-solid ${icon} text-lg"></i></div><div><p class="font-extrabold text-white text-[15px]">${tx.reason}</p><p class="text-xs font-medium text-slate-500 mt-0.5">${user?.name || 'Unknown'} &bull; ${tx.category}${metaExtra}</p></div></div><div class="flex items-center gap-3"><div class="text-right"><span class="font-extrabold text-[15px] block ${amountClass}">${sign}₹${tx.amount.toLocaleString()}</span><span class="text-[10px] font-semibold text-slate-500 uppercase">${new Date(tx.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span></div><button onclick="deleteTx(${tx.id})" class="text-slate-600 hover:text-rose-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all p-2 rounded-xl hover:bg-rose-500/10 active:scale-90"><i class="fa-solid fa-trash-can"></i></button></div></div>`;
+            }).join('')}</div></div>`;
+            containers.forEach(c => c.innerHTML = html);
+        }
+
+        function handleSearch(val) { state.searchQuery = val; renderTransactionLists(); }
+
+        document.getElementById('addUserForm').onsubmit = async (e) => { e.preventDefault(); const newUser = { id: Date.now().toString(), name: document.getElementById('newUserName').value.trim(), initialSavings: parseFloat(document.getElementById('newUserSavings').value) || 0 }; await dbStore('users', 'add', newUser); state.users.push(newUser); selectUser(newUser.id); e.target.reset(); showToast('User Added!', 'success'); syncData(); };
+        document.getElementById('expCategory').onchange = (e) => { if(e.target.value === 'Savings') switchView('savings'); };
+        document.getElementById('expenseForm').onsubmit = async (e) => { e.preventDefault(); if(!state.currentUser) return showToast('Select a user profile first', 'error'); const cat = document.getElementById('expCategory').value; if(cat === 'Savings') { switchView('savings'); return; } const isIncome = incomeCategories.includes(cat); const tx = { id: Date.now(), userId: state.currentUser, type: isIncome ? 'income' : 'expense', amount: parseFloat(document.getElementById('expAmount').value), reason: document.getElementById('expReason').value.trim(), category: cat, date: document.getElementById('expDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); e.target.reset(); document.getElementById('expDate').value = new Date().toISOString().split('T')[0]; showToast(isIncome ? 'Income Logged' : 'Expense Logged', 'success'); playRewardAnimation(); renderApp(); syncData(); };
+        
+        async function handleManualSavings() { if(!state.currentUser) return showToast('Select a user profile first', 'error'); const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error'); const tx = { id: Date.now(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: document.getElementById('savNotes').value.trim() || 'Savings Deposit', category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; showToast('Savings Secured', 'success'); playRewardAnimation(); renderApp(); syncData(); }
+        async function handleUpiPayment() {
+            if(!state.currentUser) return showToast('Select a user profile first', 'error'); const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error');
+            if(!state.upiId) { showToast('Please configure your UPI ID in Settings first.', 'error'); setTimeout(() => switchView('settings'), 2000); return; }
+            const nts = document.getElementById('savNotes').value.trim() || 'Savings Deposit'; const user = state.users.find(u => u.id === state.currentUser);
+            const pn = encodeURIComponent(user ? user.name : 'User'); const pa = encodeURIComponent(state.upiId); const am = encodeURIComponent(amt); const tn = encodeURIComponent(nts);
+            let prefix = 'upi://pay'; if(state.paymentApp === 'gpay') prefix = 'tez://upi/pay'; else if(state.paymentApp === 'phonepe') prefix = 'phonepe://pay'; else if(state.paymentApp === 'paytm') prefix = 'paytmmp://pay'; else if(state.paymentApp === 'bhim') prefix = 'bhim://pay';
+            const uri = `${prefix}?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}`;
+            const tx = { id: Date.now(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: nts, category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), upiId: state.upiId, paymentPlatform: state.paymentApp };
+            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; renderApp(); syncData();
+            showToast('Launching Payment App...', 'info'); setTimeout(() => { window.location.href = uri; }, 500);
+        }
+
+        async function deleteTx(id) { await dbStore('transactions', 'delete', id); state.transactions = state.transactions.filter(t => t.id !== id); showToast('Deleted'); renderApp(); syncData(); }
+        async function clearLocalData() { if(confirm('Erase all local app data? This cannot be undone on this device.')) { await dbStore('users', 'clear'); const dbInstance = await initDB(); dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('users').clear(); dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('transactions').clear(); state.users = []; state.transactions = []; state.currentUser = ''; state.sheetUrl = ''; state.skipSetup = false; state.upiId = ''; state.paymentApp = 'generic'; localStorage.clear(); renderApp(); switchView('setup'); showToast('Local Data Wiped'); } }
+
+        window.onload = loadInitialData;
+    </script>
 </body>
 </html>
-
-
