@@ -2,7 +2,7 @@
   "name": "Money Notebook",
   "short_name": "Money Note",
   "description": "A privacy-first, local-syncing financial tracker.",
-  "start_url": "/index.html",
+  "start_url": "/Money-notebook-app/index.html",
   "display": "standalone",
   "background_color": "#030303",
   "theme_color": "#121212",
