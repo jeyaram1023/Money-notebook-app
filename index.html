@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Money Notebook Pro</title>
 
-    <!-- PWA Manifest & App Settings -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#030303">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -25,9 +24,19 @@
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
         input[type="date"]:focus::-webkit-calendar-picker-indicator { opacity: 1; }
 
+        /* Premium Animations & Glassmorphism */
         @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
-        .bento-card:hover { box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+        .bento-card { 
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 28px; 
+            backdrop-filter: blur(24px); 
+            -webkit-backdrop-filter: blur(24px); 
+            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); 
+            animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; 
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; 
+        }
+        .bento-card:hover { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15); }
 
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
         .view-section { display: none; animation: fadeInScale 0.3s ease-out forwards; }
@@ -39,7 +48,7 @@
         .toast-msg { animation: toastFade 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
         @keyframes slideInRight { from { opacity: 0; transform: translateX(30px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        .tx-anim { animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+        .tx-anim { animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
 
         @keyframes navSlideUp { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
         .nav-container { animation: navSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
@@ -52,23 +61,22 @@
 
         @keyframes shine { to { background-position: 200% center; } }
         .text-shine { background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; }
+        
         @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
         .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
 
-        /* Loader Overlay for Cloud Ops */
+        /* Loader Overlay */
         #cloudLoader { display: none; }
         #cloudLoader.active { display: flex; }
     </style>
 </head>
 <body class="selection:bg-blue-500/30 text-[15px] relative overflow-x-hidden">
 
-    <!-- Global Background Elements -->
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
         <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
     </div>
 
-    <!-- UI Overlays -->
     <div id="toastContainer" class="fixed top-safe pt-4 left-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-[90%] md:max-w-sm"></div>
 
     <div id="cloudLoader" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
@@ -78,7 +86,6 @@
         </div>
     </div>
 
-    <!-- POST-SYNC CONFIRMATION MODAL -->
     <div id="syncConfirmModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-sm p-6 relative transform scale-95 transition-transform duration-300 text-center border-emerald-500/30">
             <div class="w-16 h-16 mx-auto bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-2xl mb-4 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
@@ -97,7 +104,6 @@
         </div>
     </div>
 
-    <!-- GUIDE MODAL -->
     <div id="guideModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
         <div class="bento-card w-full max-w-lg flex flex-col max-h-[90vh] relative transform scale-95 transition-transform duration-300 hover:translate-y-0" id="guideModalContent">
             <div class="flex justify-between items-center p-5 border-b border-white/10 sticky top-0 z-10 bg-[#030303]/90 backdrop-blur-xl rounded-t-[28px]">
@@ -114,11 +120,11 @@
                 </div>
                 <div class="space-y-3">
                     <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">2</span> Automated Setup</h4>
-                    <p class="leading-relaxed">You don't need to manually create any tabs or columns! The script below will automatically provision a <b>Transactions</b> tab and a <b>Users</b> tab for you upon your first sync.</p>
+                    <p class="leading-relaxed">You don't need to manually create any tabs or columns! The script below will automatically provision everything for you.</p>
                 </div>
                 <div class="space-y-3">
                     <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">3</span> Add the Script</h4>
-                    <p class="leading-relaxed">Click <b>Extensions > Apps Script</b>. Delete existing code, then paste:</p>
+                    <p class="leading-relaxed">Click <b>Extensions > Apps Script</b>. Delete existing code, then paste this entirely new code:</p>
                     <div class="relative bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-4 group">
                         <button onclick="copyScriptCode()" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all active:scale-90 flex items-center gap-1"><i class="fa-regular fa-copy"></i> Copy</button>
                         <pre id="scriptCodeBlock" class="text-emerald-400 text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">function doPost(e) {
@@ -128,7 +134,6 @@
     txSheet = ss.insertSheet('Transactions');
     txSheet.appendRow(['ID', 'User ID', 'Type', 'Amount', 'Category', 'Reason', 'Date', 'Time', 'UPI ID', 'Payment App']);
   }
-  
   var userSheet = ss.getSheetByName('Users');
   if (!userSheet) {
     userSheet = ss.insertSheet('Users');
@@ -136,10 +141,26 @@
   }
 
   try {
-    var data = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {transactions: [], users: []};
+    var data = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {transactions: [], users: [], deletedIds: []};
     var txs = data.transactions || [];
     var users = data.users || [];
+    var deletedIds = data.deletedIds || [];
+
+    // 1. Process Deletions First (To keep Cloud in sync with App)
+    if (deletedIds.length > 0) {
+      var existingData = txSheet.getDataRange().getValues();
+      var delMap = {};
+      for(var d = 0; d < deletedIds.length; d++) { delMap[String(deletedIds[d])] = true; }
+      
+      // Loop backwards to delete rows without messing up indexes
+      for (var r = existingData.length - 1; r > 0; r--) {
+        if (delMap[String(existingData[r][0])]) {
+          txSheet.deleteRow(r + 1); // +1 because sheet rows are 1-indexed
+        }
+      }
+    }
     
+    // 2. Update Users
     if (users.length > 0) {
       if (userSheet.getLastRow() > 1) { userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent(); }
       for (var i = 0; i < users.length; i++) {
@@ -147,29 +168,31 @@
       }
     }
     
+    // 3. Append New Transactions
     if (txs.length > 0) {
-        var existingData = txSheet.getDataRange().getValues();
+        var currentData = txSheet.getDataRange().getValues();
         var existingIds = {};
-        for(var r = 1; r < existingData.length; r++) { existingIds[existingData[r][0]] = true; }
+        for(var r = 1; r < currentData.length; r++) { existingIds[String(currentData[r][0])] = true; }
         
         for (var i = txs.length - 1; i >= 0; i--) {
-          if(!existingIds[txs[i].id]) {
+          if(!existingIds[String(txs[i].id)]) {
             txSheet.appendRow([txs[i].id, txs[i].userId, txs[i].type, txs[i].amount, txs[i].category, txs[i].reason, txs[i].date, txs[i].time, txs[i].upiId || '', txs[i].paymentPlatform || '']);
-            existingIds[txs[i].id] = true;
+            existingIds[String(txs[i].id)] = true;
           }
         }
     }
 
+    // 4. Return Final Master List to App
     var finalTx = txSheet.getDataRange().getValues();
     var allTxs = [];
     for(var r = 1; r < finalTx.length; r++) {
-      allTxs.push({ id: finalTx[r][0].toString(), userId: finalTx[r][1].toString(), type: finalTx[r][2], amount: Number(finalTx[r][3]), category: finalTx[r][4], reason: finalTx[r][5], date: finalTx[r][6], time: finalTx[r][7], upiId: finalTx[r][8] || '', paymentPlatform: finalTx[r][9] || '' });
+      allTxs.push({ id: String(finalTx[r][0]), userId: String(finalTx[r][1]), type: finalTx[r][2], amount: Number(finalTx[r][3]), category: finalTx[r][4], reason: finalTx[r][5], date: finalTx[r][6], time: finalTx[r][7], upiId: finalTx[r][8] || '', paymentPlatform: finalTx[r][9] || '' });
     }
 
     var finalUsers = userSheet.getDataRange().getValues();
     var allUsers = [];
     for(var r = 1; r < finalUsers.length; r++) {
-      allUsers.push({ id: finalUsers[r][0].toString(), name: finalUsers[r][1], initialSavings: Number(finalUsers[r][2]), runningIncome: Number(finalUsers[r][3]), runningExpense: Number(finalUsers[r][4]), runningSavings: Number(finalUsers[r][5]) });
+      allUsers.push({ id: String(finalUsers[r][0]), name: finalUsers[r][1], initialSavings: Number(finalUsers[r][2]), runningIncome: Number(finalUsers[r][3]), runningExpense: Number(finalUsers[r][4]), runningSavings: Number(finalUsers[r][5]) });
     }
     
     return ContentService.createTextOutput(JSON.stringify({"status": "success", "transactions": allTxs, "users": allUsers})).setMimeType(ContentService.MimeType.JSON);
@@ -192,7 +215,6 @@
         </div>
     </div>
 
-    <!-- ONBOARDING SETUP VIEW -->
     <div id="view-setup" class="min-h-screen items-center justify-center p-5 relative z-50">
         <div class="bento-card w-full max-w-md p-8 relative overflow-hidden hover:translate-y-0">
             <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none"></div>
@@ -230,13 +252,12 @@
         </div>
     </div>
 
-    <!-- MAIN APP WRAPPER -->
     <div id="main-app" style="display: none;">
         <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
             <div class="max-w-2xl mx-auto px-5 h-16 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
-                        <img src="https://uploads.onecompiler.io/43zn28up5/44qw7bwzc/iconsicon-512x512.png" alt="Money Note Book Logo" class="w-full h-full object-cover" />
+                    <div class="w-9 h-9 rounded-xl shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 transform hover:scale-105 transition-transform duration-300">
+                        <img src="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png" alt="Money Note Book Logo" class="w-full h-full object-cover" />
                     </div>
                     <h1 class="text-xl font-extrabold tracking-tight text-shine">Money Note Book</h1>
                 </div>
@@ -447,7 +468,8 @@
             skipSetup: localStorage.getItem('mn_skipSetup') === 'true',
             upiId: localStorage.getItem('mn_upiId') || '',
             paymentApp: localStorage.getItem('mn_paymentApp') || 'generic',
-            searchQuery: ''
+            searchQuery: '',
+            deletedIds: JSON.parse(localStorage.getItem('mn_deletedIds') || '[]')
         };
 
         const incomeCategories = ['Salary', 'Business', 'Gift', 'Other Income'];
@@ -547,10 +569,11 @@
                     try {
                         const response = await fetch(state.sheetUrl, { 
                             method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                            body: JSON.stringify({}) 
+                            body: JSON.stringify({ deletedIds: state.deletedIds }) 
                         });
                         const result = await response.json();
                         if (result.status === 'success') {
+                            state.deletedIds = []; localStorage.removeItem('mn_deletedIds');
                             updateLocalFromCloud(result.transactions, result.users);
                         }
                     } catch(err) { console.log("Offline or sync failed, using local cache."); }
@@ -577,16 +600,17 @@
         async function syncData(force = false) {
             if (!state.sheetUrl || (!state.autoSync && !force)) return;
             const btn = document.getElementById('syncBtn'); const icon = btn.querySelector('i'); icon.classList.add('fa-spin', 'text-white');
-            if(force) showCloudLoader(true, 'Fetching Cloud Data...');
+            if(force) showCloudLoader(true, 'Syncing with Cloud...');
 
             try {
                 const response = await fetch(state.sheetUrl, { 
                     method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify({ transactions: state.transactions, users: state.users }) 
+                    body: JSON.stringify({ transactions: state.transactions, users: state.users, deletedIds: state.deletedIds }) 
                 });
                 const result = await response.json();
                 
                 if (result.status === 'success') {
+                    state.deletedIds = []; localStorage.removeItem('mn_deletedIds');
                     await updateLocalFromCloud(result.transactions, result.users);
                     if(force) {
                         showToast('Cloud Sync Complete', 'success');
@@ -719,25 +743,102 @@
                 const q = state.searchQuery.toLowerCase(); 
                 
                 const formattedDate = new Date(t.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}).toLowerCase();
-                
-                return t.reason.toLowerCase().includes(q) || 
-                       t.amount.toString().includes(q) || 
-                       t.category.toLowerCase().includes(q) ||
-                       t.date.includes(q) ||
-                       formattedDate.includes(q); 
+                return t.reason.toLowerCase().includes(q) || t.amount.toString().includes(q) || t.category.toLowerCase().includes(q) || t.date.includes(q) || formattedDate.includes(q); 
             });
 
-            const html = `<div class="space-y-4"><div class="flex justify-between items-center mb-5 px-1"><h3 class="text-lg font-extrabold text-white">History</h3><div class="relative"><i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i><input type="text" placeholder="Search (Date, Cat, etc)..." oninput="handleSearch(this.value)" value="${state.searchQuery}" class="bg-black/30 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white font-medium focus:outline-none focus:border-blue-500 w-36 transition-all focus:w-48"></div></div>${filtered.length === 0 ? '<div class="bento-card p-10 text-center"><i class="fa-solid fa-leaf text-4xl mb-4 text-white/10"></i><p class="text-slate-400 font-semibold">No records found.</p></div>' : ''}<div class="space-y-3">${filtered.map((tx, idx) => {
-                const user = state.users.find(u => u.id === tx.userId); let icon = 'fa-money-bill-transfer'; let colorClass = 'text-slate-400 bg-slate-800/50 group-hover:bg-slate-700/50'; let amountClass = 'text-slate-300'; let sign = '';
-                if (tx.type === 'expense') { icon = 'fa-arrow-up-right-from-square'; colorClass = 'bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20'; amountClass = 'text-rose-400'; sign = '-'; } else if (tx.type === 'income') { icon = 'fa-arrow-down-left-from-square'; colorClass = 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20'; amountClass = 'text-white'; sign = '+'; } else if (tx.type === 'savings_deposit') { icon = 'fa-piggy-bank'; colorClass = 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20'; amountClass = 'text-emerald-400'; sign = '+'; }
-                const appNames = { gpay: 'GPay', phonepe: 'PhonePe', paytm: 'Paytm', bhim: 'BHIM', generic: 'UPI App' }; const metaExtra = tx.upiId ? ` &bull; <i class="fa-brands fa-google-pay"></i> ${appNames[tx.paymentPlatform]} (${tx.upiId})` : '';
-                return `<div class="tx-anim flex justify-between items-center p-4.5 bg-white-[0.02] border border-white/5 rounded-2xl hover:bg-white/5 hover:-translate-y-0.5 hover:shadow-lg transition-all group cursor-default" style="animation-delay: ${idx * 0.04}s;"><div class="flex items-center gap-4"><div class="p-3 rounded-2xl flex items-center justify-center w-12 h-12 transition-colors ${colorClass}"><i class="fa-solid ${icon} text-lg"></i></div><div><p class="font-extrabold text-white text-[15px]">${tx.reason}</p><p class="text-xs font-medium text-slate-500 mt-0.5">${user?.name || 'Unknown'} &bull; ${tx.category}${metaExtra}</p></div></div><div class="flex items-center gap-3"><div class="text-right"><span class="font-extrabold text-[15px] block ${amountClass}">${sign}₹${tx.amount.toLocaleString()}</span><span class="text-[10px] font-semibold text-slate-500 uppercase">${new Date(tx.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span></div></div></div>`;
-            }).join('')}</div></div>`;
+            const html = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center mb-5 px-1">
+                        <h3 class="text-lg font-extrabold text-white">History</h3>
+                        <div class="flex gap-2 items-center">
+                            <div class="relative">
+                                <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" placeholder="Search..." oninput="handleSearch(this.value)" value="${state.searchQuery}" class="bg-black/30 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white font-medium focus:outline-none focus:border-blue-500 w-32 transition-all focus:w-44">
+                            </div>
+                            ${filtered.length > 0 ? `<button onclick="clearVisibleHistory()" class="text-rose-400 hover:text-white hover:bg-rose-500 p-2 rounded-full transition-all active:scale-90" title="Delete All Displayed"><i class="fa-solid fa-trash-can-arrow-up"></i></button>` : ''}
+                        </div>
+                    </div>
+                    ${filtered.length === 0 ? '<div class="bento-card p-10 text-center"><i class="fa-solid fa-leaf text-4xl mb-4 text-white/10"></i><p class="text-slate-400 font-semibold">No records found.</p></div>' : ''}
+                    <div class="space-y-3">
+                        ${filtered.map((tx, idx) => {
+                            const user = state.users.find(u => u.id === tx.userId); let icon = 'fa-money-bill-transfer'; let colorClass = 'text-slate-400 bg-slate-800/50 group-hover:bg-slate-700/50'; let amountClass = 'text-slate-300'; let sign = '';
+                            if (tx.type === 'expense') { icon = 'fa-arrow-up-right-from-square'; colorClass = 'bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20'; amountClass = 'text-rose-400'; sign = '-'; } 
+                            else if (tx.type === 'income') { icon = 'fa-arrow-down-left-from-square'; colorClass = 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20'; amountClass = 'text-white'; sign = '+'; } 
+                            else if (tx.type === 'savings_deposit') { icon = 'fa-piggy-bank'; colorClass = 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20'; amountClass = 'text-emerald-400'; sign = '+'; }
+                            const appNames = { gpay: 'GPay', phonepe: 'PhonePe', paytm: 'Paytm', bhim: 'BHIM', generic: 'UPI App' }; const metaExtra = tx.upiId ? ` &bull; <i class="fa-brands fa-google-pay"></i> ${appNames[tx.paymentPlatform]} (${tx.upiId})` : '';
+                            return `
+                            <div class="tx-anim flex justify-between items-center p-4.5 bg-white-[0.02] border border-white/5 rounded-2xl hover:bg-white/5 hover:shadow-lg transition-all group cursor-default" style="animation-delay: ${idx * 0.04}s;">
+                                <div class="flex items-center gap-4">
+                                    <div class="p-3 rounded-2xl flex items-center justify-center w-12 h-12 transition-colors ${colorClass}"><i class="fa-solid ${icon} text-lg"></i></div>
+                                    <div><p class="font-extrabold text-white text-[15px]">${tx.reason}</p><p class="text-xs font-medium text-slate-500 mt-0.5">${user?.name || 'Unknown'} &bull; ${tx.category}${metaExtra}</p></div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="text-right"><span class="font-extrabold text-[15px] block ${amountClass}">${sign}₹${tx.amount.toLocaleString()}</span><span class="text-[10px] font-semibold text-slate-500 uppercase">${new Date(tx.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span></div>
+                                    <button onclick="deleteTx('${tx.id}', this)" class="bg-slate-800/80 text-slate-400 hover:text-white hover:bg-rose-500 transition-all p-2.5 rounded-xl active:scale-90" title="Delete Record"><i class="fa-solid fa-trash-can"></i></button>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
             containers.forEach(c => c.innerHTML = html);
         }
 
         function handleSearch(val) { state.searchQuery = val; renderTransactionLists(); }
 
+        // --- DELETION LOGIC ---
+        async function deleteTx(id, btnElement) {
+            if(!confirm("Permanently delete this record? It will be removed from Cloud on next sync.")) return;
+            
+            // UI Animation out
+            const txDiv = btnElement.closest('.tx-anim');
+            txDiv.style.transform = 'scale(0.9) translateX(30px)';
+            txDiv.style.opacity = '0';
+            
+            setTimeout(async () => {
+                state.deletedIds.push(id.toString());
+                localStorage.setItem('mn_deletedIds', JSON.stringify(state.deletedIds));
+                
+                await dbStore('transactions', 'delete', id.toString());
+                state.transactions = state.transactions.filter(t => t.id !== id.toString());
+                
+                renderApp();
+                showToast('Record Queued for Deletion', 'success');
+                syncData(); // Automatically push deletion to cloud
+            }, 300);
+        }
+
+        async function clearVisibleHistory() {
+            if(!confirm("WARNING: Are you sure you want to PERMANENTLY delete all these visible records? This will erase them from both your device and the Cloud.")) return;
+            
+            showCloudLoader(true, "Deleting records...");
+            
+            // Find all currently visible transactions based on current view/filter
+            const txsToDelete = state.transactions.filter(t => { 
+                if(state.view === 'transactions' && t.type === 'savings_deposit') return false; 
+                if(state.view === 'savings' && t.type !== 'savings_deposit') return false; 
+                if(!state.searchQuery) return true; 
+                const q = state.searchQuery.toLowerCase(); 
+                const formattedDate = new Date(t.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}).toLowerCase();
+                return t.reason.toLowerCase().includes(q) || t.amount.toString().includes(q) || t.category.toLowerCase().includes(q) || t.date.includes(q) || formattedDate.includes(q); 
+            });
+
+            if(txsToDelete.length === 0) return showCloudLoader(false);
+
+            const idsToDelete = txsToDelete.map(t => t.id.toString());
+            state.deletedIds.push(...idsToDelete);
+            localStorage.setItem('mn_deletedIds', JSON.stringify(state.deletedIds));
+
+            for(let id of idsToDelete) { await dbStore('transactions', 'delete', id); }
+            
+            state.transactions = state.transactions.filter(t => !idsToDelete.includes(t.id.toString()));
+            
+            renderApp();
+            await syncData(); // Push batch deletion to cloud
+            showCloudLoader(false);
+            showToast('History Cleared', 'success');
+        }
+
+        // --- Data Mutations ---
         document.getElementById('addUserForm').onsubmit = async (e) => { 
             e.preventDefault(); showCloudLoader(true, 'Adding User to Cloud...');
             const newUser = { id: Date.now().toString(), name: document.getElementById('newUserName').value.trim(), initialSavings: parseFloat(document.getElementById('newUserSavings').value) || 0, runningIncome: 0, runningExpense: 0, runningSavings: 0 }; 
