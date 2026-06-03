@@ -24,19 +24,9 @@
         input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
         input[type="date"]:focus::-webkit-calendar-picker-indicator { opacity: 1; }
 
-        /* Premium Animations & Glassmorphism */
         @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        .bento-card { 
-            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 28px; 
-            backdrop-filter: blur(24px); 
-            -webkit-backdrop-filter: blur(24px); 
-            box-shadow: 0 15px 35px -10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1); 
-            animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; 
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; 
-        }
-        .bento-card:hover { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.15); }
+        .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
+        .bento-card:hover { box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
 
         @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
         .view-section { display: none; animation: fadeInScale 0.3s ease-out forwards; }
@@ -48,7 +38,7 @@
         .toast-msg { animation: toastFade 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
         @keyframes slideInRight { from { opacity: 0; transform: translateX(30px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        .tx-anim { animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .tx-anim { animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
 
         @keyframes navSlideUp { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
         .nav-container { animation: navSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
@@ -61,13 +51,12 @@
 
         @keyframes shine { to { background-position: 200% center; } }
         .text-shine { background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; }
-        
         @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
         .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
 
-        /* Loader Overlay */
-        #cloudLoader { display: none; }
-        #cloudLoader.active { display: flex; }
+        /* Global Loader Overlay */
+        #globalLoader { transition: opacity 0.4s ease, visibility 0.4s ease; z-index: 9999; }
+        #globalLoader.hidden-loader { opacity: 0; visibility: hidden; pointer-events: none; }
     </style>
 </head>
 <body class="selection:bg-blue-500/30 text-[15px] relative overflow-x-hidden">
@@ -79,28 +68,13 @@
 
     <div id="toastContainer" class="fixed top-safe pt-4 left-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-[90%] md:max-w-sm"></div>
 
-    <div id="cloudLoader" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-[#121212] border border-white/10 p-5 rounded-2xl flex items-center gap-4 shadow-2xl">
-            <i class="fa-solid fa-circle-notch fa-spin text-blue-500 text-2xl"></i>
-            <span class="text-white font-bold tracking-wide" id="loaderText">Syncing with Cloud...</span>
+    <div id="globalLoader" class="fixed inset-0 bg-[#030303]/90 backdrop-blur-xl flex flex-col items-center justify-center">
+        <div class="w-24 h-24 rounded-3xl shadow-[0_0_40px_rgba(99,102,241,0.3)] overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 transform animate-pulse">
+            <img src="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png" alt="Logo" class="w-full h-full object-cover" />
         </div>
-    </div>
-
-    <div id="syncConfirmModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
-        <div class="bento-card w-full max-w-sm p-6 relative transform scale-95 transition-transform duration-300 text-center border-emerald-500/30">
-            <div class="w-16 h-16 mx-auto bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center text-2xl mb-4 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                <i class="fa-solid fa-cloud-arrow-up"></i>
-            </div>
-            <h3 class="text-lg font-bold text-white mb-2">Sync Successful!</h3>
-            <p class="text-[13px] text-slate-300 mb-6 leading-relaxed">Your Users and Transactions are safely stored in Google Sheets.<br><br>Do you want to clear your local device storage to save space? (Your history remains visible on screen now. Next time you open the app, simply click Sync to fetch it again).</p>
-            <div class="space-y-3">
-                <button onclick="confirmClearSyncedData()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 shadow-[0_0_15px_rgba(16,185,129,0.3)]">
-                    <i class="fa-solid fa-check"></i> Yes, Clear Local Data
-                </button>
-                <button onclick="closeSyncConfirmModal()" class="w-full bg-white/5 hover:bg-white/10 text-slate-300 font-bold py-3.5 rounded-xl transition-all active:scale-95 border border-white/10">
-                    No, Keep Everything Local
-                </button>
-            </div>
+        <div class="mt-8 flex gap-2 items-center">
+            <i class="fa-solid fa-circle-notch fa-spin text-blue-500"></i>
+            <span class="text-slate-300 font-semibold tracking-wider text-sm uppercase" id="loaderText">Starting up...</span>
         </div>
     </div>
 
@@ -119,12 +93,8 @@
                     <p class="leading-relaxed">Open <a href="https://sheets.google.com" target="_blank" class="text-blue-400 hover:underline font-medium">Google Sheets</a> and create a <b>Blank spreadsheet</b>.</p>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">2</span> Automated Setup</h4>
-                    <p class="leading-relaxed">You don't need to manually create any tabs or columns! The script below will automatically provision everything for you.</p>
-                </div>
-                <div class="space-y-3">
-                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">3</span> Add the Script</h4>
-                    <p class="leading-relaxed">Click <b>Extensions > Apps Script</b>. Delete existing code, then paste this entirely new code:</p>
+                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">2</span> Add the Script</h4>
+                    <p class="leading-relaxed">Click <b>Extensions > Apps Script</b>. Delete existing code, then paste:</p>
                     <div class="relative bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-4 group">
                         <button onclick="copyScriptCode()" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all active:scale-90 flex items-center gap-1"><i class="fa-regular fa-copy"></i> Copy</button>
                         <pre id="scriptCodeBlock" class="text-emerald-400 text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">function doPost(e) {
@@ -146,21 +116,15 @@
     var users = data.users || [];
     var deletedIds = data.deletedIds || [];
 
-    // 1. Process Deletions First (To keep Cloud in sync with App)
     if (deletedIds.length > 0) {
       var existingData = txSheet.getDataRange().getValues();
       var delMap = {};
       for(var d = 0; d < deletedIds.length; d++) { delMap[String(deletedIds[d])] = true; }
-      
-      // Loop backwards to delete rows without messing up indexes
       for (var r = existingData.length - 1; r > 0; r--) {
-        if (delMap[String(existingData[r][0])]) {
-          txSheet.deleteRow(r + 1); // +1 because sheet rows are 1-indexed
-        }
+        if (delMap[String(existingData[r][0])]) { txSheet.deleteRow(r + 1); }
       }
     }
     
-    // 2. Update Users
     if (users.length > 0) {
       if (userSheet.getLastRow() > 1) { userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent(); }
       for (var i = 0; i < users.length; i++) {
@@ -168,12 +132,10 @@
       }
     }
     
-    // 3. Append New Transactions
     if (txs.length > 0) {
         var currentData = txSheet.getDataRange().getValues();
         var existingIds = {};
         for(var r = 1; r < currentData.length; r++) { existingIds[String(currentData[r][0])] = true; }
-        
         for (var i = txs.length - 1; i >= 0; i--) {
           if(!existingIds[String(txs[i].id)]) {
             txSheet.appendRow([txs[i].id, txs[i].userId, txs[i].type, txs[i].amount, txs[i].category, txs[i].reason, txs[i].date, txs[i].time, txs[i].upiId || '', txs[i].paymentPlatform || '']);
@@ -182,7 +144,6 @@
         }
     }
 
-    // 4. Return Final Master List to App
     var finalTx = txSheet.getDataRange().getValues();
     var allTxs = [];
     for(var r = 1; r < finalTx.length; r++) {
@@ -203,10 +164,9 @@
                     </div>
                 </div>
                 <div class="space-y-3 pb-4">
-                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">4</span> Deploy & Connect</h4>
+                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">3</span> Deploy & Connect</h4>
                     <ul class="list-disc pl-5 space-y-2 text-slate-400 leading-relaxed">
-                        <li>Click <b>Deploy > New deployment</b>.</li>
-                        <li>Select type: <b>Web app</b>.</li>
+                        <li>Click <b>Deploy > New deployment</b>. Select <b>Web app</b>.</li>
                         <li>Set 'Execute as' to <b class="text-white">Me</b>, and 'Who has access' to <b class="text-white">Anyone</b>.</li>
                         <li>Click Deploy, copy Web App URL, and paste in Settings!</li>
                     </ul>
@@ -262,9 +222,6 @@
                     <h1 class="text-xl font-extrabold tracking-tight text-shine">Money Note Book</h1>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="syncData(true)" id="syncBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-blue-500/20 hover:border-blue-500/30 transition-all active:scale-90" title="Force Sync">
-                        <i class="fa-solid fa-arrows-rotate"></i>
-                    </button>
                     <button onclick="switchView('settings')" id="settingsNavBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-90" title="Settings">
                         <i class="fa-solid fa-gear"></i>
                     </button>
@@ -415,27 +372,9 @@
                             <button type="button" onclick="switchToLocalMode()" class="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm">Use Local Mode</button>
                         </div>
                     </form>
-
                     <button type="button" onclick="toggleGuideModal(true)" class="w-full mt-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-3 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-sm flex justify-center items-center gap-2">
                         <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
                     </button>
-
-                    <div class="flex items-center justify-between mt-6">
-                        <div>
-                            <p class="font-bold text-white text-sm">Auto Sync</p>
-                            <p class="text-[11px] text-slate-500">Sync to Cloud instantly</p>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="setAutoSync" class="sr-only peer">
-                            <div class="w-12 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500 shadow-inner"></div>
-                        </label>
-                    </div>
-                </div>
-
-                <div class="bento-card p-6 border-rose-500/20 bg-rose-500/5 hover:-translate-y-1 hover:shadow-[0_10px_40px_-10px_rgba(244,63,94,0.15)]" style="animation-delay: 0.2s">
-                    <h3 class="text-lg font-extrabold mb-2 text-rose-400">Danger Zone</h3>
-                    <p class="text-xs text-slate-400 mb-5 leading-relaxed">Clearing local data forces the app to redownload everything from the Cloud next time you sync.</p>
-                    <button onclick="clearLocalData()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3.5 px-6 rounded-2xl transition-all active:scale-95 text-sm w-full shadow-[0_0_15px_rgba(244,63,94,0.3)]">Erase Local Cache</button>
                 </div>
             </div>
         </main>
@@ -460,21 +399,25 @@
     </div>
 
     <script>
+        // --- State Management ---
         let state = {
             view: '', users: [], transactions: [],
             currentUser: localStorage.getItem('mn_currentUser') || '',
             sheetUrl: localStorage.getItem('mn_sheetUrl') || '',
-            autoSync: localStorage.getItem('mn_autoSync') !== 'false', 
             skipSetup: localStorage.getItem('mn_skipSetup') === 'true',
             upiId: localStorage.getItem('mn_upiId') || '',
             paymentApp: localStorage.getItem('mn_paymentApp') || 'generic',
             searchQuery: '',
+            // Offline Queues
+            pendingTxs: JSON.parse(localStorage.getItem('mn_pendingTxs') || '[]'),
+            pendingUsers: JSON.parse(localStorage.getItem('mn_pendingUsers') || '[]'),
             deletedIds: JSON.parse(localStorage.getItem('mn_deletedIds') || '[]')
         };
 
         const incomeCategories = ['Salary', 'Business', 'Gift', 'Other Income'];
         const DB_NAME = 'MoneyNotebookData'; const DB_VERSION = 1; let db;
 
+        // --- Database & Storage Utilities ---
         const initDB = () => {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -501,6 +444,7 @@
             });
         };
 
+        // --- UI Feedback & Animations ---
         const showToast = (message, type = 'info') => {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -512,11 +456,14 @@
             container.appendChild(toast); setTimeout(() => toast.remove(), 3500);
         };
 
-        const showCloudLoader = (show, text = 'Syncing with Cloud...') => {
-            const loader = document.getElementById('cloudLoader');
+        const showGlobalLoader = (text = 'Loading...') => {
+            const loader = document.getElementById('globalLoader');
             document.getElementById('loaderText').innerText = text;
-            if(show) { loader.classList.remove('hidden'); loader.classList.add('flex'); } 
-            else { loader.classList.add('hidden'); loader.classList.remove('flex'); }
+            loader.classList.remove('hidden-loader');
+        };
+
+        const hideGlobalLoader = () => {
+            document.getElementById('globalLoader').classList.add('hidden-loader');
         };
 
         const toggleGuideModal = (show) => {
@@ -525,39 +472,39 @@
             else { modal.classList.add('opacity-0'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); }
         };
 
-        const closeSyncConfirmModal = () => {
-            const modal = document.getElementById('syncConfirmModal');
-            modal.classList.add('opacity-0'); modal.firstElementChild.classList.add('scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300);
-        };
-
         const copyScriptCode = () => {
             navigator.clipboard.writeText(document.getElementById('scriptCodeBlock').innerText).then(() => { showToast('Script Copied!', 'success'); }).catch(() => { showToast('Copy failed.', 'error'); });
         };
 
         const playRewardAnimation = () => {
             if (typeof confetti !== 'function') return;
-            const end = Date.now() + 2000;
-            (function frame() {
-                confetti({ particleCount: 6, angle: 60, spread: 60, origin: { x: 0, y: 1 }, colors: ['#FFD700', '#10b981', '#3b82f6', '#ffffff'], gravity: 0.8, scalar: 1.2 });
-                confetti({ particleCount: 6, angle: 120, spread: 60, origin: { x: 1, y: 1 }, colors: ['#FFD700', '#10b981', '#3b82f6', '#ffffff'], gravity: 0.8, scalar: 1.2 });
-                if (Date.now() < end) requestAnimationFrame(frame);
-            }());
+            confetti({
+                particleCount: 50,
+                spread: 70,
+                origin: { y: -0.1, x: 0.5 },
+                colors: ['#ef4444', '#3b82f6', '#fcd34d', '#c084fc', '#ffffff'],
+                gravity: 1.2,
+                scalar: 0.8,
+                ticks: 100
+            });
         };
 
         document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('savDate').value = new Date().toISOString().split('T')[0];
 
+        // --- Core Sync Architecture (Source of Truth Protocol) ---
+        
         async function loadInitialData() {
+            showGlobalLoader('Initializing...');
             try {
                 await initDB();
                 
+                // 1. Load Local Cache first for immediate UI availability
                 state.users = await dbStore('users', 'getAll');
                 const txs = await dbStore('transactions', 'getAll');
                 state.transactions = txs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
                 
                 document.getElementById('setSheetUrl').value = state.sheetUrl;
-                document.getElementById('setAutoSync').checked = state.autoSync;
                 document.getElementById('setUpiId').value = state.upiId;
                 document.getElementById('setPaymentApp').value = state.paymentApp;
                 updateConnectionBadge();
@@ -565,20 +512,12 @@
                 const targetView = new URLSearchParams(window.location.search).get('view') || 'transactions';
                 if(state.sheetUrl || state.skipSetup) { switchView(targetView); } else { switchView('setup'); }
 
-                if(state.sheetUrl) {
-                    try {
-                        const response = await fetch(state.sheetUrl, { 
-                            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                            body: JSON.stringify({ deletedIds: state.deletedIds }) 
-                        });
-                        const result = await response.json();
-                        if (result.status === 'success') {
-                            state.deletedIds = []; localStorage.removeItem('mn_deletedIds');
-                            updateLocalFromCloud(result.transactions, result.users);
-                        }
-                    } catch(err) { console.log("Offline or sync failed, using local cache."); }
+                // 2. Perform Automatic Background Sync if possible
+                if(state.sheetUrl && navigator.onLine) {
+                    await autoSync();
                 }
             } catch(e) { showToast('Initialization Error', 'error'); }
+            finally { hideGlobalLoader(); }
         }
 
         async function updateLocalFromCloud(cloudTxs, cloudUsers) {
@@ -597,58 +536,72 @@
             renderApp();
         }
 
-        async function syncData(force = false) {
-            if (!state.sheetUrl || (!state.autoSync && !force)) return;
-            const btn = document.getElementById('syncBtn'); const icon = btn.querySelector('i'); icon.classList.add('fa-spin', 'text-white');
-            if(force) showCloudLoader(true, 'Syncing with Cloud...');
+        // The automated sync function replacing the manual one
+        async function autoSync() {
+            if (!state.sheetUrl || !navigator.onLine) return; // Fail silently if offline, data is queued.
 
             try {
+                const payload = {
+                    transactions: state.pendingTxs,
+                    users: state.pendingUsers,
+                    deletedIds: state.deletedIds
+                };
+
                 const response = await fetch(state.sheetUrl, { 
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify({ transactions: state.transactions, users: state.users, deletedIds: state.deletedIds }) 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(payload) 
                 });
+                
                 const result = await response.json();
                 
                 if (result.status === 'success') {
-                    state.deletedIds = []; localStorage.removeItem('mn_deletedIds');
+                    // Success! Clear the local queues
+                    state.pendingTxs = [];
+                    state.pendingUsers = [];
+                    state.deletedIds = [];
+                    localStorage.setItem('mn_pendingTxs', '[]');
+                    localStorage.setItem('mn_pendingUsers', '[]');
+                    localStorage.setItem('mn_deletedIds', '[]');
+
+                    // Update UI with the Cloud's Source of Truth
                     await updateLocalFromCloud(result.transactions, result.users);
-                    if(force) {
-                        showToast('Cloud Sync Complete', 'success');
-                        const modal = document.getElementById('syncConfirmModal');
-                        modal.classList.remove('hidden'); modal.classList.add('flex');
-                        setTimeout(() => { modal.classList.remove('opacity-0'); modal.firstElementChild.classList.remove('scale-95'); }, 10);
-                    }
-                } else { showToast('Sync Error: Cloud configuration issue', 'error'); }
-            } catch (err) { showToast('Sync Failed - Check Internet/URL', 'error'); } 
-            finally { 
-                setTimeout(() => icon.classList.remove('fa-spin', 'text-white'), 600); 
-                showCloudLoader(false);
+                }
+            } catch (err) {
+                console.log("Auto-sync failed, keeping data in offline queue.");
             }
         }
 
-        async function confirmClearSyncedData() {
-            closeSyncConfirmModal();
-            const dbInstance = await initDB();
-            dbInstance.transaction(['transactions'], 'readwrite').objectStore('transactions').clear();
-            showToast('Local storage cleared. History remains visible.', 'success');
-        }
+        // Global Event Listeners for Offline Support
+        window.addEventListener('online', () => { 
+            if(state.sheetUrl && (state.pendingTxs.length > 0 || state.deletedIds.length > 0 || state.pendingUsers.length > 0)) {
+                showToast('Back online. Syncing pending changes...', 'info');
+                autoSync();
+            }
+        });
 
+        // --- Navigation ---
         function switchView(newView) {
-            state.view = newView; document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            if(newView === 'setup') { document.getElementById('main-app').style.display = 'none'; document.getElementById('view-setup').classList.add('active'); } 
-            else {
-                document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display = 'block'; document.getElementById(`view-${newView}`).classList.add('active');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                document.querySelectorAll('.nav-btn').forEach(btn => {
-                    if(btn.id !== 'nav-analytics') { btn.classList.remove('nav-active', 'text-blue-400', 'text-emerald-400', 'text-purple-400'); btn.classList.add('text-slate-400'); btn.querySelector('.nav-bg').style.opacity = '0'; btn.querySelector('.nav-bg').style.transform = 'scale(0.5)'; }
-                });
-                if(newView === 'transactions') { const b = document.getElementById('nav-transactions'); b.classList.add('nav-active', 'text-blue-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
-                else if(newView === 'savings') { const b = document.getElementById('nav-savings'); b.classList.add('nav-active', 'text-emerald-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
-                else if(newView === 'settings') { updateConnectionBadge(); }
-                renderApp();
-            }
+            showGlobalLoader();
+            setTimeout(() => {
+                state.view = newView; document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+                if(newView === 'setup') { document.getElementById('main-app').style.display = 'none'; document.getElementById('view-setup').classList.add('active'); } 
+                else {
+                    document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display = 'block'; document.getElementById(`view-${newView}`).classList.add('active');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    document.querySelectorAll('.nav-btn').forEach(btn => {
+                        if(btn.id !== 'nav-analytics') { btn.classList.remove('nav-active', 'text-blue-400', 'text-emerald-400', 'text-purple-400'); btn.classList.add('text-slate-400'); btn.querySelector('.nav-bg').style.opacity = '0'; btn.querySelector('.nav-bg').style.transform = 'scale(0.5)'; }
+                    });
+                    if(newView === 'transactions') { const b = document.getElementById('nav-transactions'); b.classList.add('nav-active', 'text-blue-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
+                    else if(newView === 'savings') { const b = document.getElementById('nav-savings'); b.classList.add('nav-active', 'text-emerald-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
+                    else if(newView === 'settings') { updateConnectionBadge(); }
+                    renderApp();
+                }
+                hideGlobalLoader();
+            }, 300); // Artificial delay to ensure crisp UI transitions
         }
 
+        // --- Configuration Handlers ---
         document.getElementById('setupForm').onsubmit = async (e) => {
             e.preventDefault(); const url = document.getElementById('setupUrl').value.trim(); const upiId = document.getElementById('setupUpiId').value.trim(); const payApp = document.getElementById('setupPaymentApp').value;
             if(upiId) {
@@ -662,7 +615,7 @@
             } else { state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); showToast('Local Mode Configured!', 'info'); }
             
             switchView('transactions'); playRewardAnimation(); 
-            if(state.sheetUrl) await syncData(true);
+            if(state.sheetUrl) await autoSync();
         };
 
         const closeSetup = () => { localStorage.setItem('mn_skipSetup', 'true'); state.skipSetup = true; state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); switchView('transactions'); showToast('Started in Local Mode', 'info'); };
@@ -683,22 +636,13 @@
             e.preventDefault(); const url = document.getElementById('setSheetUrl').value.trim();
             if(url) { 
                 state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); 
-                showToast('Cloud Database Updated', 'success'); updateConnectionBadge(); await syncData(true); 
+                showToast('Cloud Database Updated', 'success'); updateConnectionBadge(); await autoSync(); 
             } else { showToast('Enter URL or select Local Mode', 'error'); }
         };
 
         const switchToLocalMode = () => { state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); document.getElementById('setSheetUrl').value = ''; state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); updateConnectionBadge(); showToast('Switched to Local Mode.', 'info'); };
-        document.getElementById('setAutoSync').onchange = (e) => { state.autoSync = e.target.checked; localStorage.setItem('mn_autoSync', e.target.checked); };
 
-        async function clearLocalData() { 
-            if(confirm('Erase local cache? If connected to Cloud, data will redownload on next sync.')) { 
-                const dbInstance = await initDB(); 
-                dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('users').clear(); 
-                dbInstance.transaction(['users','transactions'], 'readwrite').objectStore('transactions').clear(); 
-                state.users = []; state.transactions = []; state.currentUser = ''; renderApp(); showToast('Local Cache Wiped', 'info'); 
-            } 
-        }
-
+        // --- View Rendering ---
         function renderApp() { renderUserSelectors(); renderStats(); renderTransactionLists(); }
         
         function renderUserSelectors() {
@@ -741,7 +685,6 @@
                 if(state.view === 'savings' && t.type !== 'savings_deposit') return false; 
                 if(!state.searchQuery) return true; 
                 const q = state.searchQuery.toLowerCase(); 
-                
                 const formattedDate = new Date(t.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}).toLowerCase();
                 return t.reason.toLowerCase().includes(q) || t.amount.toString().includes(q) || t.category.toLowerCase().includes(q) || t.date.includes(q) || formattedDate.includes(q); 
             });
@@ -755,7 +698,6 @@
                                 <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                                 <input type="text" placeholder="Search..." oninput="handleSearch(this.value)" value="${state.searchQuery}" class="bg-black/30 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white font-medium focus:outline-none focus:border-blue-500 w-32 transition-all focus:w-44">
                             </div>
-                            ${filtered.length > 0 ? `<button onclick="clearVisibleHistory()" class="text-rose-400 hover:text-white hover:bg-rose-500 p-2 rounded-full transition-all active:scale-90" title="Delete All Displayed"><i class="fa-solid fa-trash-can-arrow-up"></i></button>` : ''}
                         </div>
                     </div>
                     ${filtered.length === 0 ? '<div class="bento-card p-10 text-center"><i class="fa-solid fa-leaf text-4xl mb-4 text-white/10"></i><p class="text-slate-400 font-semibold">No records found.</p></div>' : ''}
@@ -785,65 +727,25 @@
 
         function handleSearch(val) { state.searchQuery = val; renderTransactionLists(); }
 
-        // --- DELETION LOGIC ---
+        // --- Data Mutations & Auto Sync Queue ---
         async function deleteTx(id, btnElement) {
-            if(!confirm("Permanently delete this record? It will be removed from Cloud on next sync.")) return;
-            
-            // UI Animation out
-            const txDiv = btnElement.closest('.tx-anim');
-            txDiv.style.transform = 'scale(0.9) translateX(30px)';
-            txDiv.style.opacity = '0';
+            if(!confirm("Delete this record?")) return;
+            const txDiv = btnElement.closest('.tx-anim'); txDiv.style.transform = 'scale(0.9) translateX(30px)'; txDiv.style.opacity = '0';
             
             setTimeout(async () => {
-                state.deletedIds.push(id.toString());
-                localStorage.setItem('mn_deletedIds', JSON.stringify(state.deletedIds));
-                
-                await dbStore('transactions', 'delete', id.toString());
-                state.transactions = state.transactions.filter(t => t.id !== id.toString());
-                
-                renderApp();
-                showToast('Record Queued for Deletion', 'success');
-                syncData(); // Automatically push deletion to cloud
+                state.deletedIds.push(id.toString()); localStorage.setItem('mn_deletedIds', JSON.stringify(state.deletedIds));
+                await dbStore('transactions', 'delete', id.toString()); state.transactions = state.transactions.filter(t => t.id !== id.toString());
+                renderApp(); autoSync();
             }, 300);
         }
 
-        async function clearVisibleHistory() {
-            if(!confirm("WARNING: Are you sure you want to PERMANENTLY delete all these visible records? This will erase them from both your device and the Cloud.")) return;
-            
-            showCloudLoader(true, "Deleting records...");
-            
-            // Find all currently visible transactions based on current view/filter
-            const txsToDelete = state.transactions.filter(t => { 
-                if(state.view === 'transactions' && t.type === 'savings_deposit') return false; 
-                if(state.view === 'savings' && t.type !== 'savings_deposit') return false; 
-                if(!state.searchQuery) return true; 
-                const q = state.searchQuery.toLowerCase(); 
-                const formattedDate = new Date(t.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}).toLowerCase();
-                return t.reason.toLowerCase().includes(q) || t.amount.toString().includes(q) || t.category.toLowerCase().includes(q) || t.date.includes(q) || formattedDate.includes(q); 
-            });
-
-            if(txsToDelete.length === 0) return showCloudLoader(false);
-
-            const idsToDelete = txsToDelete.map(t => t.id.toString());
-            state.deletedIds.push(...idsToDelete);
-            localStorage.setItem('mn_deletedIds', JSON.stringify(state.deletedIds));
-
-            for(let id of idsToDelete) { await dbStore('transactions', 'delete', id); }
-            
-            state.transactions = state.transactions.filter(t => !idsToDelete.includes(t.id.toString()));
-            
-            renderApp();
-            await syncData(); // Push batch deletion to cloud
-            showCloudLoader(false);
-            showToast('History Cleared', 'success');
-        }
-
-        // --- Data Mutations ---
         document.getElementById('addUserForm').onsubmit = async (e) => { 
-            e.preventDefault(); showCloudLoader(true, 'Adding User to Cloud...');
+            e.preventDefault(); 
             const newUser = { id: Date.now().toString(), name: document.getElementById('newUserName').value.trim(), initialSavings: parseFloat(document.getElementById('newUserSavings').value) || 0, runningIncome: 0, runningExpense: 0, runningSavings: 0 }; 
-            await dbStore('users', 'add', newUser); state.users.push(newUser); selectUser(newUser.id); e.target.reset(); 
-            await syncData(); showToast('User Added!', 'success'); showCloudLoader(false);
+            await dbStore('users', 'add', newUser); 
+            state.users.push(newUser); 
+            state.pendingUsers.push(newUser); localStorage.setItem('mn_pendingUsers', JSON.stringify(state.pendingUsers));
+            selectUser(newUser.id); e.target.reset(); showToast('User Added!', 'success'); autoSync(); 
         };
         
         document.getElementById('expCategory').onchange = (e) => { if(e.target.value === 'Savings') switchView('savings'); };
@@ -851,43 +753,53 @@
         document.getElementById('expenseForm').onsubmit = async (e) => { 
             e.preventDefault(); if(!state.currentUser) return showToast('Select a user profile first', 'error'); 
             const cat = document.getElementById('expCategory').value; if(cat === 'Savings') { switchView('savings'); return; } 
-            showCloudLoader(true, 'Saving to Cloud...');
-            const isIncome = incomeCategories.includes(cat); const tx = { id: Date.now().toString(), userId: state.currentUser, type: isIncome ? 'income' : 'expense', amount: parseFloat(document.getElementById('expAmount').value), reason: document.getElementById('expReason').value.trim(), category: cat, date: document.getElementById('expDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; 
-            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); e.target.reset(); document.getElementById('expDate').value = new Date().toISOString().split('T')[0]; 
-            await syncData(); showToast(isIncome ? 'Income Logged' : 'Expense Logged', 'success'); playRewardAnimation(); showCloudLoader(false);
+            
+            const isIncome = incomeCategories.includes(cat); 
+            const tx = { id: Date.now().toString(), userId: state.currentUser, type: isIncome ? 'income' : 'expense', amount: parseFloat(document.getElementById('expAmount').value), reason: document.getElementById('expReason').value.trim(), category: cat, date: document.getElementById('expDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; 
+            
+            await dbStore('transactions', 'add', tx); 
+            state.transactions.unshift(tx); 
+            state.pendingTxs.push(tx); localStorage.setItem('mn_pendingTxs', JSON.stringify(state.pendingTxs));
+            
+            e.target.reset(); document.getElementById('expDate').value = new Date().toISOString().split('T')[0]; 
+            showToast(isIncome ? 'Income Logged' : 'Expense Logged', 'success'); playRewardAnimation(); renderApp(); autoSync();
         };
         
         async function handleManualSavings() { 
             if(!state.currentUser) return showToast('Select a user profile first', 'error'); 
             const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error'); 
-            showCloudLoader(true, 'Saving to Cloud...');
+            
             const tx = { id: Date.now().toString(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: document.getElementById('savNotes').value.trim() || 'Savings Deposit', category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; 
-            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
-            await syncData(); showToast('Savings Secured', 'success'); playRewardAnimation(); showCloudLoader(false);
+            await dbStore('transactions', 'add', tx); 
+            state.transactions.unshift(tx); 
+            state.pendingTxs.push(tx); localStorage.setItem('mn_pendingTxs', JSON.stringify(state.pendingTxs));
+
+            document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
+            showToast('Savings Secured', 'success'); playRewardAnimation(); renderApp(); autoSync();
         }
         
         async function handleUpiPayment() {
             if(!state.currentUser) return showToast('Select a user profile first', 'error'); const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error');
             if(!state.upiId) { showToast('Please configure your UPI ID in Settings first.', 'error'); setTimeout(() => switchView('settings'), 2000); return; }
-            showCloudLoader(true, 'Preparing Intent & Saving...');
             const nts = document.getElementById('savNotes').value.trim() || 'Savings Deposit'; const user = state.users.find(u => u.id === state.currentUser);
             const pn = encodeURIComponent(user ? user.name : 'User'); const pa = encodeURIComponent(state.upiId); const am = encodeURIComponent(amt); const tn = encodeURIComponent(nts);
             let prefix = 'upi://pay'; if(state.paymentApp === 'gpay') prefix = 'tez://upi/pay'; else if(state.paymentApp === 'phonepe') prefix = 'phonepe://pay'; else if(state.paymentApp === 'paytm') prefix = 'paytmmp://pay'; else if(state.paymentApp === 'bhim') prefix = 'bhim://pay';
             const uri = `${prefix}?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}`;
             const tx = { id: Date.now().toString(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: nts, category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), upiId: state.upiId, paymentPlatform: state.paymentApp };
-            await dbStore('transactions', 'add', tx); state.transactions.unshift(tx); document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
-            await syncData(); showCloudLoader(false); showToast('Launching Payment App...', 'info'); setTimeout(() => { window.location.href = uri; }, 500);
+            
+            await dbStore('transactions', 'add', tx); 
+            state.transactions.unshift(tx); 
+            state.pendingTxs.push(tx); localStorage.setItem('mn_pendingTxs', JSON.stringify(state.pendingTxs));
+
+            document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
+            renderApp(); autoSync(); showToast('Launching Payment App...', 'info'); setTimeout(() => { window.location.href = uri; }, 500);
         }
 
         window.onload = loadInitialData;
 
         // --- PWA Service Worker Registration ---
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
+            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => { console.log('ServiceWorker registration failed: ', err); }); });
         }
     </script>
 </body>
