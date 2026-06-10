@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Money Pro Analytics</title>
 
-    <!-- PWA Manifest & App Settings -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#030303">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,8 +22,8 @@
         ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
         .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        input[type="month"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
-        input[type="month"]:focus::-webkit-calendar-picker-indicator, input[type="month"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
+        input[type="date"]:focus::-webkit-calendar-picker-indicator, input[type="date"]:hover::-webkit-calendar-picker-indicator { opacity: 1; }
 
         @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
         .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
@@ -49,13 +48,11 @@
 </head>
 <body class="selection:bg-purple-500/30 text-[15px] relative overflow-x-hidden">
 
-    <!-- Ambient Animated Background -->
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
         <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-pink-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
     </div>
 
-    <!-- Cloud Loader -->
     <div id="cloudLoader" class="fixed inset-0 z-[300] hidden items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300">
         <div class="bg-[#121212] border border-white/10 p-5 rounded-2xl flex items-center gap-4 shadow-2xl">
             <i class="fa-solid fa-circle-notch fa-spin text-purple-500 text-2xl"></i>
@@ -79,19 +76,25 @@
 
     <main class="max-w-3xl mx-auto px-5 pt-6 pb-32">
         
-        <!-- Interactive Data Filters -->
         <div class="bento-card p-5 mb-6 relative overflow-hidden" style="animation-delay: 0.05s">
             <h2 class="text-sm font-extrabold mb-4 text-slate-400 uppercase tracking-wider flex items-center gap-2">
                 <i class="fa-solid fa-filter"></i> Insight Filters
             </h2>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="grid grid-cols-2 lg:grid-cols-5 gap-3">
                 <div class="flex flex-col">
-                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Start Month</label>
-                    <input type="month" id="filterStartMonth" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none cursor-pointer" style="color-scheme:dark">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Start Date</label>
+                    <input type="date" id="filterStartDate" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none cursor-pointer" style="color-scheme:dark">
                 </div>
                 <div class="flex flex-col">
-                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">End Month</label>
-                    <input type="month" id="filterEndMonth" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none cursor-pointer" style="color-scheme:dark">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">End Date</label>
+                    <input type="date" id="filterEndDate" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm focus:outline-none cursor-pointer" style="color-scheme:dark">
+                </div>
+                <div class="flex flex-col">
+                    <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Trend View</label>
+                    <select id="filterGroupBy" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer h-full">
+                        <option value="daily">Daily</option>
+                        <option value="monthly" selected>Monthly</option>
+                    </select>
                 </div>
                 <div class="flex flex-col">
                     <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Profile</label>
@@ -99,17 +102,16 @@
                         <option value="all">All Users</option>
                     </select>
                 </div>
-                <div class="flex flex-col">
+                <div class="flex flex-col col-span-2 lg:col-span-1">
                     <label class="text-[10px] text-slate-500 uppercase font-bold mb-1 ml-1">Category</label>
                     <select id="filterCategory" class="bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-white text-sm font-medium focus:outline-none appearance-none cursor-pointer h-full">
                         <option value="all">All Categories</option>
                     </select>
                 </div>
             </div>
-            <button onclick="clearFilters()" class="mt-3 text-[11px] font-bold text-pink-400 hover:text-pink-300 uppercase tracking-wider transition-colors"><i class="fa-solid fa-rotate-left"></i> Reset Range</button>
+            <button onclick="clearFilters()" class="mt-4 text-[11px] font-bold text-pink-400 hover:text-pink-300 uppercase tracking-wider transition-colors"><i class="fa-solid fa-rotate-left"></i> Reset Range & Filters</button>
         </div>
 
-        <!-- Global KPIs -->
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div class="bento-card p-5 hover:-translate-y-1 text-center" style="animation-delay: 0.1s">
                 <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-wallet text-sm"></i></div>
@@ -133,13 +135,13 @@
             </div>
         </div>
 
-        <!-- Trend Line Chart -->
         <div class="bento-card p-6 mb-6 hover:-translate-y-1" style="animation-delay: 0.3s">
-            <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-chart-line text-blue-400"></i> Temporal Trends</h3>
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-extrabold flex items-center gap-2 text-white"><i class="fa-solid fa-chart-line text-blue-400"></i> Temporal Trends</h3>
+            </div>
             <div class="h-64 relative w-full"><canvas id="lineChart"></canvas></div>
         </div>
 
-        <!-- Category Doughnut Chart -->
         <div class="bento-card p-6 mb-6 hover:-translate-y-1" style="animation-delay: 0.35s">
             <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-chart-pie text-pink-400"></i> Spending Distribution</h3>
             <div class="h-64 relative w-full flex items-center justify-center">
@@ -148,12 +150,10 @@
             </div>
         </div>
 
-        <!-- User Specific Financial Positions -->
         <div class="bento-card p-6 mb-8 hover:-translate-y-1" style="animation-delay: 0.4s">
             <h3 class="text-lg font-extrabold mb-6 flex items-center gap-2 text-white"><i class="fa-solid fa-users text-indigo-400"></i> User Financial Position</h3>
             <div id="userBreakdownContainer" class="space-y-3">
-                <!-- User Cards Populated by JS -->
-            </div>
+                </div>
         </div>
 
     </main>
@@ -250,35 +250,37 @@
             const categoryFilter = document.getElementById('filterCategory');
             Array.from(categories).sort().forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.innerText = c; categoryFilter.appendChild(opt); });
 
-            ['filterStartMonth', 'filterEndMonth', 'filterUser', 'filterCategory'].forEach(id => {
+            ['filterStartDate', 'filterEndDate', 'filterGroupBy', 'filterUser', 'filterCategory'].forEach(id => {
                 document.getElementById(id).addEventListener('change', updateDashboard);
             });
         }
 
         function clearFilters() {
-            document.getElementById('filterStartMonth').value = '';
-            document.getElementById('filterEndMonth').value = '';
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            document.getElementById('filterGroupBy').value = 'monthly';
             document.getElementById('filterUser').value = 'all';
             document.getElementById('filterCategory').value = 'all';
             updateDashboard();
         }
 
         function updateDashboard() {
-            const fStart = document.getElementById('filterStartMonth').value; 
-            const fEnd = document.getElementById('filterEndMonth').value;     
+            const fStart = document.getElementById('filterStartDate').value; // format: "YYYY-MM-DD"
+            const fEnd = document.getElementById('filterEndDate').value;     // format: "YYYY-MM-DD"
+            const fGroup = document.getElementById('filterGroupBy').value;   // "daily" or "monthly"
             const fUser = document.getElementById('filterUser').value;
             const fCat = document.getElementById('filterCategory').value;
 
+            // 1. Filter Transactions based on exact Date Range
             const filteredTxs = state.transactions.filter(t => {
-                const txMonth = t.date.substring(0, 7); 
-                
-                if(fStart && txMonth < fStart) return false;
-                if(fEnd && txMonth > fEnd) return false;
+                if(fStart && t.date < fStart) return false;
+                if(fEnd && t.date > fEnd) return false;
                 if(fUser !== 'all' && t.userId !== fUser) return false;
                 if(fCat !== 'all' && t.category !== fCat) return false;
                 return true;
             });
 
+            // 2. Calculate KPIs
             let tInc = 0, tExp = 0, tSav = 0;
             const isGlobalView = (!fStart && !fEnd && fCat === 'all'); 
 
@@ -309,8 +311,8 @@
             Chart.defaults.color = '#94a3b8'; Chart.defaults.font.family = 'Inter';
             renderPieChart(filteredTxs);
             
-            const showDaily = (fStart && fEnd && fStart === fEnd);
-            renderLineChart(filteredTxs, showDaily);
+            // Render Trend Line passing the daily vs monthly flag
+            renderLineChart(filteredTxs, fGroup === 'daily');
         }
 
         function renderUserBreakdown(txs, isGlobalView) {
@@ -380,6 +382,7 @@
             const temporalData = {};
             
             txs.forEach(t => {
+                // Group by Day (YYYY-MM-DD) or Month (YYYY-MM)
                 const dateKey = isDailyView ? t.date : t.date.substring(0,7);
                 if(!temporalData[dateKey]) temporalData[dateKey] = { inc: 0, exp: 0, sav: 0 };
                 
@@ -392,9 +395,12 @@
             
             const labels = sortedKeys.map(k => {
                 if(isDailyView) {
-                    const [y, m, d] = k.split('-'); return `${m}/${d}`;
+                    const [y, m, d] = k.split('-'); 
+                    const date = new Date(y, parseInt(m)-1, d);
+                    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                 } else {
-                    const [y, m] = k.split('-'); const date = new Date(y, parseInt(m)-1);
+                    const [y, m] = k.split('-'); 
+                    const date = new Date(y, parseInt(m)-1);
                     return date.toLocaleString('default', { month: 'short', year: '2-digit' });
                 }
             });
