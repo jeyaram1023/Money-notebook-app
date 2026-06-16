@@ -1,806 +1,1872 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Money Notebook Pro</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Money Notebook Pro</title>
+<meta name="theme-color" content="#050508">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Money Pro">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#030303">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Money Pro">
-    <link rel="apple-touch-icon" href="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png">
+<style>
+:root {
+  --bg: #050508;
+  --surface: #0d0d14;
+  --surface2: #12121c;
+  --border: rgba(255,255,255,0.07);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #e8e8f0;
+  --text-dim: #6b6b80;
+  --text-muted: #3a3a50;
+  --green: #00e5a0;
+  --green-dim: rgba(0,229,160,0.12);
+  --red: #ff4d6d;
+  --red-dim: rgba(255,77,109,0.12);
+  --blue: #4d9fff;
+  --blue-dim: rgba(77,159,255,0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+  --gold: #fbbf24;
+  --gold-dim: rgba(251,191,36,0.12);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --shadow: 0 20px 60px -10px rgba(0,0,0,0.6);
+  --shadow-sm: 0 8px 24px -4px rgba(0,0,0,0.4);
+}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+::-webkit-scrollbar { width: 0; height: 0; }
+::selection { background: rgba(77,159,255,0.25); }
 
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #030303; color: #e2e8f0; -webkit-tap-highlight-color: transparent; overscroll-behavior-y: none; }
-        ::-webkit-scrollbar { width: 0px; height: 0px; display: none; }
-        .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.5; transition: opacity 0.2s; }
-        input[type="date"]:focus::-webkit-calendar-picker-indicator { opacity: 1; }
+/* BG */
+#bg-mesh { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.mesh-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.25; animation: meshDrift 12s ease-in-out infinite alternate; }
+.mesh-orb:nth-child(1) { width: 600px; height: 600px; background: radial-gradient(circle, #1a1a3e, transparent); top: -200px; left: -200px; }
+.mesh-orb:nth-child(2) { width: 500px; height: 500px; background: radial-gradient(circle, #0a2a1a, transparent); bottom: -150px; right: -150px; animation-delay: -6s; }
+.mesh-orb:nth-child(3) { width: 300px; height: 300px; background: radial-gradient(circle, #1a0a2a, transparent); top: 40%; left: 40%; animation-delay: -3s; }
+@keyframes meshDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,-30px) scale(1.08); } }
+#bg-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+}
 
-        @keyframes bentoPop { 0% { opacity: 0; transform: scale(0.92) translateY(20px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
-        .bento-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3); animation: bentoPop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease; }
-        .bento-card:hover { box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+/* Toast */
+#toastContainer {
+  position: fixed; top: max(16px, env(safe-area-inset-top));
+  left: 50%; transform: translateX(-50%);
+  z-index: 9999; display: flex; flex-direction: column; gap: 10px;
+  pointer-events: none; width: 90%; max-width: 420px;
+}
+.toast {
+  background: var(--surface2); border: 1px solid var(--border-hover);
+  border-radius: 14px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 14px; font-weight: 500; color: var(--text);
+  backdrop-filter: blur(20px); box-shadow: var(--shadow);
+  animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards, toastOut 0.3s ease 3.2s forwards;
+}
+.toast .toast-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
+.toast.success .toast-icon { background: var(--green-dim); color: var(--green); }
+.toast.error .toast-icon { background: var(--red-dim); color: var(--red); }
+.toast.info .toast-icon { background: var(--blue-dim); color: var(--blue); }
+.toast.warning .toast-icon { background: var(--gold-dim); color: var(--gold); }
+@keyframes toastIn { from { opacity:0; transform:translateY(-16px) scale(0.9); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes toastOut { from { opacity:1; } to { opacity:0; transform:scale(0.9); } }
 
-        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-        .view-section { display: none; animation: fadeInScale 0.3s ease-out forwards; }
-        .view-section.active { display: block; }
-        #view-setup { display: none; }
-        #view-setup.active { display: flex; }
+/* Loader */
+#cloudLoader { position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; background: rgba(5,5,8,0.85); backdrop-filter: blur(20px); }
+#cloudLoader.active { display: flex; }
+.loader-card { background: var(--surface2); border: 1px solid var(--border-hover); border-radius: var(--radius); padding: 28px 36px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow); animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.loader-spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--blue); animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes popIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
 
-        @keyframes toastFade { 0% { opacity: 0; transform: translateY(-20px) translateX(-50%) scale(0.9); } 10% { opacity: 1; transform: translateY(0) translateX(-50%) scale(1); } 90% { opacity: 1; transform: translateY(0) translateX(-50%) scale(1); } 100% { opacity: 0; transform: translateY(-20px) translateX(-50%) scale(0.9); } }
-        .toast-msg { animation: toastFade 3.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.25s ease; }
+.modal-overlay.open { display: flex; opacity: 1; }
+.modal-box { background: var(--surface); border: 1px solid var(--border-hover); border-radius: var(--radius); width: 100%; max-width: 440px; box-shadow: var(--shadow); transform: scale(0.92) translateY(20px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+.modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
+.modal-close:hover { background: var(--red-dim); color: var(--red); }
+.modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+.modal-footer { padding: 20px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; flex-shrink: 0; }
 
-        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px) scale(0.95); } to { opacity: 1; transform: translateX(0) scale(1); } }
-        .tx-anim { animation: slideInRight 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--radius-sm); padding: 12px 20px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; border: none; outline: none; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+.btn:active { transform: scale(0.95); }
+.btn-primary { background: var(--blue); color: #fff; box-shadow: 0 8px 24px -4px rgba(77,159,255,0.4); }
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-success { background: var(--green); color: #000; box-shadow: 0 8px 24px -4px rgba(0,229,160,0.35); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+.btn-full { width: 100%; }
+.btn-lg { padding: 16px 24px; font-size: 15px; border-radius: var(--radius); }
 
-        @keyframes navSlideUp { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
-        .nav-container { animation: navSlideUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        .nav-active .nav-bg { background-color: rgba(255,255,255,0.1); transform: scale(1.1); }
-        .nav-active span { color: #fff; font-weight: 700; }
-        
-        input:focus, select:focus { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); border-color: rgba(59, 130, 246, 0.8) !important; }
-        optgroup { background: #0f172a; color: #94a3b8; font-weight: 600; font-style: normal; }
-        option { background: #050505; color: #e2e8f0; font-weight: 400; }
+/* Inputs */
+.input-group { display: flex; flex-direction: column; gap: 6px; }
+.input-label { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
+.input { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px 16px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: all 0.2s; width: 100%; -webkit-appearance: none; appearance: none; }
+.input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(77,159,255,0.15); }
+.input::placeholder { color: var(--text-muted); }
+.input-icon-wrap { position: relative; }
+.input-icon-wrap .input { padding-left: 44px; }
+.input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 14px; pointer-events: none; }
+select.input { cursor: pointer; }
+select.input option { background: var(--surface2); color: var(--text); }
+input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
 
-        @keyframes shine { to { background-position: 200% center; } }
-        .text-shine { background: linear-gradient(to right, #60a5fa, #c084fc, #f472b6, #60a5fa); background-size: 200% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 4s linear infinite; }
-        @keyframes ambientDrift { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
-        .ambient-orb { animation: ambientDrift 8s ease-in-out infinite alternate; }
+/* Cards */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; }
+.card:hover { border-color: var(--border-hover); }
 
-        /* Global Loader Overlay */
-        #globalLoader { transition: opacity 0.4s ease, visibility 0.4s ease; z-index: 9999; }
-        #globalLoader.hidden-loader { opacity: 0; visibility: hidden; pointer-events: none; }
-    </style>
+/* Toggle Pill */
+.toggle-pill { display: flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 4px; gap: 4px; }
+.toggle-pill-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 16px; border-radius: 100px; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600; border: none; outline: none; transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1); color: var(--text-dim); background: transparent; }
+.toggle-pill-btn.active-income { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,229,160,0.25); }
+.toggle-pill-btn.active-expense { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,77,109,0.25); }
+
+/* Chip */
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
+.chip-green { background: var(--green-dim); color: var(--green); border-color: rgba(0,229,160,0.2); }
+.chip-red { background: var(--red-dim); color: var(--red); border-color: rgba(255,77,109,0.2); }
+.chip-blue { background: var(--blue-dim); color: var(--blue); border-color: rgba(77,159,255,0.2); }
+.chip-purple { background: var(--purple-dim); color: var(--purple); border-color: rgba(167,139,250,0.2); }
+.chip-gold { background: var(--gold-dim); color: var(--gold); border-color: rgba(251,191,36,0.2); }
+
+/* View Sections */
+.view-section { display: none; }
+.view-section.active { display: block; animation: fadeUp 0.4s cubic-bezier(0.2,0.8,0.2,1) forwards; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+/* Setup Screen */
+#view-setup { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 20px; position: relative; z-index: 50; }
+#view-setup.active { display: flex; }
+.setup-card { background: var(--surface); border: 1px solid var(--border-hover); border-radius: 28px; padding: 40px 32px; width: 100%; max-width: 460px; position: relative; overflow: hidden; box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7); animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+.setup-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(77,159,255,0.5),transparent); }
+
+/* Header */
+.app-header { position: sticky; top: 0; z-index: 100; background: rgba(5,5,8,0.88); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between; padding-top: env(safe-area-inset-top, 0); }
+.header-logo { display: flex; align-items: center; gap: 10px; }
+.header-logo-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 15px; color: #fff; }
+.header-title { font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
+.header-actions { display: flex; align-items: center; gap: 8px; }
+.header-btn { width: 34px; height: 34px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: all 0.2s; position: relative; }
+.header-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); position: absolute; top: 5px; right: 5px; box-shadow: 0 0 5px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+
+/* Bottom Nav */
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(5,5,8,0.95); backdrop-filter: blur(24px); border-top: 1px solid var(--border); padding: 10px 8px; padding-bottom: max(10px, env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-around; }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.2s; min-width: 52px; }
+.nav-item .nav-icon { font-size: 17px; color: var(--text-muted); transition: all 0.2s; }
+.nav-item .nav-label { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; }
+.nav-item.active .nav-icon { color: var(--blue); transform: translateY(-2px); }
+.nav-item.active .nav-label { color: var(--blue); }
+.nav-fab { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; cursor: pointer; box-shadow: 0 8px 24px rgba(77,159,255,0.4); transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); border: none; outline: none; transform: translateY(-4px); }
+.nav-fab:hover { transform: translateY(-8px) scale(1.05); }
+.nav-fab:active { transform: translateY(-2px) scale(0.95); }
+
+/* Page Content */
+.page-content { max-width: 800px; margin: 0 auto; padding: 20px 16px; padding-bottom: 110px; }
+
+/* Balance Card */
+.balance-card { position: relative; border-radius: 22px; overflow: hidden; padding: 24px; margin-bottom: 16px; background: linear-gradient(135deg,#0d1829,#0a1220); border: 1px solid rgba(77,159,255,0.15); box-shadow: 0 24px 60px -12px rgba(0,0,0,0.6); }
+.balance-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(77,159,255,0.6),rgba(167,139,250,0.4),transparent); }
+.balance-card-bg { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.balance-card-orb { position:absolute; border-radius:50%; filter:blur(60px); }
+.balance-card-orb:nth-child(1) { width:200px; height:200px; background:rgba(77,159,255,0.1); top:-50px; right:-50px; }
+.balance-card-orb:nth-child(2) { width:150px; height:150px; background:rgba(167,139,250,0.08); bottom:-40px; left:20px; }
+.balance-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: rgba(77,159,255,0.7); text-transform: uppercase; margin-bottom: 6px; }
+.balance-amount { font-family: var(--font-display); font-size: clamp(32px,8vw,48px); font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.1; }
+.balance-amount .currency { font-size: 0.5em; vertical-align: super; margin-right: 2px; opacity: 0.7; }
+.balance-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+/* UPI Launch Buttons */
+.upi-launch-row { display: flex; gap: 10px; margin-top: 16px; }
+.upi-launch-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border-radius: 12px; cursor: pointer; border: none; outline: none; font-family: var(--font-body); font-size: 13px; font-weight: 700; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); }
+.upi-launch-btn:active { transform: scale(0.95); }
+.upi-btn-gpay { background: #1a73e8; color: #fff; box-shadow: 0 4px 16px rgba(26,115,232,0.35); }
+.upi-btn-gpay:hover { background: #1557b0; }
+.upi-btn-phonepe { background: #5f259f; color: #fff; box-shadow: 0 4px 16px rgba(95,37,159,0.35); }
+.upi-btn-phonepe:hover { background: #4a1a80; }
+.upi-btn-paytm { background: #00baf2; color: #fff; box-shadow: 0 4px 16px rgba(0,186,242,0.35); }
+.upi-btn-paytm:hover { background: #0099cc; }
+.upi-btn-bhim { background: #f26522; color: #fff; box-shadow: 0 4px 16px rgba(242,101,34,0.35); }
+.upi-btn-bhim:hover { background: #d4551a; }
+.upi-btn-generic { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.3); }
+.upi-btn-generic:hover { background: rgba(167,139,250,0.2); }
+
+/* Stats Grid */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; position: relative; overflow: hidden; transition: all 0.2s; }
+.stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.stat-card .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-bottom: 10px; }
+.stat-card .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 3px; }
+.stat-card .stat-value { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
+.stat-card.income .stat-icon { background: var(--green-dim); color: var(--green); }
+.stat-card.income .stat-value { color: var(--green); }
+.stat-card.expense .stat-icon { background: var(--red-dim); color: var(--red); }
+.stat-card.expense .stat-value { color: var(--red); }
+
+/* Section Header */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 20px; }
+.section-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.01em; color: var(--text); }
+.section-action { font-size: 12px; font-weight: 600; color: var(--blue); cursor: pointer; }
+
+/* Transaction Items */
+.tx-list { display: flex; flex-direction: column; gap: 8px; }
+.tx-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; animation: slideIn 0.35s cubic-bezier(0.2,0.8,0.2,1) backwards; }
+.tx-item:hover { border-color: var(--border-hover); transform: translateX(3px); }
+@keyframes slideIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
+.tx-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.tx-icon.income { background: var(--green-dim); }
+.tx-icon.expense { background: var(--red-dim); }
+.tx-details { flex: 1; min-width: 0; }
+.tx-category { font-weight: 600; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-sub { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tx-meta { text-align: right; flex-shrink: 0; }
+.tx-amount { font-family: var(--font-display); font-size: 15px; font-weight: 700; }
+.tx-amount.income { color: var(--green); }
+.tx-amount.expense { color: var(--red); }
+.tx-date { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+/* UPI Badge */
+.upi-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); margin-left: 4px; }
+
+/* Amount Input */
+.amount-input-wrap { position: relative; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; transition: all 0.2s; }
+.amount-input-wrap:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(77,159,255,0.15); }
+.amount-currency { padding: 0 8px 0 16px; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--text-dim); }
+.amount-input { flex: 1; background: transparent; border: none; outline: none; font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--text); padding: 14px 16px 14px 0; width: 100%; letter-spacing: -0.02em; }
+.amount-input::placeholder { color: var(--text-muted); }
+
+/* Category Grid */
+.cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
+@media (min-width: 420px) { .cat-grid { grid-template-columns: repeat(4,1fr); } }
+.cat-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 11px; cursor: pointer; background: var(--surface2); border: 1.5px solid var(--border); transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); font-size: 17px; }
+.cat-chip span { font-size: 10px; font-weight: 600; color: var(--text-dim); }
+.cat-chip.selected { border-color: var(--blue); background: var(--blue-dim); }
+.cat-chip.selected span { color: var(--blue); }
+.cat-chip:hover:not(.selected) { border-color: var(--border-hover); transform: scale(1.04); }
+
+/* User Cards */
+.user-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; }
+.user-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.user-card.active-user { border-color: rgba(77,159,255,0.4); background: rgba(77,159,255,0.04); }
+.user-avatar { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 17px; font-weight: 800; flex-shrink: 0; }
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-weight: 700; font-size: 14px; color: var(--text); }
+.user-savings-row { font-size: 11px; color: var(--text-dim); }
+.user-actions { display: flex; gap: 6px; }
+.icon-btn { width: 30px; height: 30px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+.icon-btn.del:hover { background: var(--red-dim); border-color: rgba(255,77,109,0.3); color: var(--red); }
+.icon-btn.edit:hover { background: var(--blue-dim); border-color: rgba(77,159,255,0.3); color: var(--blue); }
+
+/* Settings */
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label { display: flex; flex-direction: column; gap: 2px; }
+.settings-row-title { font-size: 14px; font-weight: 600; color: var(--text); }
+.settings-row-sub { font-size: 11px; color: var(--text-dim); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.settings-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-right: 12px; flex-shrink: 0; }
+
+/* Filter Bar */
+.filter-bar { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-btn { white-space: nowrap; padding: 7px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text-dim); transition: all 0.2s; flex-shrink: 0; }
+.filter-btn.active { background: var(--blue-dim); border-color: rgba(77,159,255,0.4); color: var(--blue); }
+
+/* Empty State */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
+.empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.3; }
+.empty-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; }
+.empty-sub { font-size: 12px; color: var(--text-muted); }
+
+/* Confirm Dialog */
+.confirm-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; padding: 20px; }
+.confirm-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+.confirm-box { background: var(--surface); border: 1px solid var(--border-hover); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 360px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); text-align: center; }
+.confirm-icon { font-size: 34px; margin-bottom: 14px; }
+.confirm-title { font-family: var(--font-display); font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
+.confirm-msg { font-size: 13px; color: var(--text-dim); margin-bottom: 22px; line-height: 1.6; }
+.confirm-btns { display: flex; gap: 10px; }
+
+/* Progress Bar */
+.progress-bar { height: 3px; background: var(--surface2); border-radius: 100px; overflow: hidden; margin-top: 10px; }
+.progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1); }
+
+/* Sidebar (desktop) */
+@media (min-width: 768px) {
+  .bottom-nav { display: none; }
+  .sidebar { width: 240px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; display: flex; flex-direction: column; padding: 24px 14px; overflow-y: auto; }
+  .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 8px 10px; margin-bottom: 28px; }
+  .sidebar-logo-icon { width: 38px; height: 38px; border-radius: 11px; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; font-size: 17px; color: #fff; flex-shrink: 0; }
+  .sidebar-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--text); }
+  .sidebar-sub { font-size: 10px; color: var(--text-dim); }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .sidebar-nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 13px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; color: var(--text-dim); font-size: 13px; font-weight: 600; border: 1px solid transparent; }
+  .sidebar-nav-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-nav-item.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(77,159,255,0.2); }
+  .sidebar-nav-item i { width: 18px; text-align: center; font-size: 14px; }
+  .sidebar-add-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; border-radius: var(--radius-sm); background: linear-gradient(135deg,var(--blue),var(--purple)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 10px; border: none; outline: none; box-shadow: 0 8px 24px rgba(77,159,255,0.3); transition: all 0.2s; }
+  .sidebar-add-btn:hover { transform: translateY(-2px); }
+  .sidebar-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .main-area { margin-left: 240px; flex: 1; }
+  .app-header { display: none; }
+  .desktop-topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: rgba(5,5,8,0.8); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50; }
+  .desktop-topbar-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--text); }
+  .desktop-topbar-actions { display: flex; gap: 10px; align-items: center; }
+  .page-content { padding: 24px 28px; padding-bottom: 40px; max-width: 900px; }
+  .stats-grid { grid-template-columns: repeat(4,1fr); }
+  .mobile-only { display: none !important; }
+}
+@media (max-width: 767px) {
+  .desktop-only { display: none !important; }
+  .main-area { margin-left: 0; }
+  .desktop-topbar { display: none; }
+}
+
+/* Others Tab */
+.others-section { display: none; }
+.others-section.open { display: block; margin-top: 12px; }
+.others-grid { display: flex; flex-direction: column; gap: 8px; }
+.others-input-row { display: flex; align-items: center; gap: 10px; }
+
+/* Search highlight */
+.search-highlight { background: rgba(77,159,255,0.2); color: var(--blue); border-radius: 3px; padding: 0 2px; }
+
+/* Graph button */
+.graph-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.2s; min-width: 52px; }
+.graph-nav-btn .nav-icon { font-size: 17px; color: var(--text-muted); transition: all 0.2s; }
+.graph-nav-btn .nav-label { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; }
+.graph-nav-btn:hover .nav-icon, .graph-nav-btn:hover .nav-label { color: var(--gold); }
+
+/* Divider */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+</style>
 </head>
-<body class="selection:bg-blue-500/30 text-[15px] relative overflow-x-hidden">
+<body>
 
-    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
-        <div class="ambient-orb absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-600/10 blur-[120px]" style="animation-delay: 0s;"></div>
-        <div class="ambient-orb absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-purple-600/10 blur-[120px]" style="animation-delay: -4s;"></div>
+<div id="bg-mesh" aria-hidden="true">
+  <div class="mesh-orb"></div><div class="mesh-orb"></div><div class="mesh-orb"></div>
+</div>
+<div id="bg-grid" aria-hidden="true"></div>
+<div id="toastContainer" role="alert" aria-live="polite"></div>
+
+<div id="cloudLoader" aria-hidden="true">
+  <div class="loader-card">
+    <div class="loader-spinner"></div>
+    <span id="loaderText" style="font-weight:700;font-size:15px;">Syncing…</span>
+  </div>
+</div>
+
+<div id="confirmOverlay" class="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirmIcon">⚠️</div>
+    <div class="confirm-title" id="confirmTitle">Are you sure?</div>
+    <div class="confirm-msg" id="confirmMsg">This cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost btn-full" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger btn-full" id="confirmBtn" onclick="confirmAction()">Delete</button>
     </div>
+  </div>
+</div>
 
-    <div id="toastContainer" class="fixed top-safe pt-4 left-1/2 z-[100] flex flex-col gap-3 pointer-events-none w-full max-w-[90%] md:max-w-sm"></div>
-
-    <div id="globalLoader" class="fixed inset-0 bg-[#030303]/90 backdrop-blur-xl flex flex-col items-center justify-center">
-        <div class="w-24 h-24 rounded-3xl shadow-[0_0_40px_rgba(99,102,241,0.3)] overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 transform animate-pulse">
-            <img src="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png" alt="Logo" class="w-full h-full object-cover" />
-        </div>
-        <div class="mt-8 flex gap-2 items-center">
-            <i class="fa-solid fa-circle-notch fa-spin text-blue-500"></i>
-            <span class="text-slate-300 font-semibold tracking-wider text-sm uppercase" id="loaderText">Starting up...</span>
-        </div>
+<div id="guideModal" class="modal-overlay">
+  <div class="modal-box" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-brands fa-google" style="color:#4ade80;"></i> Google Sheets Setup</div>
+      <button class="modal-close" onclick="toggleModal('guideModal',false)"><i class="fa-solid fa-xmark"></i></button>
     </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card" style="background:var(--surface2);">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">1</div>
+            <div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Create a Spreadsheet</div><div style="font-size:12px;color:var(--text-dim);line-height:1.6;">Open <a href="https://sheets.google.com" target="_blank" style="color:var(--blue);">Google Sheets</a> and create a blank spreadsheet.</div></div>
+          </div>
+        </div>
+        <div class="card" style="background:var(--surface2);">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">2</div>
+            <div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Open Apps Script</div><div style="font-size:12px;color:var(--text-dim);">Click <b style="color:var(--text);">Extensions → Apps Script</b>. Delete existing code and paste the script below.</div></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:0.05em;text-transform:uppercase;">Apps Script Code</span>
+            <button onclick="copyScriptCode()" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;"><i class="fa-regular fa-copy"></i> Copy</button>
+          </div>
+          <div style="background:#000;border:1px solid var(--border);border-radius:12px;padding:16px;overflow-x:auto;max-height:200px;overflow-y:auto;">
+            <pre id="scriptCodeBlock" style="font-family:monospace;font-size:11px;color:#4ade80;line-height:1.7;white-space:pre-wrap;">function doGet(e) {
+  return handleRequest(e);
+}
 
-    <div id="guideModal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md opacity-0 transition-opacity duration-300">
-        <div class="bento-card w-full max-w-lg flex flex-col max-h-[90vh] relative transform scale-95 transition-transform duration-300 hover:translate-y-0" id="guideModalContent">
-            <div class="flex justify-between items-center p-5 border-b border-white/10 sticky top-0 z-10 bg-[#030303]/90 backdrop-blur-xl rounded-t-[28px]">
-                <h3 class="text-lg font-bold flex items-center gap-2 text-white"><i class="fa-solid fa-file-excel text-emerald-400"></i> Configuration Guide</h3>
-                <button onclick="toggleGuideModal(false)" class="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 rounded-full text-slate-400 hover:text-white transition-all active:scale-90 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-            
-            <div class="p-6 overflow-y-auto space-y-8 text-sm text-slate-300 custom-scrollbar">
-                <div class="space-y-3">
-                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">1</span> Create Spreadsheet</h4>
-                    <p class="leading-relaxed">Open <a href="https://sheets.google.com" target="_blank" class="text-blue-400 hover:underline font-medium">Google Sheets</a> and create a <b>Blank spreadsheet</b>.</p>
-                </div>
-                <div class="space-y-3">
-                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">2</span> Add the Script</h4>
-                    <p class="leading-relaxed">Click <b>Extensions > Apps Script</b>. Delete existing code, then paste:</p>
-                    <div class="relative bg-black/60 backdrop-blur-md border border-white/10 rounded-xl p-4 group">
-                        <button onclick="copyScriptCode()" class="absolute top-3 right-3 bg-white/10 hover:bg-white/20 border border-white/10 text-white text-xs px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all active:scale-90 flex items-center gap-1"><i class="fa-regular fa-copy"></i> Copy</button>
-                        <pre id="scriptCodeBlock" class="text-emerald-400 text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">function doPost(e) {
+function doPost(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+
   var txSheet = ss.getSheetByName('Transactions');
   if (!txSheet) {
     txSheet = ss.insertSheet('Transactions');
-    txSheet.appendRow(['ID', 'User ID', 'Type', 'Amount', 'Category', 'Reason', 'Date', 'Time', 'UPI ID', 'Payment App']);
+    txSheet.appendRow(['ID','User ID','Type','Amount','Category','Reason','Date','Time','UPI ID','Payment App']);
   }
+
   var userSheet = ss.getSheetByName('Users');
   if (!userSheet) {
     userSheet = ss.insertSheet('Users');
-    userSheet.appendRow(['ID', 'Name', 'Initial Savings', 'Running Income', 'Running Expense', 'Running Savings']);
+    userSheet.appendRow(['ID','Name','Initial Savings','Running Income','Running Expense','Running Savings']);
   }
 
   try {
-    var data = e.postData && e.postData.contents ? JSON.parse(e.postData.contents) : {transactions: [], users: [], deletedIds: []};
-    var txs = data.transactions || [];
-    var users = data.users || [];
-    var deletedIds = data.deletedIds || [];
+    var rawData = '';
+    if (e && e.postData && e.postData.contents) {
+      rawData = e.postData.contents;
+    } else if (e && e.parameter && e.parameter.data) {
+      rawData = e.parameter.data;
+    }
 
+    var data = rawData ? JSON.parse(rawData) : { transactions: [], users: [], deletedIds: [] };
+    var txs       = data.transactions || [];
+    var users     = data.users        || [];
+    var deletedIds = data.deletedIds  || [];
+
+    // --- Delete removed transactions ---
     if (deletedIds.length > 0) {
-      var existingData = txSheet.getDataRange().getValues();
+      var existing = txSheet.getDataRange().getValues();
       var delMap = {};
-      for(var d = 0; d < deletedIds.length; d++) { delMap[String(deletedIds[d])] = true; }
-      for (var r = existingData.length - 1; r > 0; r--) {
-        if (delMap[String(existingData[r][0])]) { txSheet.deleteRow(r + 1); }
+      for (var d = 0; d < deletedIds.length; d++) { delMap[String(deletedIds[d])] = true; }
+      for (var r = existing.length - 1; r > 0; r--) {
+        if (delMap[String(existing[r][0])]) { txSheet.deleteRow(r + 1); }
       }
-    }
-    
-    if (users.length > 0) {
-      if (userSheet.getLastRow() > 1) { userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent(); }
-      for (var i = 0; i < users.length; i++) {
-        userSheet.appendRow([users[i].id, users[i].name, users[i].initialSavings, users[i].runningIncome || 0, users[i].runningExpense || 0, users[i].runningSavings || 0]);
-      }
-    }
-    
-    if (txs.length > 0) {
-        var currentData = txSheet.getDataRange().getValues();
-        var existingIds = {};
-        for(var r = 1; r < currentData.length; r++) { existingIds[String(currentData[r][0])] = true; }
-        for (var i = txs.length - 1; i >= 0; i--) {
-          if(!existingIds[String(txs[i].id)]) {
-            txSheet.appendRow([txs[i].id, txs[i].userId, txs[i].type, txs[i].amount, txs[i].category, txs[i].reason, txs[i].date, txs[i].time, txs[i].upiId || '', txs[i].paymentPlatform || '']);
-            existingIds[String(txs[i].id)] = true;
-          }
-        }
     }
 
+    // --- Write users ---
+    if (users.length > 0) {
+      if (userSheet.getLastRow() > 1) {
+        userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent();
+      }
+      for (var i = 0; i < users.length; i++) {
+        userSheet.appendRow([
+          users[i].id, users[i].name, users[i].initialSavings,
+          users[i].runningIncome || 0, users[i].runningExpense || 0, users[i].runningSavings || 0
+        ]);
+      }
+    }
+
+    // --- Write new transactions (skip duplicates) ---
+    if (txs.length > 0) {
+      var currentData = txSheet.getDataRange().getValues();
+      var existingIds = {};
+      for (var r = 1; r < currentData.length; r++) { existingIds[String(currentData[r][0])] = true; }
+      for (var i = txs.length - 1; i >= 0; i--) {
+        if (!existingIds[String(txs[i].id)]) {
+          txSheet.appendRow([
+            txs[i].id, txs[i].userId, txs[i].type, txs[i].amount,
+            txs[i].category, txs[i].reason, txs[i].date, txs[i].time,
+            txs[i].upiId || '', txs[i].paymentPlatform || ''
+          ]);
+          existingIds[String(txs[i].id)] = true;
+        }
+      }
+    }
+
+    // --- Read back all data ---
     var finalTx = txSheet.getDataRange().getValues();
     var allTxs = [];
-    for(var r = 1; r < finalTx.length; r++) {
-      allTxs.push({ id: String(finalTx[r][0]), userId: String(finalTx[r][1]), type: finalTx[r][2], amount: Number(finalTx[r][3]), category: finalTx[r][4], reason: finalTx[r][5], date: finalTx[r][6], time: finalTx[r][7], upiId: finalTx[r][8] || '', paymentPlatform: finalTx[r][9] || '' });
+    for (var r = 1; r < finalTx.length; r++) {
+      allTxs.push({
+        id: String(finalTx[r][0]), userId: String(finalTx[r][1]),
+        type: finalTx[r][2], amount: Number(finalTx[r][3]),
+        category: finalTx[r][4], reason: finalTx[r][5],
+        date: finalTx[r][6], time: finalTx[r][7],
+        upiId: finalTx[r][8] || '', paymentPlatform: finalTx[r][9] || ''
+      });
     }
 
     var finalUsers = userSheet.getDataRange().getValues();
     var allUsers = [];
-    for(var r = 1; r < finalUsers.length; r++) {
-      allUsers.push({ id: String(finalUsers[r][0]), name: finalUsers[r][1], initialSavings: Number(finalUsers[r][2]), runningIncome: Number(finalUsers[r][3]), runningExpense: Number(finalUsers[r][4]), runningSavings: Number(finalUsers[r][5]) });
+    for (var r = 1; r < finalUsers.length; r++) {
+      allUsers.push({
+        id: String(finalUsers[r][0]), name: finalUsers[r][1],
+        initialSavings: Number(finalUsers[r][2]),
+        runningIncome: Number(finalUsers[r][3]),
+        runningExpense: Number(finalUsers[r][4]),
+        runningSavings: Number(finalUsers[r][5])
+      });
     }
-    
-    return ContentService.createTextOutput(JSON.stringify({"status": "success", "transactions": allTxs, "users": allUsers})).setMimeType(ContentService.MimeType.JSON);
+
+    output.setContent(JSON.stringify({ status: 'success', transactions: allTxs, users: allUsers }));
+    return output;
+
   } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()})).setMimeType(ContentService.MimeType.JSON);
+    output.setContent(JSON.stringify({ status: 'error', message: err.toString() }));
+    return output;
   }
 }</pre>
-                    </div>
-                </div>
-                <div class="space-y-3 pb-4">
-                    <h4 class="text-white font-bold flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg w-8 h-8 flex items-center justify-center text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">3</span> Deploy & Connect</h4>
-                    <ul class="list-disc pl-5 space-y-2 text-slate-400 leading-relaxed">
-                        <li>Click <b>Deploy > New deployment</b>. Select <b>Web app</b>.</li>
-                        <li>Set 'Execute as' to <b class="text-white">Me</b>, and 'Who has access' to <b class="text-white">Anyone</b>.</li>
-                        <li>Click Deploy, copy Web App URL, and paste in Settings!</li>
-                    </ul>
-                </div>
-            </div>
+          </div>
         </div>
-    </div>
-
-    <div id="view-setup" class="min-h-screen items-center justify-center p-5 relative z-50">
-        <div class="bento-card w-full max-w-md p-8 relative overflow-hidden hover:translate-y-0">
-            <div class="absolute -top-20 -right-20 w-64 h-64 bg-blue-500/20 blur-[80px] rounded-full pointer-events-none"></div>
-            <div class="flex justify-center mb-6 relative z-10">
-                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-                    <i class="fa-solid fa-cloud text-3xl text-white"></i>
-                </div>
+        <div class="card" style="background:var(--surface2);">
+          <div style="display:flex;gap:12px;align-items:flex-start;">
+            <div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">3</div>
+            <div>
+              <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:6px;">Deploy as Web App</div>
+              <ul style="font-size:12px;color:var(--text-dim);line-height:1.8;padding-left:14px;">
+                <li>Click <b style="color:var(--text);">Deploy → New deployment</b></li>
+                <li>Select type: <b style="color:var(--text);">Web app</b></li>
+                <li>Execute as: <b style="color:var(--text);">Me</b></li>
+                <li>Who has access: <b style="color:var(--text);">Anyone</b></li>
+                <li>Copy the <b style="color:var(--green);">Web App URL</b> and paste in Settings</li>
+              </ul>
             </div>
-            <h1 class="text-2xl font-extrabold text-center mb-2 tracking-tight text-white relative z-10">Cloud First Setup</h1>
-            <p class="text-slate-400 text-center text-sm mb-6 relative z-10">Connect your Google Sheet. Your data will be stored securely in the cloud.</p>
-            <form id="setupForm" class="space-y-5 relative z-10">
-                <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-solid fa-link text-blue-400"></i> Cloud Database URL</h3>
-                    <input id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
-                    <button type="button" onclick="toggleGuideModal(true)" class="w-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-2.5 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-xs mt-3 flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
-                    </button>
-                </div>
-                <div class="bg-black/20 p-4 rounded-2xl border border-white/5">
-                    <h3 class="text-xs font-bold text-white uppercase tracking-wider mb-3 flex items-center gap-2"><i class="fa-brands fa-google-pay text-emerald-400"></i> UPI Setup (Optional)</h3>
-                    <div class="space-y-3">
-                        <input id="setupUpiId" type="text" placeholder="username@upi" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none transition-all">
-                        <select id="setupPaymentApp" class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none appearance-none transition-all cursor-pointer">
-                            <option value="generic">Default UPI App</option><option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(37,99,235,0.4)]">Connect & Launch</button>
-                <div class="relative py-1 flex items-center justify-center">
-                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div>
-                    <span class="relative bg-[#030303] px-4 text-xs text-slate-500 font-semibold uppercase tracking-wider">OR</span>
-                </div>
-                <button type="button" onclick="closeSetup()" class="w-full bg-transparent hover:bg-white/5 text-slate-400 font-semibold py-3 rounded-2xl transition-all active:scale-95 text-sm flex justify-center items-center gap-2 border border-transparent hover:border-white/10">Use Local Mode Only</button>
-            </form>
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="syncModal" class="modal-overlay">
+  <div class="modal-box" style="max-width:360px;">
+    <div class="modal-body" style="text-align:center;padding:32px 24px;">
+      <div style="width:60px;height:60px;margin:0 auto 14px;background:var(--green-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--green);">
+        <i class="fa-solid fa-cloud-arrow-up"></i>
+      </div>
+      <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px;">Sync Complete!</div>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.7;margin-bottom:22px;">Your app is perfectly synced with the backend Google Sheet.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <button onclick="toggleModal('syncModal',false)" class="btn btn-success btn-full btn-lg">Awesome</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="txModal" class="modal-overlay">
+  <div class="modal-box" style="max-width:520px;">
+    <div class="modal-header">
+      <div class="modal-title" id="txModalTitle"><i class="fa-solid fa-plus"></i> Add Transaction</div>
+      <button class="modal-close" onclick="closeTxModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="toggle-pill" id="typeToggle">
+          <button class="toggle-pill-btn active-income" id="btnIncome" onclick="setTxType('income')">
+            <i class="fa-solid fa-arrow-trend-up"></i> Income
+          </button>
+          <button class="toggle-pill-btn" id="btnExpense" onclick="setTxType('expense')">
+            <i class="fa-solid fa-arrow-trend-down"></i> Expense
+          </button>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Amount</label>
+          <div class="amount-input-wrap">
+            <span class="amount-currency">₹</span>
+            <input class="amount-input" type="number" id="txAmount" placeholder="0" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Category</label>
+          <div class="cat-grid" id="catGrid"></div>
+          <div class="others-section" id="othersSection">
+            <input class="input" type="text" id="txCatCustom" placeholder="Type custom category…" style="margin-top:8px;">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Note / Reason</label>
+          <input class="input" type="text" id="txReason" placeholder="What was this for?">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="input-group">
+            <label class="input-label">Date</label>
+            <input class="input" type="date" id="txDate">
+          </div>
+          <div class="input-group">
+            <label class="input-label">Time</label>
+            <input class="input" type="time" id="txTime">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">User</label>
+          <select class="input" id="txUser"></select>
+        </div>
+        <div>
+          <button type="button" onclick="toggleUpiSection()" class="btn btn-ghost" style="width:100%;justify-content:space-between;font-size:13px;" id="upiToggleBtn">
+            <span><i class="fa-solid fa-qrcode" style="color:var(--purple);margin-right:8px;"></i> UPI Details <span style="font-size:11px;color:var(--text-muted);">(Optional)</span></span>
+            <i class="fa-solid fa-chevron-down" id="upiChevron" style="font-size:11px;transition:transform 0.2s;"></i>
+          </button>
+          <div id="upiSection" style="display:none;margin-top:10px;display:flex;flex-direction:column;gap:10px;padding:0;">
+            <div class="input-group">
+              <label class="input-label">UPI ID</label>
+              <input class="input" type="text" id="txUpiId" placeholder="user@upi">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Payment App</label>
+              <select class="input" id="txPayApp">
+                <option value="">None</option>
+                <option value="gpay">Google Pay</option>
+                <option value="phonepe">PhonePe</option>
+                <option value="paytm">Paytm</option>
+                <option value="bhim">BHIM</option>
+                <option value="generic">Other UPI</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-full" onclick="closeTxModal()">Cancel</button>
+      <button class="btn btn-primary btn-full" onclick="saveTx()" id="saveTxBtn"><i class="fa-solid fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="userModal" class="modal-overlay">
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title" id="userModalTitle"><i class="fa-solid fa-user-plus"></i> Add User</div>
+      <button class="modal-close" onclick="toggleModal('userModal',false)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <input type="hidden" id="editUserId">
+        <div class="input-group">
+          <label class="input-label">Full Name</label>
+          <input class="input" type="text" id="userNameInput" placeholder="Enter name…">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Initial Savings (₹)</label>
+          <div class="input-icon-wrap">
+            <i class="input-icon fa-solid fa-indian-rupee-sign"></i>
+            <input class="input" type="number" id="userSavingsInput" placeholder="0" min="0">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost btn-full" onclick="toggleModal('userModal',false)">Cancel</button>
+      <button class="btn btn-primary btn-full" onclick="saveUser()"><i class="fa-solid fa-check"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<div id="view-setup">
+  <div class="setup-card">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="width:60px;height:60px;margin:0 auto 14px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 8px 28px rgba(77,159,255,0.35);">
+        <i class="fa-solid fa-wallet"></i>
+      </div>
+      <h1 style="font-family:var(--font-display);font-size:24px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;">Money Notebook Pro</h1>
+      <p style="font-size:13px;color:var(--text-dim);">Connect Google Sheets for cloud backup, or use locally.</p>
+    </div>
+    <form id="setupForm" onsubmit="submitSetup(event)" style="display:flex;flex-direction:column;gap:18px;">
+      <div class="card" style="background:var(--surface2);">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
+          <i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <input class="input" id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL…">
+          <button type="button" onclick="toggleModal('guideModal',true)" class="btn btn-ghost" style="justify-content:center;font-size:13px;">
+            <i class="fa-brands fa-google" style="color:#4ade80;"></i> View Setup Guide
+          </button>
+        </div>
+      </div>
+      <div class="card" style="background:var(--surface2);">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
+          <i class="fa-solid fa-qrcode" style="color:var(--purple);"></i> UPI Setup <span style="font-weight:400;">(Optional)</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <input class="input" id="setupUpiId" type="text" placeholder="username@upi">
+          <select class="input" id="setupPaymentApp">
+            <option value="">No Default App</option>
+            <option value="gpay">Google Pay</option>
+            <option value="phonepe">PhonePe</option>
+            <option value="paytm">Paytm</option>
+            <option value="bhim">BHIM</option>
+            <option value="generic">Other UPI</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-full btn-lg">
+        <i class="fa-solid fa-rocket"></i> Connect & Launch
+      </button>
+      <div style="position:relative;text-align:center;margin:2px 0;">
+        <div style="position:absolute;inset:50% 0 auto;height:1px;background:var(--border);"></div>
+        <span style="position:relative;background:var(--surface);padding:0 12px;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">or</span>
+      </div>
+      <button type="button" onclick="closeSetup()" class="btn btn-ghost btn-full" style="font-size:13px;">
+        Continue in Local Mode
+      </button>
+    </form>
+  </div>
+</div>
+
+<div id="main-app" style="display:none;">
+
+  <div class="sidebar desktop-only">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><i class="fa-solid fa-wallet"></i></div>
+      <div>
+        <div class="sidebar-title">Money Pro</div>
+        <div class="sidebar-sub">Finance Tracker</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="sidebar-nav-item active" onclick="switchView('dashboard')" data-view="dashboard"><i class="fa-solid fa-house"></i> Home</div>
+      <div class="sidebar-nav-item" onclick="switchView('history')" data-view="history"><i class="fa-solid fa-clock-rotate-left"></i> History</div>
+      <div class="sidebar-nav-item" onclick="switchView('users')" data-view="users"><i class="fa-solid fa-users"></i> Users</div>
+      <div class="sidebar-nav-item" onclick="openGraphPage()" data-view="graph"><i class="fa-solid fa-chart-line"></i> Graphs</div>
+      <div class="sidebar-nav-item" onclick="switchView('settings')" data-view="settings"><i class="fa-solid fa-gear"></i> Settings</div>
+    </nav>
+    <button class="sidebar-add-btn" onclick="openTxModal()">
+      <i class="fa-solid fa-plus"></i> Add Transaction
+    </button>
+    <div class="sidebar-footer">
+      <button class="btn btn-ghost btn-full" onclick="triggerSync()" style="font-size:13px;">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Sync Now
+      </button>
+    </div>
+  </div>
+
+  <div class="main-area">
+    <header class="app-header mobile-only">
+      <div class="header-logo">
+        <div class="header-logo-icon"><i class="fa-solid fa-wallet"></i></div>
+        <span class="header-title">Money Pro</span>
+      </div>
+      <div class="header-actions">
+        <div class="header-btn" style="position:relative;" onclick="triggerSync()" title="Sync">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <div class="sync-dot" id="syncDot" style="display:none;"></div>
+        </div>
+        <div class="header-btn" onclick="switchView('settings')">
+          <i class="fa-solid fa-gear"></i>
+        </div>
+      </div>
+    </header>
+
+    <div class="desktop-topbar desktop-only">
+      <div class="desktop-topbar-title" id="desktopPageTitle">Home</div>
+      <div class="desktop-topbar-actions">
+        <span id="desktopUserBadge" style="font-size:13px;color:var(--text-dim);"></span>
+        <button class="btn btn-ghost" onclick="triggerSync()" style="font-size:13px;">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Sync
+        </button>
+      </div>
     </div>
 
-    <div id="main-app" style="display: none;">
-        <header class="sticky top-0 z-30 bg-[#030303]/80 backdrop-blur-2xl border-b border-white/5 pt-safe transition-all duration-300">
-            <div class="max-w-2xl mx-auto px-5 h-16 flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-xl shadow-lg overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 transform hover:scale-105 transition-transform duration-300">
-                        <img src="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png" alt="Money Note Book Logo" class="w-full h-full object-cover" />
-                    </div>
-                    <h1 class="text-xl font-extrabold tracking-tight text-shine">Money Note Book</h1>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="switchView('settings')" id="settingsNavBtn" class="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/5 text-slate-300 hover:text-white hover:bg-white/10 transition-all active:scale-90" title="Settings">
-                        <i class="fa-solid fa-gear"></i>
-                    </button>
-                </div>
+    <div id="view-dashboard" class="view-section active">
+      <div class="page-content">
+        <div class="balance-card">
+          <div class="balance-card-bg"><div class="balance-card-orb"></div><div class="balance-card-orb"></div></div>
+          <div style="position:relative;z-index:1;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;">
+              <div>
+                <div class="balance-label">Total Savings</div>
+                <div class="balance-amount"><span class="currency">₹</span><span id="dashBalance">0</span></div>
+              </div>
+              <select class="input" id="dashUserSelect" onchange="onDashUserChange()" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);width:auto;padding:8px 12px;font-size:12px;margin-top:4px;"></select>
             </div>
-        </header>
-
-        <main class="max-w-2xl mx-auto px-5 pt-6 pb-32">
-            
-            <div id="view-transactions" class="view-section active">
-                <div class="user-selector-container mb-6 flex gap-3 overflow-x-auto pb-2 custom-scrollbar"></div>
-                
-                <div class="grid grid-cols-3 gap-3 mb-8">
-                    <div class="bento-card p-4 text-center hover:-translate-y-1" style="animation-delay: 0.05s">
-                        <div class="w-8 h-8 mx-auto mb-2 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400"><i class="fa-solid fa-arrow-trend-up text-sm"></i></div>
-                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Income</p>
-                        <p class="text-lg font-extrabold text-white" id="tx-total-income">₹0</p>
-                    </div>
-                    <div class="bento-card p-4 text-center hover:-translate-y-1" style="animation-delay: 0.1s">
-                        <div class="w-8 h-8 mx-auto mb-2 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400"><i class="fa-solid fa-arrow-trend-down text-sm"></i></div>
-                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Expenses</p>
-                        <p class="text-lg font-extrabold text-white" id="tx-total-expenses">₹0</p>
-                    </div>
-                    <div class="bento-card p-4 text-center hover:-translate-y-1" style="animation-delay: 0.15s">
-                        <div class="w-8 h-8 mx-auto mb-2 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400"><i class="fa-solid fa-vault text-sm"></i></div>
-                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1">Savings</p>
-                        <p class="text-lg font-extrabold text-white" id="tx-total-savings">₹0</p>
-                    </div>
-                </div>
-
-                <div class="bento-card p-6 mb-8 relative overflow-hidden hover:-translate-y-1" style="animation-delay: 0.2s">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-blue-500/10 blur-[60px] rounded-full pointer-events-none"></div>
-                    <h2 class="text-lg font-extrabold mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-bolt text-blue-400"></i> Quick Record</h2>
-                    
-                    <form id="expenseForm" class="space-y-5 relative z-10">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Amount (₹)</label>
-                                <input id="expAmount" type="number" min="0" step="any" required class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white font-semibold focus:outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Date</label>
-                                <input id="expDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 font-semibold focus:outline-none transition-all cursor-pointer" style="color-scheme:dark">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Category</label>
-                            <select id="expCategory" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white font-medium focus:outline-none appearance-none transition-all cursor-pointer">
-                                <optgroup label="Income (Received)">
-                                    <option value="Salary">Salary 💰</option><option value="Business">Business 📈</option><option value="Gift">Gift 🎁</option><option value="Other Income">Other Income 💵</option>
-                                </optgroup>
-                                <optgroup label="Expenses (Sent)">
-                                    <option value="Food">Food 🍔</option><option value="Bills">Bills 🧾</option><option value="Shopping">Shopping 🛍️</option><option value="Travel">Travel ✈️</option><option value="Entertainment">Entertainment 🎬</option><option value="Other Expense">Other Expense 📦</option>
-                                </optgroup>
-                                <optgroup label="Savings"><option value="Savings">Savings 🏦 (Redirects)</option></optgroup>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Reason / Notes</label>
-                            <input id="expReason" type="text" required placeholder="What was this for?" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
-                        </div>
-                        <button type="submit" class="w-full bg-white text-black hover:bg-slate-200 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.15)]">Save Transaction</button>
-                    </form>
-                </div>
-
-                <div class="transaction-list-container" style="animation-delay: 0.3s"></div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="savingsProgress" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));"></div>
             </div>
-
-            <div id="view-savings" class="view-section">
-                <div class="bento-card p-6 mb-6 relative overflow-hidden hover:-translate-y-1" style="animation-delay: 0.05s">
-                    <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[50px] rounded-full pointer-events-none"></div>
-                    <h2 class="text-lg font-extrabold mb-4 flex items-center gap-2 text-white"><i class="fa-solid fa-user-plus text-indigo-400"></i> New User</h2>
-                    <form id="addUserForm" class="flex flex-col sm:flex-row gap-3 relative z-10">
-                        <input id="newUserName" type="text" placeholder="Name" required class="flex-1 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
-                        <input id="newUserSavings" type="number" placeholder="Initial Balance ₹" class="flex-1 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
-                        <button type="submit" class="bg-indigo-500 text-white px-6 py-3.5 rounded-2xl hover:bg-indigo-600 transition-all active:scale-95 font-bold"><i class="fa-solid fa-plus"></i></button>
-                    </form>
-                </div>
-
-                <div class="user-selector-container mb-6 flex gap-3 overflow-x-auto pb-2 custom-scrollbar" style="animation-delay: 0.1s"></div>
-
-                <div class="bento-card p-6 mb-8 relative overflow-hidden hover:-translate-y-1" style="animation-delay: 0.15s">
-                    <div class="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 blur-[60px] rounded-full pointer-events-none"></div>
-                    <h2 class="text-lg font-extrabold mb-5 flex items-center gap-2 text-white"><i class="fa-solid fa-piggy-bank text-emerald-400"></i> Deposit Savings</h2>
-                    
-                    <form id="savingsForm" class="space-y-5 relative z-10">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Amount (₹)</label>
-                                <input id="savAmount" type="number" min="0" step="any" required class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
-                            </div>
-                            <div>
-                                <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Date</label>
-                                <input id="savDate" type="date" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-slate-300 focus:outline-none transition-all cursor-pointer" style="color-scheme:dark">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Message / Note</label>
-                            <input id="savNotes" type="text" placeholder="e.g. Monthly transfer" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none transition-all">
-                        </div>
-                        <div class="flex flex-col sm:flex-row gap-3">
-                            <button type="button" onclick="handleUpiPayment()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(79,70,229,0.3)] flex justify-center items-center gap-2">
-                                <i class="fa-brands fa-google-pay text-lg"></i> Pay & Record (UPI)
-                            </button>
-                            <button type="button" onclick="handleManualSavings()" class="flex-1 bg-emerald-500 text-white hover:bg-emerald-600 font-bold py-4 rounded-2xl transition-all active:scale-95 shadow-[0_0_20px_rgba(16,185,129,0.3)] flex justify-center items-center gap-2">
-                                <i class="fa-solid fa-check"></i> Log Manually
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="transaction-list-container" style="animation-delay: 0.2s"></div>
+            <div class="balance-meta">
+              <span class="chip chip-green"><i class="fa-solid fa-arrow-up"></i> ₹<span id="dashIncome">0</span></span>
+              <span class="chip chip-red"><i class="fa-solid fa-arrow-down"></i> ₹<span id="dashExpense">0</span></span>
             </div>
+            <div class="upi-launch-row" id="upiLaunchRow" style="display:none;"></div>
+          </div>
+        </div>
 
-            <div id="view-settings" class="view-section space-y-6">
-                <h2 class="text-2xl font-extrabold mb-2 text-white" style="animation-delay: 0.05s">Settings</h2>
-                
-                <div class="bento-card p-6 hover:-translate-y-1" style="animation-delay: 0.1s">
-                    <h3 class="text-lg font-extrabold mb-5 flex items-center gap-2 text-white"><i class="fa-brands fa-google-pay text-emerald-400"></i> Payment Settings</h3>
-                    <form id="settingsUpiForm" class="space-y-4">
-                        <div>
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Primary UPI ID</label>
-                            <input id="setUpiId" type="text" placeholder="username@upi" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm transition-all">
-                            <p class="text-[11px] text-slate-500 mt-2 ml-1">Used to generate local payment links. Never sent to our servers.</p>
-                        </div>
-                        <div>
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Preferred Payment App</label>
-                            <select id="setPaymentApp" class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm appearance-none transition-all cursor-pointer">
-                                <option value="generic">Default System Chooser</option><option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)]">Save Payment Preferences</button>
-                    </form>
-                </div>
+        <div class="stats-grid">
+          <div class="stat-card income">
+            <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+            <div class="stat-label">Income</div>
+            <div class="stat-value">₹<span id="statIncome">0</span></div>
+          </div>
+          <div class="stat-card expense">
+            <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+            <div class="stat-label">Expenses</div>
+            <div class="stat-value">₹<span id="statExpense">0</span></div>
+          </div>
+          <div class="stat-card" style="border-color:rgba(77,159,255,0.2);">
+            <div class="stat-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-receipt"></i></div>
+            <div class="stat-label">Transactions</div>
+            <div class="stat-value" style="color:var(--blue);"><span id="statTxCount">0</span></div>
+          </div>
+          <div class="stat-card" style="border-color:rgba(251,191,36,0.2);">
+            <div class="stat-icon" style="background:var(--gold-dim);color:var(--gold);"><i class="fa-solid fa-calendar-day"></i></div>
+            <div class="stat-label">This Month</div>
+            <div class="stat-value" style="color:var(--gold);">₹<span id="statMonth">0</span></div>
+          </div>
+        </div>
 
-                <div class="bento-card p-6 hover:-translate-y-1" style="animation-delay: 0.15s">
-                    <div class="flex justify-between items-start mb-5">
-                        <h3 class="text-lg font-extrabold flex items-center gap-2 text-white"><i class="fa-solid fa-database text-blue-400"></i> Database Sync</h3>
-                        <div id="connectionStatusBadge" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border"></div>
-                    </div>
-                    <form id="settingsConnectionForm" class="space-y-3">
-                        <div>
-                            <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider ml-1">Cloud Spreadsheet URL</label>
-                            <input id="setSheetUrl" type="url" placeholder="https://script.google.com/macros/s/..." class="w-full mt-1.5 bg-black/40 border border-white/10 rounded-2xl px-4 py-3.5 text-white focus:outline-none text-sm transition-all">
-                        </div>
-                        <div class="flex gap-2">
-                            <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm shadow-[0_0_15px_rgba(59,130,246,0.3)]">Save Cloud URL</button>
-                            <button type="button" onclick="switchToLocalMode()" class="flex-1 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-bold py-3.5 rounded-xl transition-all active:scale-95 text-sm">Use Local Mode</button>
-                        </div>
-                    </form>
-                    <button type="button" onclick="toggleGuideModal(true)" class="w-full mt-4 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 font-semibold py-3 rounded-xl transition-all active:scale-95 border border-blue-500/20 text-sm flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-file-excel"></i> View Excel Setup Guide
-                    </button>
-                </div>
-            </div>
-        </main>
-
-        <nav class="nav-container fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-[#121212]/80 backdrop-blur-3xl border border-white/10 rounded-[28px] px-2 py-2 w-[90%] max-w-[360px] flex justify-between shadow-2xl pb-safe-nav">
-            <button onclick="switchView('savings')" id="nav-savings" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
-                <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
-                <i class="fa-solid fa-piggy-bank text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
-                <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Savings</span>
-            </button>
-            <button onclick="switchView('transactions')" id="nav-transactions" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
-                <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
-                <i class="fa-solid fa-money-bill-transfer text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
-                <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Transact</span>
-            </button>
-            <a href="graph.html" id="nav-analytics" class="flex flex-col items-center gap-1 text-slate-400 transition-all active:scale-90 flex-1 py-2 rounded-2xl nav-btn relative overflow-hidden group">
-                <div class="nav-bg absolute inset-0 rounded-2xl transition-all duration-300 origin-center scale-50 opacity-0 group-hover:opacity-50 group-hover:scale-100 group-hover:bg-white/5"></div>
-                <i class="fa-solid fa-chart-simple text-xl relative z-10 mb-0.5 transition-transform group-hover:-translate-y-1"></i>
-                <span class="text-[10px] font-bold uppercase tracking-wider relative z-10">Analytics</span>
-            </a>
-        </nav>
+        <div class="section-header">
+          <span class="section-title">Recent Transactions</span>
+          <span class="section-action" onclick="switchView('history')">View all →</span>
+        </div>
+        <div class="tx-list" id="recentTxList"></div>
+      </div>
     </div>
 
-    <script>
-        // --- State Management ---
-        let state = {
-            view: '', users: [], transactions: [],
-            currentUser: localStorage.getItem('mn_currentUser') || '',
-            sheetUrl: localStorage.getItem('mn_sheetUrl') || '',
-            skipSetup: localStorage.getItem('mn_skipSetup') === 'true',
-            upiId: localStorage.getItem('mn_upiId') || '',
-            paymentApp: localStorage.getItem('mn_paymentApp') || 'generic',
-            searchQuery: '',
-            // Offline Queues
-            pendingTxs: JSON.parse(localStorage.getItem('mn_pendingTxs') || '[]'),
-            pendingUsers: JSON.parse(localStorage.getItem('mn_pendingUsers') || '[]'),
-            deletedIds: JSON.parse(localStorage.getItem('mn_deletedIds') || '[]')
-        };
+    <div id="view-history" class="view-section">
+      <div class="page-content">
+        <div class="input-icon-wrap" style="margin-bottom:12px;">
+          <i class="input-icon fa-solid fa-magnifying-glass"></i>
+          <input class="input" type="text" id="histSearch" placeholder="Search by name, category, note, amount…" oninput="renderHistory()">
+        </div>
+        <div class="filter-bar" id="historyFilters">
+          <button class="filter-btn active" onclick="setHistFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setHistFilter('income',this)">Income</button>
+          <button class="filter-btn" onclick="setHistFilter('expense',this)">Expense</button>
+          <button class="filter-btn" onclick="setHistFilter('today',this)">Today</button>
+          <button class="filter-btn" onclick="setHistFilter('week',this)">This Week</button>
+          <button class="filter-btn" onclick="setHistFilter('month',this)">This Month</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;">
+          <select class="input" id="histUserFilter" onchange="renderHistory()" style="flex:1;">
+            <option value="all">All Users</option>
+          </select>
+          <span id="histCount" style="font-size:12px;color:var(--text-dim);white-space:nowrap;"></span>
+        </div>
+        <div class="tx-list" id="historyList"></div>
+        <div id="histEmptyState" class="empty-state" style="display:none;">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title">No transactions found</div>
+          <div class="empty-sub">Try a different filter or search term</div>
+        </div>
+        <div id="histLoadMore" style="text-align:center;margin-top:14px;display:none;">
+          <button class="btn btn-ghost" onclick="loadMoreHistory()" style="font-size:13px;">Load More</button>
+        </div>
+      </div>
+    </div>
 
-        const incomeCategories = ['Salary', 'Business', 'Gift', 'Other Income'];
-        const DB_NAME = 'MoneyNotebookData'; const DB_VERSION = 1; let db;
+    <div id="view-users" class="view-section">
+      <div class="page-content">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px;">
+          <button class="btn btn-primary" onclick="openAddUser()"><i class="fa-solid fa-plus"></i> Add User</button>
+        </div>
+        <div id="usersList" style="display:flex;flex-direction:column;gap:10px;"></div>
+        <div id="usersEmptyState" class="empty-state" style="display:none;">
+          <div class="empty-icon">👤</div>
+          <div class="empty-title">No users yet</div>
+          <div class="empty-sub">Add a user to get started</div>
+        </div>
+      </div>
+    </div>
 
-        // --- Database & Storage Utilities ---
-        const initDB = () => {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
-                request.onupgradeneeded = (e) => {
-                    const database = e.target.result;
-                    if (!database.objectStoreNames.contains('users')) database.createObjectStore('users', { keyPath: 'id' });
-                    if (!database.objectStoreNames.contains('transactions')) database.createObjectStore('transactions', { keyPath: 'id' });
-                };
-                request.onsuccess = (e) => { db = e.target.result; resolve(db); };
-                request.onerror = (e) => reject(e.target.error);
-            });
-        };
+    <div id="view-settings" class="view-section">
+      <div class="page-content">
+        <div class="card" style="margin-bottom:14px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;">
+            <i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync
+          </div>
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-link"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Apps Script URL</div>
+                <div class="settings-row-sub" id="urlStatus">Not configured</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editUrl()">Edit</button>
+          </div>
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Sync to Cloud</div>
+                <div class="settings-row-sub" id="lastSyncLabel">Never synced</div>
+              </div>
+            </div>
+            <button class="btn btn-success" style="padding:7px 12px;font-size:12px;" onclick="triggerSync()">Sync Now</button>
+          </div>
+          <div class="settings-row" style="border:none;">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-brands fa-google"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Setup Guide</div>
+                <div class="settings-row-sub">Google Apps Script instructions</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="toggleModal('guideModal',true)">View</button>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;">
+            <i class="fa-solid fa-qrcode" style="color:var(--purple);"></i> UPI Settings
+          </div>
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-at"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">UPI ID</div>
+                <div class="settings-row-sub" id="settingsUpiLabel">Not set</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editUpi()">Edit</button>
+          </div>
+          <div class="settings-row" style="border:none;">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-mobile-screen"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Default Payment App</div>
+                <div class="settings-row-sub" id="settingsAppLabel">None</div>
+              </div>
+            </div>
+            <select class="input" id="settingsAppSelect" onchange="updateDefaultApp(this.value)" style="width:auto;padding:7px 10px;font-size:12px;">
+              <option value="">None</option>
+              <option value="gpay">Google Pay</option>
+              <option value="phonepe">PhonePe</option>
+              <option value="paytm">Paytm</option>
+              <option value="bhim">BHIM</option>
+              <option value="generic">Other UPI</option>
+            </select>
+          </div>
+        </div>
+        <div class="card" style="border-color:rgba(255,77,109,0.2);">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:7px;">
+            <i class="fa-solid fa-triangle-exclamation"></i> Danger Zone
+          </div>
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-trash-can"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Clear All Data</div>
+                <div class="settings-row-sub">Wipe all local transactions & users</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(255,77,109,0.3);" onclick="clearAllData()">Clear</button>
+          </div>
+          <div class="settings-row" style="border:none;">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-rotate-left"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Reset App</div>
+                <div class="settings-row-sub">Full reset including settings</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(255,77,109,0.3);" onclick="resetApp()">Reset</button>
+          </div>
+        </div>
+        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text-muted);">Money Notebook Pro v2.0</div>
+      </div>
+    </div>
 
-        const dbStore = (storeName, action, data = null) => {
-            return new Promise((resolve, reject) => {
-                const tx = db.transaction([storeName], action === 'getAll' ? 'readonly' : 'readwrite');
-                const store = tx.objectStore(storeName);
-                let request;
-                if (action === 'getAll') request = store.getAll();
-                if (action === 'add' || action === 'put') request = store.put(data);
-                if (action === 'delete') request = store.delete(data);
-                request.onsuccess = () => resolve(request.result);
-                request.onerror = () => reject(request.error);
-            });
-        };
+  </div><nav class="bottom-nav mobile-only">
+    <div class="nav-item active" onclick="switchView('dashboard')" data-view="dashboard">
+      <i class="fa-solid fa-house nav-icon"></i>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" onclick="switchView('history')" data-view="history">
+      <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+      <span class="nav-label">History</span>
+    </div>
+    <button class="nav-fab" onclick="openTxModal()" aria-label="Add transaction">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+    <div class="nav-item" onclick="switchView('users')" data-view="users">
+      <i class="fa-solid fa-users nav-icon"></i>
+      <span class="nav-label">Users</span>
+    </div>
+    <div class="graph-nav-btn" onclick="openGraphPage()">
+      <i class="fa-solid fa-chart-line nav-icon" style="color:var(--text-muted);font-size:17px;"></i>
+      <span class="nav-label" style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Graph</span>
+    </div>
+  </nav>
 
-        // --- UI Feedback & Animations ---
-        const showToast = (message, type = 'info') => {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
-            if(type === 'success') icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>'; 
-            if(type === 'error') icon = '<i class="fa-solid fa-circle-exclamation text-rose-400"></i>';
-            toast.className = `flex items-center gap-3 px-5 py-3.5 rounded-[20px] shadow-2xl border border-white/10 bg-[#1a1a1a]/95 text-white backdrop-blur-xl toast-msg absolute left-1/2 -translate-x-1/2 w-max`;
-            toast.innerHTML = `${icon} <span class="text-sm font-bold tracking-wide">${message}</span>`;
-            container.appendChild(toast); setTimeout(() => toast.remove(), 3500);
-        };
+</div><script>
+/* ─── Data ─── */
+let DB = {
+  users: [],
+  transactions: [],
+  deletedIds: [],
+  settings: { scriptUrl:'', upiId:'', paymentApp:'', lastSync:null, activeUserId:null, setupDone:false }
+};
+/* ─── Categories ─── */
+const INCOME_CATS = [
+  {emoji:'💼',label:'Salary',key:'salary'},
+  {emoji:'💹',label:'Investment',key:'investment'},
+  {emoji:'🎁',label:'Gift',key:'gift'},
+  {emoji:'💻',label:'Freelance',key:'freelance'},
+  {emoji:'🏠',label:'Rent Recv',key:'rent_recv'},
+  {emoji:'📦',label:'Business',key:'business'},
+  {emoji:'🏦',label:'Transfer',key:'transfer'},
+  {emoji:'➕',label:'Others',key:'__others__'}
+];
+const EXPENSE_CATS = [
+  {emoji:'🍔',label:'Food',key:'food'},
+  {emoji:'🚗',label:'Transport',key:'transport'},
+  {emoji:'🛒',label:'Shopping',key:'shopping'},
+  {emoji:'💊',label:'Health',key:'health'},
+  {emoji:'🎬',label:'Entertain',key:'entertainment'},
+  {emoji:'🏠',label:'Rent',key:'rent'},
+  {emoji:'📱',label:'Bills',key:'bills'},
+  {emoji:'📚',label:'Education',key:'education'},
+  {emoji:'✈️',label:'Travel',key:'travel'},
+  {emoji:'💸',label:'Transfer',key:'transfer_out'},
+  {emoji:'🐾',label:'Pets',key:'pets'},
+  {emoji:'➕',label:'Others',key:'__others__'}
+];
+const CAT_ICON_MAP = {
+  food:'🍔',transport:'🚗',shopping:'🛒',health:'💊',entertainment:'🎬',
+  rent:'🏠',bills:'📱',education:'📚',travel:'✈️',salary:'💼',
+  investment:'💹',gift:'🎁',freelance:'💻',business:'📦',transfer:'🏦',
+  transfer_out:'💸',pets:'🐾',rent_recv:'🏠',__others__:'➕'
+};
 
-        const showGlobalLoader = (text = 'Loading...') => {
-            const loader = document.getElementById('globalLoader');
-            document.getElementById('loaderText').innerText = text;
-            loader.classList.remove('hidden-loader');
-        };
+const UPI_APP_NAMES = {gpay:'Google Pay',phonepe:'PhonePe',paytm:'Paytm',bhim:'BHIM',generic:'Other UPI'};
+const UPI_APP_COLORS = {gpay:'upi-btn-gpay',phonepe:'upi-btn-phonepe',paytm:'upi-btn-paytm',bhim:'upi-btn-bhim',generic:'upi-btn-generic'};
+const UPI_APP_ICONS = {gpay:'<svg width="18" height="18" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M43.6 24.5c0-1.5-.1-3-.4-4.5H24v8.5h11c-.5 2.5-1.9 4.6-3.9 6v5h6.3c3.7-3.4 5.8-8.4 5.8-15.0z" fill="#4285F4"/><path d="M24 44c5.4 0 9.9-1.8 13.2-4.9l-6.3-5c-1.8 1.2-4.2 1.9-6.9 1.9-5.3 0-9.7-3.6-11.3-8.4H6.1v5.1C9.4 39.7 16.2 44 24 44z" fill="#34A853"/><path d="M12.7 27.6c-.4-1.2-.6-2.5-.6-3.6s.2-2.4.6-3.6v-5.1H6.1C4.8 17.7 4 20.8 4 24s.8 6.3 2.1 8.7l6.6-5.1z" fill="#FBBC05"/><path d="M24 14.5c3 0 5.7 1 7.8 3l5.8-5.8C34 8.5 29.4 6.5 24 6.5c-7.8 0-14.6 4.3-17.9 10.6l6.6 5.1C14.3 18.1 18.7 14.5 24 14.5z" fill="#EA4335"/></svg>',phonepe:'📲',paytm:'💳',bhim:'🏛️',generic:'📲'};
+/* ─── State ─── */
+let currentTxType = 'expense';
+let selectedCat = '';
+let editingTxId = null;
+let upiExpanded = false;
+let othersOpen = false;
+let histFilter = 'all';
+let histPage = 0;
+const HIST_PAGE_SIZE = 25;
+let confirmCallback = null;
+let isSyncing = false; // Prevents multiple rapid auto-syncs
 
-        const hideGlobalLoader = () => {
-            document.getElementById('globalLoader').classList.add('hidden-loader');
-        };
+/* ─── Storage ─── */
+function saveDB() {
+  try { localStorage.setItem('moneyProDB_v2', JSON.stringify(DB)); } catch(e) { showToast('Storage full!','error'); }
+}
+function loadDB() {
+  try {
+    const raw = localStorage.getItem('moneyProDB_v2') || localStorage.getItem('moneyProDB');
+    if (raw) { const p = JSON.parse(raw); DB = {...DB,...p}; DB.settings = {...DB.settings,...(p.settings||{})}; }
+  } catch(e) {}
+}
 
-        const toggleGuideModal = (show) => {
-            const modal = document.getElementById('guideModal'); const content = document.getElementById('guideModalContent');
-            if (show) { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => { modal.classList.remove('opacity-0'); content.classList.remove('scale-95'); }, 10); } 
-            else { modal.classList.add('opacity-0'); content.classList.add('scale-95'); setTimeout(() => { modal.classList.add('hidden'); modal.classList.remove('flex'); }, 300); }
-        };
+/* ─── Toast ─── */
+const TOAST_ICONS = {success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info',warning:'fa-triangle-exclamation'};
+function showToast(msg, type='info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<div class="toast-icon"><i class="fa-solid ${TOAST_ICONS[type]}"></i></div><span>${msg}</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3600);
+}
 
-        const copyScriptCode = () => {
-            navigator.clipboard.writeText(document.getElementById('scriptCodeBlock').innerText).then(() => { showToast('Script Copied!', 'success'); }).catch(() => { showToast('Copy failed.', 'error'); });
-        };
+/* ─── Modal ─── */
+function toggleModal(id, open) {
+  const el = document.getElementById(id);
+  if (open) { el.style.display='flex'; requestAnimationFrame(()=>el.classList.add('open')); }
+  else { el.classList.remove('open'); setTimeout(()=>{ el.style.display='none'; },300); }
+}
 
-        const playRewardAnimation = () => {
-            if (typeof confetti !== 'function') return;
-            confetti({
-                particleCount: 50,
-                spread: 70,
-                origin: { y: -0.1, x: 0.5 },
-                colors: ['#ef4444', '#3b82f6', '#fcd34d', '#c084fc', '#ffffff'],
-                gravity: 1.2,
-                scalar: 0.8,
-                ticks: 100
-            });
-        };
+/* ─── Confirm ─── */
+function showConfirm(title,msg,icon,btnLabel,btnClass,cb) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmIcon').textContent = icon;
+  const btn = document.getElementById('confirmBtn');
+  btn.textContent = btnLabel;
+  btn.className = `btn ${btnClass} btn-full`;
+  confirmCallback = cb;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); confirmCallback=null; }
+function confirmAction() { if(confirmCallback) confirmCallback(); closeConfirm(); }
 
-        document.getElementById('expDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('savDate').value = new Date().toISOString().split('T')[0];
+/* ─── Loader ─── */
+function setLoader(show, msg='Syncing…') {
+  document.getElementById('loaderText').textContent = msg;
+  document.getElementById('cloudLoader').classList.toggle('active', show);
+}
 
-        // --- Core Sync Architecture (Source of Truth Protocol) ---
-        
-        async function loadInitialData() {
-            showGlobalLoader('Initializing...');
-            try {
-                await initDB();
-                
-                // 1. Load Local Cache first for immediate UI availability
-                state.users = await dbStore('users', 'getAll');
-                const txs = await dbStore('transactions', 'getAll');
-                state.transactions = txs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
-                
-                document.getElementById('setSheetUrl').value = state.sheetUrl;
-                document.getElementById('setUpiId').value = state.upiId;
-                document.getElementById('setPaymentApp').value = state.paymentApp;
-                updateConnectionBadge();
+/* ─── Utils ─── */
+function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+function formatCurrency(n) { return Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
+function formatDate(d) { if(!d) return ''; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch{return d;} }
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function nowTime() { return new Date().toTimeString().substr(0,5); }
+function getCatEmoji(key) { return CAT_ICON_MAP[key] || '💳'; }
+function getMonthRange() {
+  const n=new Date(),y=n.getFullYear(),m=n.getMonth();
+  return { start: new Date(y,m,1).toISOString().split('T')[0], end: new Date(y,m+1,0).toISOString().split('T')[0] };
+}
+function getUserName(userId) {
+  const u = DB.users.find(u=>u.id===userId);
+  return u ? u.name : 'Unknown';
+}
 
-                const targetView = new URLSearchParams(window.location.search).get('view') || 'transactions';
-                if(state.sheetUrl || state.skipSetup) { switchView(targetView); } else { switchView('setup'); }
+/* ─── User Stats ─── */
+function rebuildUserStats(uid_filter) {
+  const users = uid_filter ? DB.users.filter(u=>u.id===uid_filter) : DB.users;
+  users.forEach(u => {
+    const txs = DB.transactions.filter(t=>t.userId===u.id);
+    u.runningIncome = txs.filter(t=>t.type==='income').reduce((s,t)=>s+Number(t.amount),0);
+    u.runningExpense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
+    u.runningSavings = Number(u.initialSavings||0)+u.runningIncome-u.runningExpense;
+  });
+}
 
-                // 2. Perform Automatic Background Sync if possible
-                if(state.sheetUrl && navigator.onLine) {
-                    await autoSync();
-                }
-            } catch(e) { showToast('Initialization Error', 'error'); }
-            finally { hideGlobalLoader(); }
-        }
+/* ─── UPI Launch ─── */
+function buildUpiUrl(app, upiId, amount, name, note) {
+  const encodedName = encodeURIComponent(name||'Payment');
+  const encodedNote = encodeURIComponent(note||'');
+  const amt = amount ? Number(amount).toFixed(2) : '';
+  switch(app) {
+    case 'gpay':
+      return `tez://upi/pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
+    case 'phonepe':
+      return `phonepe://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
+    case 'paytm':
+      return `paytmmp://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
+    case 'bhim':
+      return `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
+    default:
+      return `upi://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
+  }
+}
 
-        async function updateLocalFromCloud(cloudTxs, cloudUsers) {
-            state.transactions = cloudTxs.sort((a, b) => new Date(b.date) - new Date(a.date) || b.id - a.id);
-            if (cloudUsers && cloudUsers.length > 0) state.users = cloudUsers;
-            
-            const dbInstance = await initDB();
-            const txStore = dbInstance.transaction(['transactions'], 'readwrite').objectStore('transactions');
-            txStore.clear();
-            for(let t of state.transactions) { txStore.put(t); }
+function launchUpiApp(app) {
+  const upiId = DB.settings.upiId;
+  if (!upiId) { showToast('No UPI ID configured. Go to Settings.','warning'); return; }
+  const url = buildUpiUrl(app, upiId, '', 'Payment', '');
+  window.location.href = url;
+  setTimeout(() => { showToast('If app did not open, ensure it is installed.','info'); }, 2000);
+}
 
-            const uStore = dbInstance.transaction(['users'], 'readwrite').objectStore('users');
-            uStore.clear();
-            for(let u of state.users) { uStore.put(u); }
+function renderUpiLaunchButtons() {
+  const row = document.getElementById('upiLaunchRow');
+  if (!row) return;
+  const upiId = DB.settings.upiId;
+  const defaultApp = DB.settings.paymentApp;
+  if (!upiId) { row.style.display='none'; return; }
 
-            renderApp();
-        }
+  const appsToShow = [];
+  if (defaultApp && defaultApp !== '') appsToShow.push(defaultApp);
+  
+  ['gpay','phonepe'].forEach(app => {
+    if (!appsToShow.includes(app)) appsToShow.push(app);
+  });
+  const visible = appsToShow.slice(0,2);
 
-        // The automated sync function replacing the manual one
-        async function autoSync() {
-            if (!state.sheetUrl || !navigator.onLine) return; // Fail silently if offline, data is queued.
+  row.style.display = 'flex';
+  row.innerHTML = visible.map(app => {
+    const cls = UPI_APP_COLORS[app] || 'upi-btn-generic';
+    const name = UPI_APP_NAMES[app] || 'Pay';
+    const icon = app === 'gpay' ? '<i class="fa-brands fa-google" style="font-size:14px;"></i>' : app === 'phonepe' ? '<i class="fa-solid fa-mobile-screen" style="font-size:14px;"></i>' : '<i class="fa-solid fa-qrcode" style="font-size:14px;"></i>';
+    return `<button class="upi-launch-btn ${cls}" onclick="launchUpiApp('${app}')">${icon} Pay via ${name}</button>`;
+  }).join('');
+}
 
-            try {
-                const payload = {
-                    transactions: state.pendingTxs,
-                    users: state.pendingUsers,
-                    deletedIds: state.deletedIds
-                };
+/* ─── Setup ─── */
+function init() {
+  loadDB();
+  if (DB.settings.setupDone) { showMainApp(); }
+  else { showSetup(); }
 
-                const response = await fetch(state.sheetUrl, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(payload) 
-                });
-                
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    // Success! Clear the local queues
-                    state.pendingTxs = [];
-                    state.pendingUsers = [];
-                    state.deletedIds = [];
-                    localStorage.setItem('mn_pendingTxs', '[]');
-                    localStorage.setItem('mn_pendingUsers', '[]');
-                    localStorage.setItem('mn_deletedIds', '[]');
+  // Auto Sync logic: when the app detects internet re-connection
+  window.addEventListener('online', () => {
+    if (DB.settings.scriptUrl && DB.settings.setupDone) {
+      showToast('Back online! Syncing data...', 'info');
+      triggerSync(true); // run background sync
+    }
+  });
 
-                    // Update UI with the Cloud's Source of Truth
-                    await updateLocalFromCloud(result.transactions, result.users);
-                }
-            } catch (err) {
-                console.log("Auto-sync failed, keeping data in offline queue.");
-            }
-        }
+  // Hotkeys
+  document.addEventListener('keydown', e => {
+    if (e.key==='Escape') {
+      ['txModal','userModal','guideModal','syncModal'].forEach(id => {
+        const el=document.getElementById(id);
+        if(el&&el.classList.contains('open')) toggleModal(id,false);
+      });
+      closeConfirm();
+    }
+    if ((e.ctrlKey||e.metaKey)&&e.key==='n') { e.preventDefault(); openTxModal(); }
+    if ((e.ctrlKey||e.metaKey)&&e.key==='s') { e.preventDefault(); triggerSync(); }
+  });
 
-        // Global Event Listeners for Offline Support
-        window.addEventListener('online', () => { 
-            if(state.sheetUrl && (state.pendingTxs.length > 0 || state.deletedIds.length > 0 || state.pendingUsers.length > 0)) {
-                showToast('Back online. Syncing pending changes...', 'info');
-                autoSync();
-            }
-        });
+  // Attempt sync on start if online
+  if (DB.settings.setupDone && navigator.onLine) {
+    triggerSync(true);
+  }
+}
 
-        // --- Navigation ---
-        function switchView(newView) {
-            showGlobalLoader();
-            setTimeout(() => {
-                state.view = newView; document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-                if(newView === 'setup') { document.getElementById('main-app').style.display = 'none'; document.getElementById('view-setup').classList.add('active'); } 
-                else {
-                    document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display = 'block'; document.getElementById(`view-${newView}`).classList.add('active');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    document.querySelectorAll('.nav-btn').forEach(btn => {
-                        if(btn.id !== 'nav-analytics') { btn.classList.remove('nav-active', 'text-blue-400', 'text-emerald-400', 'text-purple-400'); btn.classList.add('text-slate-400'); btn.querySelector('.nav-bg').style.opacity = '0'; btn.querySelector('.nav-bg').style.transform = 'scale(0.5)'; }
-                    });
-                    if(newView === 'transactions') { const b = document.getElementById('nav-transactions'); b.classList.add('nav-active', 'text-blue-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
-                    else if(newView === 'savings') { const b = document.getElementById('nav-savings'); b.classList.add('nav-active', 'text-emerald-400'); b.classList.remove('text-slate-400'); b.querySelector('.nav-bg').style.opacity = '1'; b.querySelector('.nav-bg').style.transform = 'scale(1)'; }
-                    else if(newView === 'settings') { updateConnectionBadge(); }
-                    renderApp();
-                }
-                hideGlobalLoader();
-            }, 300); // Artificial delay to ensure crisp UI transitions
-        }
+function showSetup() {
+  document.getElementById('view-setup').classList.add('active');
+  document.getElementById('main-app').style.display='none';
+}
 
-        // --- Configuration Handlers ---
-        document.getElementById('setupForm').onsubmit = async (e) => {
-            e.preventDefault(); const url = document.getElementById('setupUrl').value.trim(); const upiId = document.getElementById('setupUpiId').value.trim(); const payApp = document.getElementById('setupPaymentApp').value;
-            if(upiId) {
-                if(!/^[\w.-]+@[\w.-]+$/.test(upiId)) return showToast('Invalid UPI ID format', 'error');
-                state.upiId = upiId; state.paymentApp = payApp; localStorage.setItem('mn_upiId', upiId); localStorage.setItem('mn_paymentApp', payApp);
-                document.getElementById('setUpiId').value = upiId; document.getElementById('setPaymentApp').value = payApp;
-            }
-            if(url) {
-                state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); document.getElementById('setSheetUrl').value = url;
-                state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); showToast('Database Connected!', 'success');
-            } else { state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); showToast('Local Mode Configured!', 'info'); }
-            
-            switchView('transactions'); playRewardAnimation(); 
-            if(state.sheetUrl) await autoSync();
-        };
+function showMainApp() {
+  document.getElementById('view-setup').classList.remove('active');
+  document.getElementById('main-app').style.display='block';
+  rebuildUserStats();
+  renderAll();
+  updateSyncDot();
+}
 
-        const closeSetup = () => { localStorage.setItem('mn_skipSetup', 'true'); state.skipSetup = true; state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); switchView('transactions'); showToast('Started in Local Mode', 'info'); };
+function submitSetup(e) {
+  e.preventDefault();
+  const url = document.getElementById('setupUrl').value.trim();
+  const upi = document.getElementById('setupUpiId').value.trim();
+  const app = document.getElementById('setupPaymentApp').value;
+  DB.settings.scriptUrl = url;
+  DB.settings.upiId = upi;
+  DB.settings.paymentApp = app;
+  DB.settings.setupDone = true;
+  if (!DB.users.length) {
+    const u = {id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0};
+    DB.users.push(u);
+  }
+  DB.settings.activeUserId = DB.users[0].id;
+  saveDB();
+  showMainApp();
+  showToast('Welcome to Money Notebook Pro! 🎉','success');
+}
 
-        function updateConnectionBadge() {
-            const badge = document.getElementById('connectionStatusBadge');
-            if(state.sheetUrl) { badge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-blue-500/30 bg-blue-500/10 text-blue-400 flex items-center gap-1.5'; badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div> Cloud Mode'; } 
-            else { badge.className = 'px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border border-slate-500/30 bg-slate-800/50 text-slate-400 flex items-center gap-1.5'; badge.innerHTML = '<div class="w-1.5 h-1.5 rounded-full bg-slate-500"></div> Local Mode'; }
-        }
+function closeSetup() {
+  DB.settings.setupDone = true;
+  if (!DB.users.length) {
+    const u = {id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0};
+    DB.users.push(u);
+  }
+  DB.settings.activeUserId = DB.users[0].id;
+  saveDB();
+  showMainApp();
+}
 
-        document.getElementById('settingsUpiForm').onsubmit = (e) => {
-            e.preventDefault(); const upiId = document.getElementById('setUpiId').value.trim(); const payApp = document.getElementById('setPaymentApp').value;
-            if(upiId && !/^[\w.-]+@[\w.-]+$/.test(upiId)) return showToast('Invalid UPI ID format', 'error');
-            state.upiId = upiId; state.paymentApp = payApp; localStorage.setItem('mn_upiId', upiId); localStorage.setItem('mn_paymentApp', payApp); showToast('Payment Preferences Saved', 'success');
-        };
+/* ─── Navigation ─── */
+const PAGE_TITLES = {dashboard:'Home',history:'History',users:'Users',settings:'Settings'};
 
-        document.getElementById('settingsConnectionForm').onsubmit = async (e) => {
-            e.preventDefault(); const url = document.getElementById('setSheetUrl').value.trim();
-            if(url) { 
-                state.sheetUrl = url; localStorage.setItem('mn_sheetUrl', url); state.skipSetup = false; localStorage.removeItem('mn_skipSetup'); 
-                showToast('Cloud Database Updated', 'success'); updateConnectionBadge(); await autoSync(); 
-            } else { showToast('Enter URL or select Local Mode', 'error'); }
-        };
+function switchView(view) {
+  document.querySelectorAll('.view-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`view-${view}`).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
+  document.querySelectorAll('.sidebar-nav-item').forEach(n=>n.classList.toggle('active', n.dataset.view===view));
+  const title = PAGE_TITLES[view] || view;
+  const dtEl = document.getElementById('desktopPageTitle');
+  if (dtEl) dtEl.textContent = title;
+  if (view==='dashboard') renderDashboard();
+  if (view==='history') { histPage=0; renderHistory(); }
+  if (view==='users') renderUsers();
+  if (view==='settings') renderSettings();
+}
 
-        const switchToLocalMode = () => { state.sheetUrl = ''; localStorage.removeItem('mn_sheetUrl'); document.getElementById('setSheetUrl').value = ''; state.skipSetup = true; localStorage.setItem('mn_skipSetup', 'true'); updateConnectionBadge(); showToast('Switched to Local Mode.', 'info'); };
+function openGraphPage() {
+  window.open('graph.html','_blank');
+}
 
-        // --- View Rendering ---
-        function renderApp() { renderUserSelectors(); renderStats(); renderTransactionLists(); }
-        
-        function renderUserSelectors() {
-            const containers = document.querySelectorAll('.user-selector-container');
-            const html = state.users.length === 0 ? '<div class="text-sm text-slate-400 italic px-2">No users found. Go to Savings to add a user.</div>' : state.users.map(u => `
-                <button onclick="selectUser('${u.id}')" class="flex items-center gap-2 px-5 py-3 rounded-[20px] font-bold text-sm transition-all active:scale-95 whitespace-nowrap ${state.currentUser === u.id ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]' : 'bg-white/5 border border-white/5 text-slate-300 hover:bg-white/10'}"><div class="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center"><i class="fa-solid fa-user text-[10px]"></i></div> ${u.name}</button>
-            `).join('');
-            containers.forEach(c => c.innerHTML = html);
-        }
+/* ─── Dashboard ─── */
+function renderAll() {
+  renderDashboard();
+  populateUserSelects();
+  renderSettings();
+}
 
-        function selectUser(id) { state.currentUser = id; localStorage.setItem('mn_currentUser', id); renderApp(); }
-        
-        function renderStats() {
-            let uInc = 0, uExp = 0, uSav = 0;
-            if(state.currentUser) {
-                const u = state.users.find(x => x.id === state.currentUser);
-                uSav = u ? (u.initialSavings + (u.runningSavings || 0)) : 0;
-                uInc = u ? (u.runningIncome || 0) : 0;
-                uExp = u ? (u.runningExpense || 0) : 0;
+function renderDashboard() {
+  const sel = document.getElementById('dashUserSelect');
+  const uid_sel = sel ? (sel.value || DB.settings.activeUserId || (DB.users[0]||{}).id) : (DB.settings.activeUserId || (DB.users[0]||{}).id);
+  populateDashUserSelect(uid_sel);
+  const user = DB.users.find(u=>u.id===uid_sel) || DB.users[0];
+  if (!user) return;
 
-                state.transactions.forEach(t => { 
-                    if(t.userId === state.currentUser) { 
-                        if(t.type === 'income') uInc += t.amount; 
-                        if(t.type === 'expense') uExp += t.amount; 
-                        if(t.type === 'savings_deposit') uSav += t.amount; 
-                    } 
-                });
-            }
-            document.getElementById('tx-total-income').innerText = `₹${uInc.toLocaleString()}`; 
-            document.getElementById('tx-total-expenses').innerText = `₹${uExp.toLocaleString()}`; 
-            document.getElementById('tx-total-savings').innerText = `₹${uSav.toLocaleString()}`;
-        }
+  rebuildUserStats(user.id);
+  const savings = user.runningSavings||0;
+  const inc = user.runningIncome||0;
+  const exp = user.runningExpense||0;
+  const total = Number(user.initialSavings||0)+inc;
+  const pct = total > 0 ? Math.min(100,Math.max(0,(savings/total)*100)) : 0;
 
-        function renderTransactionLists() {
-            const containers = document.querySelectorAll('.transaction-list-container');
-            if(state.view !== 'transactions' && state.view !== 'savings') return;
-            
-            let filtered = state.transactions.filter(t => { 
-                if(state.view === 'transactions' && t.type === 'savings_deposit') return false; 
-                if(state.view === 'savings' && t.type !== 'savings_deposit') return false; 
-                if(!state.searchQuery) return true; 
-                const q = state.searchQuery.toLowerCase(); 
-                const formattedDate = new Date(t.date).toLocaleDateString(undefined, {month:'short', day:'numeric'}).toLowerCase();
-                return t.reason.toLowerCase().includes(q) || t.amount.toString().includes(q) || t.category.toLowerCase().includes(q) || t.date.includes(q) || formattedDate.includes(q); 
-            });
+  document.getElementById('dashBalance').textContent = formatCurrency(savings);
+  document.getElementById('dashIncome').textContent = formatCurrency(inc);
+  document.getElementById('dashExpense').textContent = formatCurrency(exp);
+  document.getElementById('statIncome').textContent = formatCurrency(inc);
+  document.getElementById('statExpense').textContent = formatCurrency(exp);
+  const userTxs = DB.transactions.filter(t=>t.userId===user.id);
+  document.getElementById('statTxCount').textContent = userTxs.length;
+  const {start,end} = getMonthRange();
+  const monthAmt = userTxs.filter(t=>t.date>=start&&t.date<=end&&t.type==='expense').reduce((s,t)=>s+Number(t.amount),0);
+  document.getElementById('statMonth').textContent = formatCurrency(monthAmt);
+  document.getElementById('savingsProgress').style.width = pct+'%';
 
-            const html = `
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center mb-5 px-1">
-                        <h3 class="text-lg font-extrabold text-white">History</h3>
-                        <div class="flex gap-2 items-center">
-                            <div class="relative">
-                                <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                <input type="text" placeholder="Search..." oninput="handleSearch(this.value)" value="${state.searchQuery}" class="bg-black/30 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white font-medium focus:outline-none focus:border-blue-500 w-32 transition-all focus:w-44">
-                            </div>
-                        </div>
-                    </div>
-                    ${filtered.length === 0 ? '<div class="bento-card p-10 text-center"><i class="fa-solid fa-leaf text-4xl mb-4 text-white/10"></i><p class="text-slate-400 font-semibold">No records found.</p></div>' : ''}
-                    <div class="space-y-3">
-                        ${filtered.map((tx, idx) => {
-                            const user = state.users.find(u => u.id === tx.userId); let icon = 'fa-money-bill-transfer'; let colorClass = 'text-slate-400 bg-slate-800/50 group-hover:bg-slate-700/50'; let amountClass = 'text-slate-300'; let sign = '';
-                            if (tx.type === 'expense') { icon = 'fa-arrow-up-right-from-square'; colorClass = 'bg-rose-500/10 text-rose-400 group-hover:bg-rose-500/20'; amountClass = 'text-rose-400'; sign = '-'; } 
-                            else if (tx.type === 'income') { icon = 'fa-arrow-down-left-from-square'; colorClass = 'bg-blue-500/10 text-blue-400 group-hover:bg-blue-500/20'; amountClass = 'text-white'; sign = '+'; } 
-                            else if (tx.type === 'savings_deposit') { icon = 'fa-piggy-bank'; colorClass = 'bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500/20'; amountClass = 'text-emerald-400'; sign = '+'; }
-                            const appNames = { gpay: 'GPay', phonepe: 'PhonePe', paytm: 'Paytm', bhim: 'BHIM', generic: 'UPI App' }; const metaExtra = tx.upiId ? ` &bull; <i class="fa-brands fa-google-pay"></i> ${appNames[tx.paymentPlatform]} (${tx.upiId})` : '';
-                            return `
-                            <div class="tx-anim flex justify-between items-center p-4.5 bg-white-[0.02] border border-white/5 rounded-2xl hover:bg-white/5 hover:shadow-lg transition-all group cursor-default" style="animation-delay: ${idx * 0.04}s;">
-                                <div class="flex items-center gap-4">
-                                    <div class="p-3 rounded-2xl flex items-center justify-center w-12 h-12 transition-colors ${colorClass}"><i class="fa-solid ${icon} text-lg"></i></div>
-                                    <div><p class="font-extrabold text-white text-[15px]">${tx.reason}</p><p class="text-xs font-medium text-slate-500 mt-0.5">${user?.name || 'Unknown'} &bull; ${tx.category}${metaExtra}</p></div>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <div class="text-right"><span class="font-extrabold text-[15px] block ${amountClass}">${sign}₹${tx.amount.toLocaleString()}</span><span class="text-[10px] font-semibold text-slate-500 uppercase">${new Date(tx.date).toLocaleDateString(undefined, {month:'short', day:'numeric'})}</span></div>
-                                    <button onclick="deleteTx('${tx.id}', this)" class="bg-slate-800/80 text-slate-400 hover:text-white hover:bg-rose-500 transition-all p-2.5 rounded-xl active:scale-90" title="Delete Record"><i class="fa-solid fa-trash-can"></i></button>
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
-            containers.forEach(c => c.innerHTML = html);
-        }
+  renderUpiLaunchButtons();
+  renderRecentTx(user.id);
+}
 
-        function handleSearch(val) { state.searchQuery = val; renderTransactionLists(); }
+function populateDashUserSelect(activeId) {
+  const sel = document.getElementById('dashUserSelect');
+  const cur = activeId || sel.value || DB.settings.activeUserId;
+  sel.innerHTML = DB.users.map(u=>`<option value="${u.id}"${u.id===cur?'selected':''}>${u.name}</option>`).join('');
+}
 
-        // --- Data Mutations & Auto Sync Queue ---
-        async function deleteTx(id, btnElement) {
-            if(!confirm("Delete this record?")) return;
-            const txDiv = btnElement.closest('.tx-anim'); txDiv.style.transform = 'scale(0.9) translateX(30px)'; txDiv.style.opacity = '0';
-            
-            setTimeout(async () => {
-                state.deletedIds.push(id.toString()); localStorage.setItem('mn_deletedIds', JSON.stringify(state.deletedIds));
-                await dbStore('transactions', 'delete', id.toString()); state.transactions = state.transactions.filter(t => t.id !== id.toString());
-                renderApp(); autoSync();
-            }, 300);
-        }
+function onDashUserChange() {
+  DB.settings.activeUserId = document.getElementById('dashUserSelect').value;
+  saveDB();
+  renderDashboard();
+}
 
-        document.getElementById('addUserForm').onsubmit = async (e) => { 
-            e.preventDefault(); 
-            const newUser = { id: Date.now().toString(), name: document.getElementById('newUserName').value.trim(), initialSavings: parseFloat(document.getElementById('newUserSavings').value) || 0, runningIncome: 0, runningExpense: 0, runningSavings: 0 }; 
-            await dbStore('users', 'add', newUser); 
-            state.users.push(newUser); 
-            state.pendingUsers.push(newUser); localStorage.setItem('mn_pendingUsers', JSON.stringify(state.pendingUsers));
-            selectUser(newUser.id); e.target.reset(); showToast('User Added!', 'success'); autoSync(); 
-        };
-        
-        document.getElementById('expCategory').onchange = (e) => { if(e.target.value === 'Savings') switchView('savings'); };
-        
-        document.getElementById('expenseForm').onsubmit = async (e) => { 
-            e.preventDefault(); if(!state.currentUser) return showToast('Select a user profile first', 'error'); 
-            const cat = document.getElementById('expCategory').value; if(cat === 'Savings') { switchView('savings'); return; } 
-            
-            const isIncome = incomeCategories.includes(cat); 
-            const tx = { id: Date.now().toString(), userId: state.currentUser, type: isIncome ? 'income' : 'expense', amount: parseFloat(document.getElementById('expAmount').value), reason: document.getElementById('expReason').value.trim(), category: cat, date: document.getElementById('expDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; 
-            
-            await dbStore('transactions', 'add', tx); 
-            state.transactions.unshift(tx); 
-            state.pendingTxs.push(tx); localStorage.setItem('mn_pendingTxs', JSON.stringify(state.pendingTxs));
-            
-            e.target.reset(); document.getElementById('expDate').value = new Date().toISOString().split('T')[0]; 
-            showToast(isIncome ? 'Income Logged' : 'Expense Logged', 'success'); playRewardAnimation(); renderApp(); autoSync();
-        };
-        
-        async function handleManualSavings() { 
-            if(!state.currentUser) return showToast('Select a user profile first', 'error'); 
-            const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error'); 
-            
-            const tx = { id: Date.now().toString(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: document.getElementById('savNotes').value.trim() || 'Savings Deposit', category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) }; 
-            await dbStore('transactions', 'add', tx); 
-            state.transactions.unshift(tx); 
-            state.pendingTxs.push(tx); localStorage.setItem('mn_pendingTxs', JSON.stringify(state.pendingTxs));
+function renderRecentTx(userId) {
+  const txs = DB.transactions.filter(t=>t.userId===userId)
+    .sort((a,b)=>((b.date||'')+(b.time||'')).localeCompare((a.date||'')+(a.time||'')))
+    .slice(0,5);
+  const el = document.getElementById('recentTxList');
+  if (!txs.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">💳</div><div class="empty-title">No transactions yet</div><div class="empty-sub">Tap + to add your first transaction</div></div>`;
+    return;
+  }
+  el.innerHTML = txs.map((t,i)=>txHTML(t,i,'')).join('');
+}
 
-            document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
-            showToast('Savings Secured', 'success'); playRewardAnimation(); renderApp(); autoSync();
-        }
-        
-        async function handleUpiPayment() {
-            if(!state.currentUser) return showToast('Select a user profile first', 'error'); const amt = parseFloat(document.getElementById('savAmount').value); if(!amt || isNaN(amt)) return showToast('Please enter a valid amount', 'error');
-            if(!state.upiId) { showToast('Please configure your UPI ID in Settings first.', 'error'); setTimeout(() => switchView('settings'), 2000); return; }
-            const nts = document.getElementById('savNotes').value.trim() || 'Savings Deposit'; const user = state.users.find(u => u.id === state.currentUser);
-            const pn = encodeURIComponent(user ? user.name : 'User'); const pa = encodeURIComponent(state.upiId); const am = encodeURIComponent(amt); const tn = encodeURIComponent(nts);
-            let prefix = 'upi://pay'; if(state.paymentApp === 'gpay') prefix = 'tez://upi/pay'; else if(state.paymentApp === 'phonepe') prefix = 'phonepe://pay'; else if(state.paymentApp === 'paytm') prefix = 'paytmmp://pay'; else if(state.paymentApp === 'bhim') prefix = 'bhim://pay';
-            const uri = `${prefix}?pa=${pa}&pn=${pn}&am=${am}&tn=${tn}`;
-            const tx = { id: Date.now().toString(), userId: state.currentUser, type: 'savings_deposit', amount: amt, reason: nts, category: 'Savings', date: document.getElementById('savDate').value || new Date().toISOString().split('T')[0], time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}), upiId: state.upiId, paymentPlatform: state.paymentApp };
-            
-            await dbStore('transactions', 'add', tx); 
-            state.transactions.unshift(tx); 
-            state.pendingTxs.push(tx); localStorage.setItem('mn_pendingTxs', JSON.stringify(state.pendingTxs));
+/* ─── Transaction HTML ─── */
+function txHTML(t, idx, searchTerm) {
+  const isInc = t.type==='income';
+  const emoji = getCatEmoji(t.category);
+  const upiTag = t.upiId ? `<span class="upi-badge"><i class="fa-solid fa-qrcode" style="font-size:9px;"></i> ${UPI_APP_NAMES[t.paymentPlatform]||'UPI'}</span>` : '';
+  const userName = getUserName(t.userId);
+  const catDisplay = highlight(t.category||'Transaction', searchTerm);
+  const reasonDisplay = highlight(t.reason||'—', searchTerm);
+  const userDisplay = highlight(userName, searchTerm);
+  return `
+    <div class="tx-item" style="animation-delay:${Math.min(idx,8)*0.05}s;" onclick="openEditTx('${t.id}')">
+      <div class="tx-icon ${t.type}">${emoji}</div>
+      <div class="tx-details">
+        <div class="tx-category">${catDisplay}</div>
+        <div class="tx-sub">${reasonDisplay} ${upiTag}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:1px;">${userDisplay}</div>
+      </div>
+      <div class="tx-meta">
+        <div class="tx-amount ${t.type}">${isInc?'+':'-'}₹${formatCurrency(t.amount)}</div>
+        <div class="tx-date">${formatDate(t.date)}</div>
+      </div>
+      <button onclick="event.stopPropagation();deleteTxConfirm('${t.id}')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;border-radius:6px;margin-left:2px;transition:color 0.2s;flex-shrink:0;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-muted)'">
+        <i class="fa-solid fa-trash-can" style="font-size:12px;"></i>
+      </button>
+    </div>`;
+}
 
-            document.getElementById('savingsForm').reset(); document.getElementById('savDate').value = new Date().toISOString().split('T')[0]; 
-            renderApp(); autoSync(); showToast('Launching Payment App...', 'info'); setTimeout(() => { window.location.href = uri; }, 500);
-        }
+function highlight(text, term) {
+  if (!term || !text) return text||'';
+  const t = String(text);
+  const idx = t.toLowerCase().indexOf(term.toLowerCase());
+  if (idx === -1) return t;
+  return t.slice(0,idx) + `<span class="search-highlight">${t.slice(idx,idx+term.length)}</span>` + t.slice(idx+term.length);
+}
 
-        window.onload = loadInitialData;
+/* ─── History ─── */
+function setHistFilter(f, btn) {
+  histFilter = f; histPage = 0;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistory();
+}
 
-        // --- PWA Service Worker Registration ---
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(err => { console.log('ServiceWorker registration failed: ', err); }); });
-        }
-    </script>
+function renderHistory() {
+  histPage = 0;
+  const all = getFilteredTxs();
+  const el = document.getElementById('historyList');
+  const empty = document.getElementById('histEmptyState');
+  const more = document.getElementById('histLoadMore');
+  const countEl = document.getElementById('histCount');
+  if (countEl) countEl.textContent = all.length ? `${all.length} found` : '';
+  if (!all.length) { el.innerHTML=''; empty.style.display='flex'; more.style.display='none'; return; }
+  empty.style.display='none';
+  const search = (document.getElementById('histSearch')||{}).value?.trim()||'';
+  const slice = all.slice(0,HIST_PAGE_SIZE);
+  el.innerHTML = slice.map((t,i)=>txHTML(t,i,search)).join('');
+  more.style.display = all.length > HIST_PAGE_SIZE ? 'block' : 'none';
+  histPage = 1;
+}
+
+function loadMoreHistory() {
+  const all = getFilteredTxs();
+  const search = (document.getElementById('histSearch')||{}).value?.trim()||'';
+  const el = document.getElementById('historyList');
+  const more = document.getElementById('histLoadMore');
+  const start = histPage * HIST_PAGE_SIZE;
+  const slice = all.slice(start, start+HIST_PAGE_SIZE);
+  el.innerHTML += slice.map((t,i)=>txHTML(t,start+i,search)).join('');
+  histPage++;
+  if (start+HIST_PAGE_SIZE >= all.length) more.style.display='none';
+}
+
+function getFilteredTxs() {
+  const rawSearch = ((document.getElementById('histSearch')||{}).value||'').trim().toLowerCase();
+  const userF = (document.getElementById('histUserFilter')||{}).value||'all';
+  const today = todayStr();
+  const now = new Date();
+  const weekAgo = new Date(now); weekAgo.setDate(weekAgo.getDate()-7);
+  const weekStr = weekAgo.toISOString().split('T')[0];
+  const {start:mStart,end:mEnd} = getMonthRange();
+  return DB.transactions.filter(t => {
+    // Type filters
+    if (histFilter==='income' && t.type!=='income') return false;
+    if (histFilter==='expense' && t.type!=='expense') return false;
+    if (histFilter==='today' && t.date!==today) return false;
+    if (histFilter==='week' && t.date<weekStr) return false;
+    if (histFilter==='month' && (t.date<mStart||t.date>mEnd)) return false;
+    // User filter
+    if (userF!=='all' && t.userId!==userF) return false;
+    // Search: across username, category, reason/note, amount, date, upi id, payment platform
+    if (rawSearch) {
+      const userName = getUserName(t.userId).toLowerCase();
+      const cat = (t.category||'').toLowerCase();
+      const reason = (t.reason||'').toLowerCase();
+      const amount = String(t.amount||'');
+      const date = formatDate(t.date).toLowerCase();
+      const upiId = (t.upiId||'').toLowerCase();
+      const payApp = (UPI_APP_NAMES[t.paymentPlatform]||t.paymentPlatform||'').toLowerCase();
+      const typeStr = t.type.toLowerCase();
+      const matches = userName.includes(rawSearch) || cat.includes(rawSearch) || reason.includes(rawSearch) || amount.includes(rawSearch) || date.includes(rawSearch) || upiId.includes(rawSearch) || payApp.includes(rawSearch) || typeStr.includes(rawSearch);
+      if (!matches) return false;
+    }
+    return true;
+  }).sort((a,b)=>((b.date||'')+(b.time||'')).localeCompare((a.date||'')+(a.time||'')));
+}
+
+/* ─── Transaction CRUD ─── */
+function openTxModal() {
+  editingTxId = null;
+  document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Add Transaction';
+  document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Save';
+  setTxType('expense');
+  document.getElementById('txAmount').value = '';
+  document.getElementById('txReason').value = '';
+  document.getElementById('txDate').value = todayStr();
+  document.getElementById('txTime').value = nowTime();
+  document.getElementById('txUpiId').value = DB.settings.upiId||'';
+  document.getElementById('txPayApp').value = DB.settings.paymentApp||'';
+  document.getElementById('txCatCustom').value = '';
+  selectedCat = '';
+  othersOpen = false;
+  upiExpanded = false;
+  document.getElementById('upiSection').style.display = 'none';
+  document.getElementById('upiChevron').style.transform = 'rotate(0deg)';
+  populateTxUserSelect();
+  renderCatGrid();
+  toggleModal('txModal', true);
+}
+
+function openEditTx(id) {
+  const tx = DB.transactions.find(t=>t.id===id);
+  if (!tx) return;
+  editingTxId = id;
+  document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Transaction';
+  document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Update';
+  setTxType(tx.type);
+  document.getElementById('txAmount').value = tx.amount;
+  document.getElementById('txReason').value = tx.reason||'';
+  document.getElementById('txDate').value = tx.date||todayStr();
+  document.getElementById('txTime').value = tx.time||nowTime();
+  document.getElementById('txUpiId').value = tx.upiId||'';
+  document.getElementById('txPayApp').value = tx.paymentPlatform||'';
+  document.getElementById('txCatCustom').value = '';
+
+  // Determine if category is a known key or custom
+  const knownKeys = [...INCOME_CATS,...EXPENSE_CATS].map(c=>c.key).filter(k=>k!=='__others__');
+  if (knownKeys.includes(tx.category)) {
+    selectedCat = tx.category;
+    othersOpen = false;
+  } else {
+    // Custom category
+    selectedCat = '__others__';
+    othersOpen = true;
+    document.getElementById('txCatCustom').value = tx.category||'';
+  }
+
+  upiExpanded = !!(tx.upiId);
+  const upiSec = document.getElementById('upiSection');
+  upiSec.style.display = upiExpanded ? 'flex' : 'none';
+  document.getElementById('upiChevron').style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+
+  populateTxUserSelect(tx.userId);
+  renderCatGrid();
+  toggleModal('txModal', true);
+}
+
+function closeTxModal() { toggleModal('txModal',false); }
+
+function setTxType(type) {
+  currentTxType = type;
+  document.getElementById('btnIncome').className = 'toggle-pill-btn'+(type==='income'?' active-income':'');
+  document.getElementById('btnExpense').className = 'toggle-pill-btn'+(type==='expense'?' active-expense':'');
+  // Reset category when type changes (unless editing)
+  if (!editingTxId) { selectedCat=''; othersOpen=false; }
+  renderCatGrid();
+}
+
+function renderCatGrid() {
+  const cats = currentTxType==='income' ? INCOME_CATS : EXPENSE_CATS;
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = cats.map(c => {
+    const isSel = selectedCat===c.key;
+    const isOthers = c.key==='__others__';
+    return `<div class="cat-chip${isSel?' selected':''}" onclick="selectCat('${c.key}')">${c.emoji}<span>${c.label}</span></div>`;
+  }).join('');
+  // Others section visibility
+  const othersSection = document.getElementById('othersSection');
+  othersSection.classList.toggle('open', othersOpen);
+}
+
+function selectCat(key) {
+  if (key === '__others__') {
+    selectedCat = '__others__';
+    othersOpen = true;
+    renderCatGrid();
+    setTimeout(()=>document.getElementById('txCatCustom').focus(),100);
+  } else {
+    selectedCat = key;
+    othersOpen = false;
+    document.getElementById('txCatCustom').value = '';
+    renderCatGrid();
+  }
+}
+
+function populateTxUserSelect(selectId) {
+  const sel = document.getElementById('txUser');
+  const activeId = selectId || DB.settings.activeUserId;
+  sel.innerHTML = DB.users.map(u=>`<option value="${u.id}"${u.id===activeId?'selected':''}>${u.name}</option>`).join('');
+}
+
+function saveTx() {
+  const amount = parseFloat(document.getElementById('txAmount').value);
+  if (!amount||amount<=0) { showToast('Please enter a valid amount','error'); return; }
+
+  let cat = '';
+  if (selectedCat === '__others__') {
+    cat = document.getElementById('txCatCustom').value.trim();
+    if (!cat) { showToast('Please type a custom category','error'); document.getElementById('txCatCustom').focus(); return; }
+  } else {
+    cat = selectedCat;
+  }
+  if (!cat) { showToast('Please select a category','error'); return; }
+
+  const reason = document.getElementById('txReason').value.trim();
+  const date = document.getElementById('txDate').value||todayStr();
+  const time = document.getElementById('txTime').value||nowTime();
+  const userId = document.getElementById('txUser').value;
+  const upiId = upiExpanded ? document.getElementById('txUpiId').value.trim() : '';
+  const paymentPlatform = upiExpanded ? document.getElementById('txPayApp').value : '';
+  
+  if (editingTxId) {
+    const idx = DB.transactions.findIndex(t=>t.id===editingTxId);
+    if (idx!==-1) {
+      DB.transactions[idx] = {...DB.transactions[idx],type:currentTxType,amount,category:cat,reason,date,time,userId,upiId,paymentPlatform};
+    }
+  } else {
+    DB.transactions.unshift({id:uid(),type:currentTxType,amount,category:cat,reason,date,time,userId,upiId,paymentPlatform});
+    if (currentTxType==='income') launchConfetti();
+  }
+
+  rebuildUserStats(userId);
+  saveDB();
+  closeTxModal();
+  renderAll();
+  populateHistUserFilter();
+
+  // Smart Sync Handler
+  if (navigator.onLine && DB.settings.scriptUrl) {
+    triggerSync(true); // Auto sync in background
+  } else {
+    showToast('Saved offline. Will sync when back online.', 'info');
+  }
+}
+
+function deleteTxConfirm(id) {
+  showConfirm('Delete Transaction','This transaction will be permanently removed.','🗑️','Delete','btn-danger',()=>deleteTx(id));
+}
+
+function deleteTx(id) {
+  const idx = DB.transactions.findIndex(t=>t.id===id);
+  if (idx===-1) return;
+  const tx = DB.transactions[idx];
+  if (!DB.deletedIds.includes(id)) DB.deletedIds.push(id);
+  DB.transactions.splice(idx,1);
+  rebuildUserStats(tx.userId);
+  saveDB();
+  renderAll();
+  histPage=0; renderHistory();
+  populateHistUserFilter();
+  
+  if (navigator.onLine && DB.settings.scriptUrl) {
+    triggerSync(true);
+  } else {
+    showToast('Deleted offline. Will sync when back online.', 'info');
+  }
+}
+
+function toggleUpiSection() {
+  upiExpanded = !upiExpanded;
+  const sec = document.getElementById('upiSection');
+  const chev = document.getElementById('upiChevron');
+  sec.style.display = upiExpanded ? 'flex' : 'none';
+  chev.style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+/* ─── Users ─── */
+function renderUsers() {
+  const el = document.getElementById('usersList');
+  const empty = document.getElementById('usersEmptyState');
+  rebuildUserStats();
+  if (!DB.users.length) { el.innerHTML=''; empty.style.display='flex'; return; }
+  empty.style.display='none';
+  const palettes = ['linear-gradient(135deg,#3b82f6,#1e40af)','linear-gradient(135deg,#a78bfa,#6d28d9)','linear-gradient(135deg,#f472b6,#be185d)','linear-gradient(135deg,#34d399,#065f46)','linear-gradient(135deg,#fbbf24,#78350f)'];
+  el.innerHTML = DB.users.map((u,i)=>`
+    <div class="user-card${u.id===DB.settings.activeUserId?' active-user':''}" onclick="setActiveUser('${u.id}')">
+      <div class="user-avatar" style="background:${palettes[i%palettes.length]};">${(u.name||'?').charAt(0).toUpperCase()}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}${u.id===DB.settings.activeUserId?' <span style="font-size:10px;color:var(--blue);font-weight:600;">(active)</span>':''}</div>
+        <div class="user-savings-row">
+          <span style="color:var(--green);">+₹${formatCurrency(u.runningIncome)}</span> &nbsp;·&nbsp;
+          <span style="color:var(--red);">-₹${formatCurrency(u.runningExpense)}</span> &nbsp;·&nbsp;
+          <b style="color:${(u.runningSavings||0)>=0?'var(--blue)':'var(--red)'};">₹${formatCurrency(u.runningSavings)}</b>
+        </div>
+      </div>
+      <div class="user-actions">
+        <button class="icon-btn edit" onclick="event.stopPropagation();openEditUser('${u.id}')" title="Edit"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn del" onclick="event.stopPropagation();deleteUserConfirm('${u.id}')" title="Delete"><i class="fa-solid fa-trash-can"></i></button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function setActiveUser(id) {
+  DB.settings.activeUserId=id; saveDB(); renderUsers(); renderDashboard();
+  showToast('Active user changed','info');
+}
+
+function openAddUser() {
+  editingTxId=null;
+  document.getElementById('userModalTitle').innerHTML='<i class="fa-solid fa-user-plus"></i> Add User';
+  document.getElementById('editUserId').value='';
+  document.getElementById('userNameInput').value='';
+  document.getElementById('userSavingsInput').value='';
+  toggleModal('userModal',true);
+}
+
+function openEditUser(id) {
+  const u=DB.users.find(u=>u.id===id); if(!u) return;
+  document.getElementById('userModalTitle').innerHTML='<i class="fa-solid fa-pen"></i> Edit User';
+  document.getElementById('editUserId').value=id;
+  document.getElementById('userNameInput').value=u.name;
+  document.getElementById('userSavingsInput').value=u.initialSavings||0;
+  toggleModal('userModal',true);
+}
+
+function saveUser() {
+  const name=document.getElementById('userNameInput').value.trim();
+  if(!name){showToast('Please enter a name','error');return;}
+  const savings=parseFloat(document.getElementById('userSavingsInput').value)||0;
+  const id=document.getElementById('editUserId').value;
+  if(id){
+    const idx=DB.users.findIndex(u=>u.id===id);
+    if(idx!==-1){DB.users[idx].name=name;DB.users[idx].initialSavings=savings;rebuildUserStats(id);}
+  } else {
+    const nu={id:uid(),name,initialSavings:savings,runningIncome:0,runningExpense:0,runningSavings:savings};
+    DB.users.push(nu);
+    if(!DB.settings.activeUserId) DB.settings.activeUserId=nu.id;
+  }
+  saveDB(); toggleModal('userModal',false); renderUsers(); populateUserSelects(); renderDashboard();
+
+  if (navigator.onLine && DB.settings.scriptUrl) {
+    triggerSync(true);
+  } else {
+    showToast('Saved offline. Will sync when back online.', 'info');
+  }
+}
+
+function deleteUserConfirm(id) {
+  const u=DB.users.find(u=>u.id===id); if(!u) return;
+  const cnt=DB.transactions.filter(t=>t.userId===id).length;
+  showConfirm('Delete User',`Delete "${u.name}"? This also deletes ${cnt} transaction${cnt===1?'':'s'}.`,'⚠️','Delete User','btn-danger',()=>deleteUser(id));
+}
+
+function deleteUser(id) {
+  if(DB.users.length<=1){showToast('Cannot delete the last user','error');return;}
+  DB.transactions.filter(t=>t.userId===id).map(t=>t.id).forEach(tid=>{if(!DB.deletedIds.includes(tid))DB.deletedIds.push(tid);});
+  DB.transactions=DB.transactions.filter(t=>t.userId!==id);
+  DB.users=DB.users.filter(u=>u.id!==id);
+  if(DB.settings.activeUserId===id) DB.settings.activeUserId=DB.users[0]?.id||null;
+  saveDB(); renderUsers(); renderAll();
+  
+  if (navigator.onLine && DB.settings.scriptUrl) {
+    triggerSync(true);
+  } else {
+    showToast('Deleted offline. Will sync when back online.', 'info');
+  }
+}
+
+/* ─── Selects ─── */
+function populateUserSelects() { populateDashUserSelect(); populateHistUserFilter(); }
+
+function populateHistUserFilter() {
+  const sel=document.getElementById('histUserFilter'); if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="all">All Users</option>'+DB.users.map(u=>`<option value="${u.id}"${u.id===cur?'selected':''}>${u.name}</option>`).join('');
+}
+
+/* ─── Settings ─── */
+function renderSettings() {
+  const s=DB.settings;
+  document.getElementById('urlStatus').textContent = s.scriptUrl ? s.scriptUrl.substring(0,45)+'…' : 'Not configured';
+  document.getElementById('lastSyncLabel').textContent = s.lastSync ? 'Last: '+new Date(s.lastSync).toLocaleString('en-IN') : 'Never synced';
+  document.getElementById('settingsUpiLabel').textContent = s.upiId||'Not set';
+  document.getElementById('settingsAppLabel').textContent = UPI_APP_NAMES[s.paymentApp]||'None';
+  const appSel=document.getElementById('settingsAppSelect');
+  if(appSel) appSel.value=s.paymentApp||'';
+  updateSyncDot();
+}
+
+function editUrl() {
+  const url=prompt('Enter Apps Script Web App URL:',DB.settings.scriptUrl||'');
+  if(url!==null){DB.settings.scriptUrl=url.trim();saveDB();renderSettings();showToast('URL updated','success');}
+}
+
+function editUpi() {
+  const id=prompt('Enter UPI ID:',DB.settings.upiId||'');
+  if(id!==null){DB.settings.upiId=id.trim();saveDB();renderSettings();renderUpiLaunchButtons();showToast('UPI ID updated','success');}
+}
+
+function updateDefaultApp(val) {
+  DB.settings.paymentApp=val; saveDB(); renderSettings(); renderUpiLaunchButtons();
+  showToast('Default app updated','success');
+}
+
+function updateSyncDot() {
+  const dot=document.getElementById('syncDot');
+  if(dot) dot.style.display=DB.settings.scriptUrl?'block':'none';
+}
+
+function clearAllData() {
+  showConfirm('Clear All Data','Permanently delete all local transactions & users. Cloud data remains safe.','💣','Clear Everything','btn-danger',()=>{
+    DB.transactions=[]; DB.users=[{id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}];
+    DB.deletedIds=[]; DB.settings.activeUserId=DB.users[0].id;
+    saveDB(); renderAll(); showToast('All data cleared','info');
+  });
+}
+
+function resetApp() {
+  showConfirm('Reset App','Erase ALL settings and data. You will need to set up again.','🔄','Reset App','btn-danger',()=>{
+    localStorage.removeItem('moneyProDB_v2'); localStorage.removeItem('moneyProDB'); location.reload();
+  });
+}
+
+/* ─── Cloud Sync Core Update ─── */
+async function triggerSync(isAuto = false) {
+  if (!DB.settings.scriptUrl) {
+    if (!isAuto) showToast('No Apps Script URL set. Go to Settings.', 'warning');
+    return;
+  }
+  if (!navigator.onLine) {
+    if (!isAuto) showToast('You are offline. Data saved locally for now.', 'info');
+    return;
+  }
+  if (isSyncing) return;
+  
+  isSyncing = true;
+  if (!isAuto) setLoader(true, 'Syncing with Cloud…');
+  
+  try {
+    const resp = await fetch(DB.settings.scriptUrl,{
+      method:'POST',
+      body:JSON.stringify({transactions:DB.transactions,users:DB.users,deletedIds:DB.deletedIds}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}
+    });
+    
+    const data = await resp.json();
+    
+    if(data.status==='success'){
+      // Overwrite the local cache with the unified cloud data
+      DB.transactions = data.transactions || DB.transactions;
+      DB.users = data.users || DB.users;
+      DB.deletedIds = [];
+      DB.settings.lastSync = Date.now();
+      
+      rebuildUserStats(); 
+      saveDB(); 
+      renderAll();
+      
+      if (!isAuto) {
+        setLoader(false);
+        showToast('Sync successful! ☁️','success');
+        // Replaced logic: Keep everything locally as cache instead of clearing it, 
+        // to maintain offline display capability as requested.
+        toggleModal('syncModal', true);
+      } else {
+        // Quiet success for auto background syncs
+        showToast('Data auto-synced with Cloud ☁️', 'success');
+      }
+    } else {
+      if (!isAuto) {
+        setLoader(false);
+        showToast('Sync failed: '+(data.message||'Unknown error'),'error');
+      }
+    }
+  } catch(err) {
+    if (!isAuto) {
+      setLoader(false);
+      showToast('Sync error: '+err.message,'error');
+    }
+  } finally {
+    isSyncing = false;
+  }
+}
+
+// Ensure the clear synced data modal isn't strictly removing functional UI
+function confirmClearSyncedData() {
+  // If the user actively wants to clear the app state
+  DB.transactions=[]; DB.users=DB.users.map(u=>({...u,runningIncome:0,runningExpense:0}));
+  DB.deletedIds=[]; saveDB();
+  renderAll();
+  toggleModal('syncModal',false);
+  showToast('Local cache wiped. Will display 0 until re-sync.','info');
+}
+
+/* ─── Confetti ─── */
+function launchConfetti() {
+  if(typeof confetti==='undefined') return;
+  confetti({particleCount:80,spread:60,origin:{y:0.7},colors:['#4d9fff','#00e5a0','#a78bfa','#fbbf24']});
+}
+
+/* ─── Guide ─── */
+function copyScriptCode() {
+  const pre = document.getElementById('scriptCodeBlock');
+  const code = pre.textContent;
+  navigator.clipboard.writeText(code).then(()=>showToast('Script copied!','success')).catch(()=>{
+    const ta=document.createElement('textarea'); ta.value=code;
+    document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta); showToast('Copied!','success');
+  });
+}
+
+/* ─── Init ─── */
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </body>
 </html>
