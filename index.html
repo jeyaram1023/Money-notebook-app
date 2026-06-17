@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Money Notebook</title>
+<title>Money Notebook Pro</title>
 
 <link rel="manifest" href="manifest.json">
 
@@ -145,7 +145,7 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; }
 .card:hover { border-color: var(--border-hover); }
 
-/* NEW: Sheet Manager Card */
+/* Sheet Manager Card */
 .sheet-card { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 10px; border: 1px solid var(--border); transition: all 0.2s; padding: 16px; border-radius: 16px; background: var(--surface2); }
 .sheet-card.active { border-color: var(--blue); background: var(--blue-dim); }
 .sheet-card:hover { border-color: var(--border-hover); }
@@ -235,7 +235,7 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 .stat-card.expense .stat-icon { background: var(--red-dim); color: var(--red); }
 .stat-card.expense .stat-value { color: var(--red); }
 
-/* NEW: Interactive Analytics Card Highlight */
+/* Interactive Analytics Card Highlight */
 .analytics-card-interactive { cursor: pointer; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.02); }
 .analytics-card-interactive:hover { border-color: var(--gold); background: rgba(251,191,36,0.06); transform: translateY(-2px); }
 
@@ -499,23 +499,14 @@ function handleRequest(e) {
 
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  var txSheet = ss.getSheetByName('Transactions');
-  if (!txSheet) {
-    txSheet = ss.insertSheet('Transactions');
-    txSheet.appendRow(['ID','User ID','Type','Amount','Category','Reason','Date','Time','UPI ID','Payment App']);
-  }
+  var txSheet = ss.getSheetByName('Transactions') || ss.insertSheet('Transactions');
+  if (txSheet.getLastRow() === 0) txSheet.appendRow(['ID','User ID','Type','Amount','Category','Reason','Date','Time','UPI ID','Payment App']);
 
-  var userSheet = ss.getSheetByName('Users');
-  if (!userSheet) {
-    userSheet = ss.insertSheet('Users');
-    userSheet.appendRow(['ID','Name','Initial Savings','Running Income','Running Expense','Running Savings']);
-  }
+  var userSheet = ss.getSheetByName('Users') || ss.insertSheet('Users');
+  if (userSheet.getLastRow() === 0) userSheet.appendRow(['ID','Name','Initial Savings','Running Income','Running Expense','Running Savings']);
 
-  var catSheet = ss.getSheetByName('Categories');
-  if (!catSheet) {
-    catSheet = ss.insertSheet('Categories');
-    catSheet.appendRow(['Type','Name','Emoji']);
-  }
+  var catSheet = ss.getSheetByName('Categories') || ss.insertSheet('Categories');
+  if (catSheet.getLastRow() === 0) catSheet.appendRow(['Type','Name','Emoji']);
 
   try {
     var rawData = '';
@@ -526,31 +517,23 @@ function handleRequest(e) {
     var txs = data.transactions || [];
     var users = data.users || [];
     var deletedIds = data.deletedIds || [];
+    var deletedUsers = data.deletedUsers || [];
     var customCats = data.customCats || null;
+    var deletedCats = data.deletedCats || [];
 
+    // --- TRANSACTIONS ---
     if (deletedIds.length > 0) {
       var existing = txSheet.getDataRange().getValues();
       var delMap = {};
-      for (var d = 0; d < deletedIds.length; d++) { delMap[String(deletedIds[d])] = true; }
+      for (var d = 0; d < deletedIds.length; d++) delMap[String(deletedIds[d])] = true;
       for (var r = existing.length - 1; r > 0; r--) {
-        if (delMap[String(existing[r][0])]) { txSheet.deleteRow(r + 1); }
+        if (delMap[String(existing[r][0])]) txSheet.deleteRow(r + 1);
       }
     }
-
-    if (users.length > 0) {
-      if (userSheet.getLastRow() > 1) userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent();
-      for (var i = 0; i < users.length; i++) {
-        userSheet.appendRow([
-          users[i].id, users[i].name, users[i].initialSavings,
-          users[i].runningIncome || 0, users[i].runningExpense || 0, users[i].runningSavings || 0
-        ]);
-      }
-    }
-
     if (txs.length > 0) {
       var currentData = txSheet.getDataRange().getValues();
       var existingIds = {};
-      for (var r = 1; r < currentData.length; r++) { existingIds[String(currentData[r][0])] = true; }
+      for (var r = 1; r < currentData.length; r++) existingIds[String(currentData[r][0])] = true;
       for (var i = txs.length - 1; i >= 0; i--) {
         if (!existingIds[String(txs[i].id)]) {
           txSheet.appendRow([
@@ -563,14 +546,54 @@ function handleRequest(e) {
       }
     }
 
-    if (customCats) {
-      if (catSheet.getLastRow() > 1) catSheet.getRange(2, 1, catSheet.getLastRow() - 1, 3).clearContent();
-      var inc = customCats.income || [];
-      for (var i = 0; i < inc.length; i++) catSheet.appendRow(['income', inc[i].label, inc[i].emoji]);
-      var exp = customCats.expense || [];
-      for (var i = 0; i < exp.length; i++) catSheet.appendRow(['expense', exp[i].label, exp[i].emoji]);
+    // --- USERS UPSERT ---
+    var existingUsersMap = {};
+    if (userSheet.getLastRow() > 1) {
+      var uData = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).getValues();
+      for (var r = 0; r < uData.length; r++) {
+        existingUsersMap[String(uData[r][0])] = {
+          id: String(uData[r][0]), name: uData[r][1], initialSavings: Number(uData[r][2]),
+          runningIncome: Number(uData[r][3]), runningExpense: Number(uData[r][4]), runningSavings: Number(uData[r][5])
+        };
+      }
+    }
+    // Safe multi-client delete
+    for (var d = 0; d < deletedUsers.length; d++) delete existingUsersMap[String(deletedUsers[d])];
+    // Merge
+    for (var i = 0; i < users.length; i++) existingUsersMap[String(users[i].id)] = users[i];
+
+    if (userSheet.getLastRow() > 1) userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent();
+    for (var key in existingUsersMap) {
+      var u = existingUsersMap[key];
+      userSheet.appendRow([u.id, u.name, u.initialSavings, u.runningIncome || 0, u.runningExpense || 0, u.runningSavings || 0]);
     }
 
+    // --- CATEGORIES UPSERT ---
+    var existingCatsMap = {};
+    if (catSheet.getLastRow() > 1) {
+      var cData = catSheet.getRange(2, 1, catSheet.getLastRow() - 1, 3).getValues();
+      for (var r = 0; r < cData.length; r++) {
+        var tType = cData[r][0], tName = cData[r][1], tEmoji = cData[r][2];
+        if (tType && tName) existingCatsMap[tType + "_" + tName] = {type: tType, label: tName, emoji: tEmoji};
+      }
+    }
+    // Safe multi-client delete
+    for (var d = 0; d < deletedCats.length; d++) delete existingCatsMap[String(deletedCats[d])];
+    
+    // Merge
+    if (customCats) {
+      var inc = customCats.income || [];
+      for (var i = 0; i < inc.length; i++) existingCatsMap["income_" + inc[i].label] = {type: 'income', label: inc[i].label, emoji: inc[i].emoji};
+      var exp = customCats.expense || [];
+      for (var i = 0; i < exp.length; i++) existingCatsMap["expense_" + exp[i].label] = {type: 'expense', label: exp[i].label, emoji: exp[i].emoji};
+    }
+
+    if (catSheet.getLastRow() > 1) catSheet.getRange(2, 1, catSheet.getLastRow() - 1, 3).clearContent();
+    for (var key in existingCatsMap) {
+      catSheet.appendRow([existingCatsMap[key].type, existingCatsMap[key].label, existingCatsMap[key].emoji]);
+    }
+
+    // --- FETCH FINAL STATE ---
     var finalTx = txSheet.getDataRange().getValues();
     var allTxs = [];
     for (var r = 1; r < finalTx.length; r++) {
@@ -600,7 +623,7 @@ function handleRequest(e) {
     for (var r = 1; r < finalCats.length; r++) {
       var tType = finalCats[r][0], tName = finalCats[r][1], tEmoji = finalCats[r][2];
       if (tType && tName) {
-        allCats[tType === 'income' ? 'income' : 'expense'].push({ label: tName, emoji: tEmoji, key: tName });
+        allCats[tType === 'income' ? 'income' : 'expense'].push({ label: tName, emoji: tEmoji, key: tName }); 
       }
     }
 
@@ -762,12 +785,22 @@ function handleRequest(e) {
   <div class="setup-card">
     <div style="text-align:center;margin-bottom:28px;">
       <div style="width:60px;height:60px;margin:0 auto 14px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 8px 28px rgba(77,159,255,0.35);">
-        <i class="fa-solid fa-wallet"></i>
+        <img src="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png" alt="Logo" style="width:100%; height:100%; border-radius:17px; object-fit:cover;">
       </div>
       <h1 style="font-family:var(--font-display);font-size:24px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;">Money Notebook Pro</h1>
       <p style="font-size:13px;color:var(--text-dim);">Connect Google Sheets for cloud backup, or use locally.</p>
     </div>
     <form id="setupForm" onsubmit="submitSetup(event)" style="display:flex;flex-direction:column;gap:18px;">
+      
+      <div class="card" style="background:var(--surface2);">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
+          <i class="fa-solid fa-user" style="color:var(--gold);"></i> Profile Setup
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <input class="input" id="setupUserName" type="text" placeholder="Enter your name (e.g. John)">
+        </div>
+      </div>
+
       <div class="card" style="background:var(--surface2);">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
           <i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync
@@ -1004,6 +1037,23 @@ function handleRequest(e) {
             </div>
             <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editActiveSheetUrl()">Edit</button>
           </div>
+          
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-clock"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Auto Refresh</div>
+                <div class="settings-row-sub">Background sync frequency</div>
+              </div>
+            </div>
+            <select class="input" id="settingsRefreshSelect" onchange="updateRefreshInterval(this.value)" style="width:auto;padding:7px 10px;font-size:12px;">
+              <option value="0">Off</option>
+              <option value="15">15 Seconds</option>
+              <option value="30">30 Seconds</option>
+              <option value="60">60 Seconds</option>
+            </select>
+          </div>
+
           <div class="settings-row">
             <div style="display:flex;align-items:center;">
               <div class="settings-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-cloud-arrow-up"></i></div>
@@ -1082,7 +1132,7 @@ function handleRequest(e) {
             <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(255,77,109,0.3);" onclick="resetApp()">Reset</button>
           </div>
         </div>
-        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text-muted);">Money Notebook Pro v3.0</div>
+        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text-muted);">Money Notebook Pro v5.0</div>
       </div>
     </div>
 
@@ -1114,9 +1164,11 @@ let DB = {
   users: [],
   transactions: [],
   deletedIds: [],
+  deletedUsers: [],
+  deletedCats: [],
   settings: { 
     scriptUrl:'', upiId:'', paymentApp:'', lastSync:null, activeUserId:null, setupDone:false,
-    activeSheetId: 'default', sheets: [] 
+    activeSheetId: 'default', sheets: [], refreshInterval: '15'
   },
   workspaces: {},
   customCats: { income: [], expense: [] }
@@ -1160,6 +1212,7 @@ let confirmCallback = null;
 let isSyncing = false;
 let activeAnalyticsPeriod = 'month';
 let newCatType = 'income';
+let autoRefreshTimer = null;
 
 /* ─── Storage Management ─── */
 function saveDB() {
@@ -1183,7 +1236,12 @@ function loadDB() {
       const p = JSON.parse(raw); 
       DB = {...DB,...p}; 
       DB.settings = {...DB.settings,...(p.settings||{})}; 
+      if (!DB.settings.refreshInterval) DB.settings.refreshInterval = '15';
       
+      // Ensure multi-client arrays exist
+      if (!DB.deletedUsers) DB.deletedUsers = [];
+      if (!DB.deletedCats) DB.deletedCats = [];
+
       // Migration to Support V3 Features
       if (!DB.workspaces) DB.workspaces = {};
       if (!DB.customCats) DB.customCats = { income: [], expense: [] };
@@ -1197,7 +1255,10 @@ function loadDB() {
 }
 
 /* ─── Core Utilities ─── */
-function uid() { return Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+// BUG FIX: Ensure all new IDs explicitly start with a string character ("id_") 
+// so Google Sheets NEVER casts them as scientific numbers.
+function uid() { return 'id_' + Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+
 function formatCurrency(n) { return Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
 function formatDate(d) { if(!d) return ''; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch{return d;} }
 function todayStr() { return new Date().toISOString().split('T')[0]; }
@@ -1289,6 +1350,7 @@ function init() {
   });
 
   if (DB.settings.setupDone && navigator.onLine) triggerSync(true);
+  startAutoRefresh();
 }
 
 function showSetup() { document.getElementById('view-setup').classList.add('active'); document.getElementById('main-app').style.display='none'; }
@@ -1299,25 +1361,53 @@ function submitSetup(e) {
   const url = document.getElementById('setupUrl').value.trim();
   const upi = document.getElementById('setupUpiId').value.trim();
   const app = document.getElementById('setupPaymentApp').value;
+  const userName = document.getElementById('setupUserName').value.trim() || 'Me';
   
   DB.settings.upiId = upi;
   DB.settings.paymentApp = app;
   DB.settings.setupDone = true;
   
   if (url) {
-    DB.settings.sheets = [{id: 'default', name: 'Personal Finance', url: url}];
+    DB.settings.sheets = [{id: uid(), name: 'Personal Finance', url: url}];
+    DB.settings.activeSheetId = DB.settings.sheets[0].id;
   }
 
-  if (!DB.users.length) DB.users.push({id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0});
+  if (!DB.users.length) DB.users.push({id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0});
   DB.settings.activeUserId = DB.users[0].id;
+  
+  if (url) {
+    DB.workspaces[DB.settings.activeSheetId] = { transactions: DB.transactions, users: DB.users, deletedIds: DB.deletedIds };
+  }
+  
   saveDB(); showMainApp(); showToast('Welcome to Money Notebook Pro! 🎉','success');
+  startAutoRefresh();
 }
 
 function closeSetup() {
   DB.settings.setupDone = true;
-  if (!DB.users.length) DB.users.push({id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0});
+  const userName = document.getElementById('setupUserName').value.trim() || 'Me';
+  if (!DB.users.length) DB.users.push({id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0});
   DB.settings.activeUserId = DB.users[0].id;
   saveDB(); showMainApp();
+}
+
+/* ─── Auto Refresh Feature ─── */
+function startAutoRefresh() {
+  if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+  const seconds = parseInt(DB.settings.refreshInterval || '15');
+  if (seconds > 0) {
+    autoRefreshTimer = setInterval(() => {
+      if (navigator.onLine && getActiveSheetUrl() && DB.settings.setupDone && !isSyncing) {
+        triggerSync(true); 
+      }
+    }, seconds * 1000);
+  }
+}
+
+function updateRefreshInterval(val) {
+  DB.settings.refreshInterval = val;
+  saveDB(); startAutoRefresh();
+  showToast('Refresh interval updated', 'success');
 }
 
 /* ─── Navigation ─── */
@@ -1707,6 +1797,8 @@ function deleteUserConfirm(id) {
 }
 function deleteUser(id) {
   if(DB.users.length<=1){showToast('Cannot delete the last user','error');return;}
+  
+  if (!DB.deletedUsers.includes(id)) DB.deletedUsers.push(id);
   DB.transactions.filter(t=>t.userId===id).map(t=>t.id).forEach(tid=>{if(!DB.deletedIds.includes(tid))DB.deletedIds.push(tid);});
   DB.transactions=DB.transactions.filter(t=>t.userId!==id); DB.users=DB.users.filter(u=>u.id!==id);
   if(DB.settings.activeUserId===id) DB.settings.activeUserId=DB.users[0]?.id||null;
@@ -1733,7 +1825,6 @@ function saveCustomCategory() {
   const emoji = document.getElementById('catEmojiInput').value.trim();
   if(!label || !emoji) { showToast('Name and Emoji required','error'); return; }
   
-  // Use label as key so the backend sheet saves the readable name
   DB.customCats[newCatType].push({ emoji, label, key: label });
   saveDB(); toggleModal('catModal', false); renderUsers(); showToast('Category Added!', 'success');
   if (navigator.onLine && getActiveSheetUrl()) triggerSync(true);
@@ -1741,6 +1832,10 @@ function saveCustomCategory() {
 
 function deleteCustomCategory(key, typeStr) {
   const type = typeStr.toLowerCase();
+  
+  const catId = type + '_' + key;
+  if (!DB.deletedCats.includes(catId)) DB.deletedCats.push(catId);
+
   DB.customCats[type] = DB.customCats[type].filter(c => c.key !== key);
   saveDB(); renderUsers(); showToast('Category Removed', 'info');
   if (navigator.onLine && getActiveSheetUrl()) triggerSync(true);
@@ -1791,7 +1886,10 @@ function renderSettings() {
   document.getElementById('lastSyncLabel').textContent = DB.settings.lastSync ? 'Last: '+new Date(DB.settings.lastSync).toLocaleString('en-IN') : 'Never synced';
   document.getElementById('settingsUpiLabel').textContent = DB.settings.upiId||'Not set';
   document.getElementById('settingsAppLabel').textContent = UPI_APP_NAMES[DB.settings.paymentApp]||'None';
+  
   const appSel=document.getElementById('settingsAppSelect'); if(appSel) appSel.value=DB.settings.paymentApp||'';
+  const refSel=document.getElementById('settingsRefreshSelect'); if(refSel) refSel.value=DB.settings.refreshInterval||'15';
+  
   updateSyncDot();
 }
 
@@ -1863,8 +1961,17 @@ async function triggerSync(isAuto = false) {
   if (!isAuto) setLoader(true, 'Syncing with Cloud…');
   
   try {
+    const payload = {
+      transactions: DB.transactions,
+      users: DB.users,
+      deletedIds: DB.deletedIds,
+      deletedUsers: DB.deletedUsers,
+      customCats: DB.customCats,
+      deletedCats: DB.deletedCats
+    };
+
     const resp = await fetch(url,{
-      method:'POST', body:JSON.stringify({transactions:DB.transactions,users:DB.users,deletedIds:DB.deletedIds,customCats:DB.customCats}),
+      method:'POST', body:JSON.stringify(payload),
       headers:{'Content-Type':'text/plain;charset=utf-8'}
     });
     const data = await resp.json();
@@ -1872,10 +1979,16 @@ async function triggerSync(isAuto = false) {
       DB.transactions = data.transactions || DB.transactions;
       DB.users = data.users || DB.users;
       if (data.customCats) DB.customCats = data.customCats;
-      DB.deletedIds = []; DB.settings.lastSync = Date.now();
+      
+      // Clear queues once successfully merged by server
+      DB.deletedIds = []; 
+      DB.deletedUsers = [];
+      DB.deletedCats = [];
+
+      DB.settings.lastSync = Date.now();
       rebuildUserStats(); saveDB(); renderAll();
       if (!isAuto) { setLoader(false); showToast('Sync successful! ☁️','success'); toggleModal('syncModal', true); }
-      else { showToast('Auto-synced ☁️', 'success'); }
+      else { console.log('Auto-synced successfully'); }
     } else {
       if (!isAuto) { setLoader(false); showToast('Sync failed: '+(data.message||'Unknown error'),'error'); }
     }
