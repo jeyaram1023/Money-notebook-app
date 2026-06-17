@@ -3,10 +3,12 @@
   "short_name": "Money Pro",
   "description": "Privacy-first offline finance tracker with optional Google Sheets sync.",
   "start_url": "/Money-notebook-app/index.html",
+  "scope": "/Money-notebook-app/",
   "display": "standalone",
   "background_color": "#030303",
   "theme_color": "#121212",
   "orientation": "portrait",
+  "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
       "src": "https://uploads.onecompiler.io/43zn28up5/44qw7bwzc/iconsicon-192x192.png",
@@ -19,6 +21,34 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Add Transaction",
+      "short_name": "Add",
+      "description": "Quickly add a new expense or income",
+      "url": "/Money-notebook-app/add.html",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/1828/1828817.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "View Reports",
+      "short_name": "Reports",
+      "description": "Check your financial reports",
+      "url": "/Money-notebook-app/reports.html",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/1828/1828859.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
