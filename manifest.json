@@ -1,7 +1,7 @@
 {
-  "name": "Money Notebook",
-  "short_name": "Money Note",
-  "description": "A privacy-first, local-syncing financial tracker.",
+  "name": "Money Notebook Pro",
+  "short_name": "Money Pro",
+  "description": "Privacy-first offline finance tracker with optional Google Sheets sync.",
   "start_url": "/Money-notebook-app/index.html",
   "display": "standalone",
   "background_color": "#030303",
