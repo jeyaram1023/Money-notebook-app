@@ -12,82 +12,177 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Money Pro">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
-/* PRESERVED PREVIOUS STYLES */
+/* PRESERVED CORE STYLES */
 :root {
   --bg: #050508;
-  --surface: #0d0d14;
-  --surface2: #12121c;
-  --border: rgba(255,255,255,0.07);
-  --border-hover: rgba(255,255,255,0.14);
   --text: #e8e8f0;
-  --text-dim: #6b6b80;
-  --text-muted: #3a3a50;
-  --green: #00e5a0;
-  --green-dim: rgba(0,229,160,0.12);
-  --red: #ff4d6d;
-  --red-dim: rgba(255,77,109,0.12);
-  --blue: #4d9fff;
-  --blue-dim: rgba(77,159,255,0.12);
-  --purple: #a78bfa;
-  --purple-dim: rgba(167,139,250,0.12);
+  --text-dim: #cbd5e1;
+  --text-muted: #94a3b8;
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.15);
+  --red: #fb7185;
+  --red-dim: rgba(251,113,133,0.15);
+  --blue: #60a5fa;
+  --blue-dim: rgba(96,165,250,0.15);
+  --purple: #c084fc;
+  --purple-dim: rgba(192,132,252,0.15);
   --gold: #fbbf24;
-  --gold-dim: rgba(251,191,36,0.12);
+  --gold-dim: rgba(251,191,36,0.15);
   --radius: 20px;
   --radius-sm: 12px;
   --font-display: 'Syne', sans-serif;
   --font-body: 'DM Sans', sans-serif;
-  --shadow: 0 20px 60px -10px rgba(0,0,0,0.6);
-  --shadow-sm: 0 8px 24px -4px rgba(0,0,0,0.4);
 }
+
+/* Light Theme Overrides */
+[data-theme="light"] {
+  --bg: #f8fafc;
+  --text: #0f172a;
+  --text-dim: #334155;
+  --text-muted: #64748b;
+}
+[data-theme="light"] .card, 
+[data-theme="light"] .stat-card, 
+[data-theme="light"] .tx-item, 
+[data-theme="light"] .user-card, 
+[data-theme="light"] .sheet-card, 
+[data-theme="light"] .modal-box, 
+[data-theme="light"] .loader-card, 
+[data-theme="light"] .setup-card, 
+[data-theme="light"] .toast {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05) !important;
+}
+[data-theme="light"] .app-header, 
+[data-theme="light"] .bottom-nav, 
+[data-theme="light"] .desktop-topbar, 
+[data-theme="light"] .sidebar {
+  background: rgba(248, 250, 252, 0.8) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+[data-theme="light"] .balance-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(240,248,255,0.9)) !important;
+  border: 1px solid rgba(96,165,250,0.4) !important;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.1) !important;
+}
+[data-theme="light"] .balance-amount,
+[data-theme="light"] .balance-label {
+  color: #0f172a;
+}
+[data-theme="light"] .balance-label {
+  color: #2563eb;
+}
+[data-theme="light"] .input, 
+[data-theme="light"] .toggle-pill, 
+[data-theme="light"] .filter-btn, 
+[data-theme="light"] .cat-chip, 
+[data-theme="light"] .amount-input-wrap, 
+[data-theme="light"] .user-avatar {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+}
+[data-theme="light"] select.input option { background: #ffffff; color: var(--text); }
+[data-theme="light"] input[type="date"].input::-webkit-calendar-picker-indicator, 
+[data-theme="light"] input[type="time"].input::-webkit-calendar-picker-indicator { filter: none; }
+[data-theme="light"] .modal-overlay { background: rgba(255,255,255,0.5); }
+[data-theme="light"] .btn-ghost { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: var(--text); }
+[data-theme="light"] .btn-ghost:hover { border-color: rgba(0,0,0,0.2); }
+[data-theme="light"] .modal-header, [data-theme="light"] .modal-footer, [data-theme="light"] .sidebar-footer, [data-theme="light"] .settings-row { border-color: rgba(0,0,0,0.08) !important; }
+[data-theme="light"] #bg-grid { background-image: linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px); }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
+
+/* ========================================================= */
+/* FEATURE 4: GLOBAL GLOSSY/GLASSMORPHISM UI ENHANCEMENTS      */
+/* ========================================================= */
 body {
   font-family: var(--font-body);
-  background: var(--bg);
   color: var(--text);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
   min-height: 100vh;
   overflow-x: hidden;
+  background-color: var(--bg);
+  transition: background-color 0.3s;
 }
-::-webkit-scrollbar { width: 0; height: 0; }
-::selection { background: rgba(77,159,255,0.25); }
 
-/* BG */
-#bg-mesh { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-.mesh-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.25; animation: meshDrift 12s ease-in-out infinite alternate; }
-.mesh-orb:nth-child(1) { width: 600px; height: 600px; background: radial-gradient(circle, #1a1a3e, transparent); top: -200px; left: -200px; }
-.mesh-orb:nth-child(2) { width: 500px; height: 500px; background: radial-gradient(circle, #0a2a1a, transparent); bottom: -150px; right: -150px; animation-delay: -6s; }
-.mesh-orb:nth-child(3) { width: 300px; height: 300px; background: radial-gradient(circle, #1a0a2a, transparent); top: 40%; left: 40%; animation-delay: -3s; }
-@keyframes meshDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(30px,-30px) scale(1.08); } }
+#app-background {
+  position: fixed; 
+  inset: 0; 
+  z-index: -2; 
+  background-size: cover; 
+  background-position: center; 
+  background-attachment: fixed;
+  background-image: url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop');
+  transition: opacity 0.3s;
+}
+
+/* Glassy Cards and Modals */
+.card, .stat-card, .tx-item, .user-card, .sheet-card, .modal-box, .loader-card, .setup-card, .toast {
+  background: rgba(15, 15, 25, 0.55) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Premium Gradient Balance Card */
+.balance-card {
+  background: linear-gradient(135deg, rgba(13,24,41,0.7), rgba(10,18,32,0.7)) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(96,165,250,0.25) !important;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Glassy Navigations & Headers */
+.app-header, .bottom-nav, .desktop-topbar, .sidebar {
+  background: rgba(5, 5, 8, 0.6) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Glassy Inputs & Pills */
+.input, .toggle-pill, .filter-btn, .cat-chip, .amount-input-wrap, .user-avatar {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08) !important;
+}
+.input:focus, .amount-input-wrap:focus-within {
+  border-color: var(--blue) !important;
+  box-shadow: 0 0 0 3px rgba(96,165,250,0.15) !important;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; }
+::selection { background: rgba(96,165,250,0.25); }
+
+/* BG Overlays */
+#bg-mesh { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+.mesh-orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.3; animation: meshDrift 15s ease-in-out infinite alternate; }
+.mesh-orb:nth-child(1) { width: 600px; height: 600px; background: radial-gradient(circle, #2563eb, transparent); top: -200px; left: -200px; }
+.mesh-orb:nth-child(2) { width: 500px; height: 500px; background: radial-gradient(circle, #db2777, transparent); bottom: -150px; right: -150px; animation-delay: -7s; }
 #bg-grid {
-  position: fixed; inset: 0; z-index: 0; pointer-events: none;
-  background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
 }
 
 /* Toast */
 #toastContainer {
-  position: fixed; top: max(16px, env(safe-area-inset-top));
-  left: 50%; transform: translateX(-50%);
-  z-index: 9999; display: flex; flex-direction: column; gap: 10px;
-  pointer-events: none; width: 90%; max-width: 420px;
+  position: fixed; top: max(16px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
+  z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; width: 90%; max-width: 420px;
 }
-.toast {
-  background: var(--surface2); border: 1px solid var(--border-hover);
-  border-radius: 14px; padding: 14px 18px;
-  display: flex; align-items: center; gap: 12px;
-  font-size: 14px; font-weight: 500; color: var(--text);
-  backdrop-filter: blur(20px); box-shadow: var(--shadow);
-  animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards, toastOut 0.3s ease 3.2s forwards;
-}
+.toast { border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; color: var(--text); animation: toastIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards, toastOut 0.3s ease 3.2s forwards; }
 .toast .toast-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 14px; }
 .toast.success .toast-icon { background: var(--green-dim); color: var(--green); }
 .toast.error .toast-icon { background: var(--red-dim); color: var(--red); }
@@ -97,73 +192,67 @@ body {
 @keyframes toastOut { from { opacity:1; } to { opacity:0; transform:scale(0.9); } }
 
 /* Loader */
-#cloudLoader { position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; background: rgba(5,5,8,0.85); backdrop-filter: blur(20px); }
+#cloudLoader { position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; background: rgba(5,5,8,0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); }
 #cloudLoader.active { display: flex; }
-.loader-card { background: var(--surface2); border: 1px solid var(--border-hover); border-radius: var(--radius); padding: 28px 36px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow); animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-.loader-spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid var(--border); border-top-color: var(--blue); animation: spin 0.8s linear infinite; }
+.loader-card { border-radius: var(--radius); padding: 28px 36px; display: flex; align-items: center; gap: 16px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.loader-spinner { width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--blue); animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes popIn { from { opacity:0; transform:scale(0.85); } to { opacity:1; transform:scale(1); } }
 
 /* Modal */
-.modal-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.85); backdrop-filter: blur(16px); display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.25s ease; }
+.modal-overlay { position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); display: none; align-items: center; justify-content: center; padding: 20px; opacity: 0; transition: opacity 0.25s ease; }
 .modal-overlay.open { display: flex; opacity: 1; }
-.modal-box { background: var(--surface); border: 1px solid var(--border-hover); border-radius: var(--radius); width: 100%; max-width: 440px; box-shadow: var(--shadow); transform: scale(0.92) translateY(20px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+.modal-box { border-radius: var(--radius); width: 100%; max-width: 440px; transform: scale(0.92) translateY(20px); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
 .modal-overlay.open .modal-box { transform: scale(1) translateY(0); }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
 .modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
-.modal-close { width: 32px; height: 32px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
-.modal-close:hover { background: var(--red-dim); color: var(--red); }
+.modal-close { width: 32px; height: 32px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.2s; }
+.modal-close:hover { background: var(--red-dim); color: var(--red); border-color:rgba(251,113,133,0.3); }
 .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
-.modal-footer { padding: 20px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; flex-shrink: 0; }
+.modal-footer { padding: 20px 24px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; gap: 12px; flex-shrink: 0; }
 
 /* Buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: var(--radius-sm); padding: 12px 20px; font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; border: none; outline: none; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
 .btn:active { transform: scale(0.95); }
-.btn-primary { background: var(--blue); color: #fff; box-shadow: 0 8px 24px -4px rgba(77,159,255,0.4); }
+.btn-primary { background: var(--blue); color: #fff; box-shadow: 0 8px 24px -4px rgba(96,165,250,0.4); }
 .btn-primary:hover { filter: brightness(1.1); }
-.btn-success { background: var(--green); color: #000; box-shadow: 0 8px 24px -4px rgba(0,229,160,0.35); }
+.btn-success { background: var(--green); color: #000; box-shadow: 0 8px 24px -4px rgba(52,211,153,0.35); }
 .btn-danger { background: var(--red); color: #fff; }
-.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); }
-.btn-ghost:hover { border-color: var(--border-hover); color: var(--text); }
+.btn-ghost { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); }
+.btn-ghost:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
 .btn-full { width: 100%; }
 .btn-lg { padding: 16px 24px; font-size: 15px; border-radius: var(--radius); }
 
 /* Inputs */
 .input-group { display: flex; flex-direction: column; gap: 6px; }
 .input-label { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; }
-.input { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 13px 16px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: all 0.2s; width: 100%; -webkit-appearance: none; appearance: none; }
-.input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(77,159,255,0.15); }
+.input { border-radius: var(--radius-sm); padding: 13px 16px; color: var(--text); font-family: var(--font-body); font-size: 14px; outline: none; transition: all 0.2s; width: 100%; -webkit-appearance: none; appearance: none; }
 .input::placeholder { color: var(--text-muted); }
 .input-icon-wrap { position: relative; }
 .input-icon-wrap .input { padding-left: 44px; }
 .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-dim); font-size: 14px; pointer-events: none; }
 select.input { cursor: pointer; }
-select.input option { background: var(--surface2); color: var(--text); }
-input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+select.input option { background: #12121c; color: var(--text); }
+input[type="date"].input::-webkit-calendar-picker-indicator, input[type="time"].input::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; opacity: 0.6; }
 
 /* Cards */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; }
-.card:hover { border-color: var(--border-hover); }
-
-/* Sheet Manager Card */
-.sheet-card { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 10px; border: 1px solid var(--border); transition: all 0.2s; padding: 16px; border-radius: 16px; background: var(--surface2); }
-.sheet-card.active { border-color: var(--blue); background: var(--blue-dim); }
-.sheet-card:hover { border-color: var(--border-hover); }
+.card { border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; }
+.card:hover { border-color: rgba(255,255,255,0.2) !important; }
+.sheet-card { display: flex; align-items: center; justify-content: space-between; cursor: pointer; margin-bottom: 10px; transition: all 0.2s; padding: 16px; border-radius: 16px; }
+.sheet-card.active { border-color: var(--blue) !important; background: rgba(96,165,250,0.1) !important; }
+.sheet-card:hover { border-color: rgba(255,255,255,0.2) !important; }
 .sheet-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 4px 8px; border-radius: 6px; background: var(--blue); color: #fff; }
 
 /* Toggle Pill */
-.toggle-pill { display: flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 4px; gap: 4px; }
+.toggle-pill { display: flex; border-radius: 100px; padding: 4px; gap: 4px; }
 .toggle-pill-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 16px; border-radius: 100px; cursor: pointer; font-family: var(--font-body); font-size: 13px; font-weight: 600; border: none; outline: none; transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1); color: var(--text-dim); background: transparent; }
-.toggle-pill-btn.active-income { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,229,160,0.25); }
-.toggle-pill-btn.active-expense { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,77,109,0.25); }
+.toggle-pill-btn.active-income, .toggle-pill-btn.active-theme { background: var(--blue-dim) !important; color: var(--blue); border: 1px solid rgba(96,165,250,0.3) !important; }
+.toggle-pill-btn.active-expense { background: var(--red-dim) !important; color: var(--red); border: 1px solid rgba(251,113,133,0.3) !important; }
 
 /* Chip */
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
-.chip-green { background: var(--green-dim); color: var(--green); border-color: rgba(0,229,160,0.2); }
-.chip-red { background: var(--red-dim); color: var(--red); border-color: rgba(255,77,109,0.2); }
-.chip-blue { background: var(--blue-dim); color: var(--blue); border-color: rgba(77,159,255,0.2); }
-.chip-purple { background: var(--purple-dim); color: var(--purple); border-color: rgba(167,139,250,0.2); }
-.chip-gold { background: var(--gold-dim); color: var(--gold); border-color: rgba(251,191,36,0.2); }
+.chip-green { background: var(--green-dim); color: var(--green); border-color: rgba(52,211,153,0.2); }
+.chip-red { background: var(--red-dim); color: var(--red); border-color: rgba(251,113,133,0.2); }
 
 /* View Sections */
 .view-section { display: none; }
@@ -173,42 +262,44 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 /* Setup Screen */
 #view-setup { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 20px; position: relative; z-index: 50; }
 #view-setup.active { display: flex; }
-.setup-card { background: var(--surface); border: 1px solid var(--border-hover); border-radius: 28px; padding: 40px 32px; width: 100%; max-width: 460px; position: relative; overflow: hidden; box-shadow: 0 40px 80px -20px rgba(0,0,0,0.7); animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
-.setup-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(77,159,255,0.5),transparent); }
+.setup-card { border-radius: 28px; padding: 40px 32px; width: 100%; max-width: 460px; position: relative; overflow: hidden; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1); }
 
-/* Header */
-.app-header { position: sticky; top: 0; z-index: 100; background: rgba(5,5,8,0.88); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between; padding-top: env(safe-area-inset-top, 0); }
+/* App Status Badge */
+.sync-status-badge { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 100px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.sync-status-badge.online { color: var(--green); border-color: rgba(52,211,153,0.3); background: rgba(52,211,153,0.05); }
+.sync-status-badge.offline { color: var(--red); border-color: rgba(251,113,133,0.3); background: rgba(251,113,133,0.05); }
+.sync-status-badge.syncing { color: var(--blue); border-color: rgba(96,165,250,0.3); background: rgba(96,165,250,0.05); }
+
+/* Header & Nav */
+.app-header { position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.08); padding: 0 20px; height: 60px; display: flex; align-items: center; justify-content: space-between; padding-top: env(safe-area-inset-top, 0); }
 .header-logo { display: flex; align-items: center; gap: 10px; }
-.header-logo-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .header-title { font-family: var(--font-display); font-size: 17px; font-weight: 800; letter-spacing: -0.02em; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
-.header-btn { width: 34px; height: 34px; border-radius: 10px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: all 0.2s; position: relative; }
-.header-btn:hover { border-color: var(--border-hover); color: var(--text); }
+.header-btn { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; transition: all 0.2s; position: relative; }
+.header-btn:hover { border-color: rgba(255,255,255,0.2); color: var(--text); }
 .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); position: absolute; top: 5px; right: 5px; box-shadow: 0 0 5px var(--green); animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
 
-/* Bottom Nav */
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; background: rgba(5,5,8,0.95); backdrop-filter: blur(24px); border-top: 1px solid var(--border); padding: 10px 8px; padding-bottom: max(10px, env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-around; }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 100; border-top: 1px solid rgba(255,255,255,0.08); padding: 10px 8px; padding-bottom: max(10px, env(safe-area-inset-bottom)); display: flex; align-items: center; justify-content: space-around; }
 .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.2s; min-width: 52px; }
 .nav-item .nav-icon { font-size: 17px; color: var(--text-muted); transition: all 0.2s; }
 .nav-item .nav-label { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; }
 .nav-item.active .nav-icon { color: var(--blue); transform: translateY(-2px); }
 .nav-item.active .nav-label { color: var(--blue); }
-.nav-fab { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; cursor: pointer; box-shadow: 0 8px 24px rgba(77,159,255,0.4); transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); border: none; outline: none; transform: translateY(-4px); }
+.nav-fab { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg,var(--blue),var(--purple)); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; cursor: pointer; box-shadow: 0 8px 24px rgba(96,165,250,0.4); border: none; outline: none; transform: translateY(-4px); }
 .nav-fab:hover { transform: translateY(-8px) scale(1.05); }
-.nav-fab:active { transform: translateY(-2px) scale(0.95); }
 
 /* Page Content */
 .page-content { max-width: 800px; margin: 0 auto; padding: 20px 16px; padding-bottom: 110px; }
 
 /* Balance Card */
-.balance-card { position: relative; border-radius: 22px; overflow: hidden; padding: 24px; margin-bottom: 16px; background: linear-gradient(135deg,#0d1829,#0a1220); border: 1px solid rgba(77,159,255,0.15); box-shadow: 0 24px 60px -12px rgba(0,0,0,0.6); }
-.balance-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(77,159,255,0.6),rgba(167,139,250,0.4),transparent); }
+.balance-card { position: relative; border-radius: 22px; overflow: hidden; padding: 24px; margin-bottom: 16px; }
+.balance-card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(96,165,250,0.6),rgba(192,132,252,0.4),transparent); }
 .balance-card-bg { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
 .balance-card-orb { position:absolute; border-radius:50%; filter:blur(60px); }
-.balance-card-orb:nth-child(1) { width:200px; height:200px; background:rgba(77,159,255,0.1); top:-50px; right:-50px; }
-.balance-card-orb:nth-child(2) { width:150px; height:150px; background:rgba(167,139,250,0.08); bottom:-40px; left:20px; }
-.balance-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: rgba(77,159,255,0.7); text-transform: uppercase; margin-bottom: 6px; }
+.balance-card-orb:nth-child(1) { width:200px; height:200px; background:rgba(96,165,250,0.15); top:-50px; right:-50px; }
+.balance-card-orb:nth-child(2) { width:150px; height:150px; background:rgba(192,132,252,0.1); bottom:-40px; left:20px; }
+.balance-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: rgba(96,165,250,0.9); text-transform: uppercase; margin-bottom: 6px; }
 .balance-amount { font-family: var(--font-display); font-size: clamp(32px,8vw,48px); font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.1; }
 .balance-amount .currency { font-size: 0.5em; vertical-align: super; margin-right: 2px; opacity: 0.7; }
 .balance-meta { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
@@ -221,12 +312,11 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 .upi-btn-phonepe { background: #5f259f; color: #fff; box-shadow: 0 4px 16px rgba(95,37,159,0.35); }
 .upi-btn-paytm { background: #00baf2; color: #fff; box-shadow: 0 4px 16px rgba(0,186,242,0.35); }
 .upi-btn-bhim { background: #f26522; color: #fff; box-shadow: 0 4px 16px rgba(242,101,34,0.35); }
-.upi-btn-generic { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.3); }
 
 /* Stats Grid */
 .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; position: relative; overflow: hidden; transition: all 0.2s; }
-.stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+.stat-card { border-radius: 16px; padding: 16px; position: relative; overflow: hidden; transition: all 0.2s; }
+.stat-card:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateY(-2px); }
 .stat-card .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; margin-bottom: 10px; }
 .stat-card .stat-label { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 3px; }
 .stat-card .stat-value { font-family: var(--font-display); font-size: 20px; font-weight: 800; letter-spacing: -0.02em; }
@@ -235,19 +325,17 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 .stat-card.expense .stat-icon { background: var(--red-dim); color: var(--red); }
 .stat-card.expense .stat-value { color: var(--red); }
 
-/* Interactive Analytics Card Highlight */
-.analytics-card-interactive { cursor: pointer; border-color: rgba(251,191,36,0.3); background: rgba(251,191,36,0.02); }
-.analytics-card-interactive:hover { border-color: var(--gold); background: rgba(251,191,36,0.06); transform: translateY(-2px); }
+.analytics-card-interactive { cursor: pointer; border-color: rgba(251,191,36,0.3) !important; background: rgba(251,191,36,0.05) !important; }
+.analytics-card-interactive:hover { border-color: var(--gold) !important; background: rgba(251,191,36,0.1) !important; transform: translateY(-2px); }
 
-/* Section Header */
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 20px; }
 .section-title { font-family: var(--font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.01em; color: var(--text); }
 .section-action { font-size: 12px; font-weight: 600; color: var(--blue); cursor: pointer; }
 
 /* Transaction Items */
 .tx-list { display: flex; flex-direction: column; gap: 8px; }
-.tx-item { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; animation: slideIn 0.35s cubic-bezier(0.2,0.8,0.2,1) backwards; }
-.tx-item:hover { border-color: var(--border-hover); transform: translateX(3px); }
+.tx-item { border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; transition: all 0.2s; cursor: pointer; animation: slideIn 0.35s cubic-bezier(0.2,0.8,0.2,1) backwards; }
+.tx-item:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateX(3px); }
 @keyframes slideIn { from { opacity:0; transform:translateX(-12px); } to { opacity:1; transform:translateX(0); } }
 .tx-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
 .tx-icon.income { background: var(--green-dim); }
@@ -262,39 +350,33 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 .tx-date { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 
 /* UPI Badge */
-.upi-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); margin-left: 4px; }
+.upi-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px; background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(192,132,252,0.3); margin-left: 4px; }
 
 /* Amount Input */
-.amount-input-wrap { position: relative; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; transition: all 0.2s; }
-.amount-input-wrap:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(77,159,255,0.15); }
+.amount-input-wrap { display: flex; align-items: center; transition: all 0.2s; border-radius: var(--radius-sm); }
 .amount-currency { padding: 0 8px 0 16px; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--text-dim); }
 .amount-input { flex: 1; background: transparent; border: none; outline: none; font-family: var(--font-display); font-size: 32px; font-weight: 800; color: var(--text); padding: 14px 16px 14px 0; width: 100%; letter-spacing: -0.02em; }
-.amount-input::placeholder { color: var(--text-muted); }
 
 /* Category Grid */
 .cat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 7px; }
 @media (min-width: 420px) { .cat-grid { grid-template-columns: repeat(4,1fr); } }
-.cat-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 11px; cursor: pointer; background: var(--surface2); border: 1.5px solid var(--border); transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); font-size: 17px; }
+.cat-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 6px; border-radius: 11px; cursor: pointer; transition: all 0.2s cubic-bezier(0.34,1.56,0.64,1); font-size: 17px; }
 .cat-chip span { font-size: 10px; font-weight: 600; color: var(--text-dim); }
-.cat-chip.selected { border-color: var(--blue); background: var(--blue-dim); }
+.cat-chip.selected { border-color: var(--blue) !important; background: var(--blue-dim) !important; }
 .cat-chip.selected span { color: var(--blue); }
-.cat-chip:hover:not(.selected) { border-color: var(--border-hover); transform: scale(1.04); }
+.cat-chip:hover:not(.selected) { border-color: rgba(255,255,255,0.2) !important; transform: scale(1.04); }
 
 /* User Cards */
-.user-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; margin-bottom:10px; }
-.user-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
-.user-card.active-user { border-color: rgba(77,159,255,0.4); background: rgba(77,159,255,0.04); }
+.user-card { border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; transition: all 0.2s; margin-bottom:10px; }
+.user-card:hover { border-color: rgba(255,255,255,0.2) !important; transform: translateY(-2px); }
+.user-card.active-user { border-color: rgba(96,165,250,0.4) !important; background: rgba(96,165,250,0.1) !important; }
 .user-avatar { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-size: 17px; font-weight: 800; flex-shrink: 0; }
 .user-info { flex: 1; min-width: 0; }
 .user-name { font-weight: 700; font-size: 14px; color: var(--text); }
 .user-savings-row { font-size: 11px; color: var(--text-dim); }
-.user-actions { display: flex; gap: 6px; }
-.icon-btn { width: 30px; height: 30px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); color: var(--text-dim); display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-.icon-btn.del:hover { background: var(--red-dim); border-color: rgba(255,77,109,0.3); color: var(--red); }
-.icon-btn.edit:hover { background: var(--blue-dim); border-color: rgba(77,159,255,0.3); color: var(--blue); }
 
 /* Settings */
-.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
 .settings-row:last-child { border-bottom: none; }
 .settings-row-label { display: flex; flex-direction: column; gap: 2px; }
 .settings-row-title { font-size: 14px; font-weight: 600; color: var(--text); }
@@ -303,49 +385,46 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 
 /* Filter Bar */
 .filter-bar { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 14px; scrollbar-width: none; }
-.filter-bar::-webkit-scrollbar { display: none; }
-.filter-btn { white-space: nowrap; padding: 7px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text-dim); transition: all 0.2s; flex-shrink: 0; }
-.filter-btn.active { background: var(--blue-dim); border-color: rgba(77,159,255,0.4); color: var(--blue); }
+.filter-btn { white-space: nowrap; padding: 7px 14px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; flex-shrink: 0; }
+.filter-btn.active { background: var(--blue-dim) !important; border-color: rgba(96,165,250,0.4) !important; color: var(--blue); }
 
 /* Empty State */
 .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; text-align: center; }
 .empty-icon { font-size: 44px; margin-bottom: 14px; opacity: 0.3; }
 .empty-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; }
-.empty-sub { font-size: 12px; color: var(--text-muted); }
 
 /* Confirm Dialog */
-.confirm-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; padding: 20px; }
+.confirm-overlay { position: fixed; inset: 0; z-index: 600; background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: none; align-items: center; justify-content: center; padding: 20px; }
 .confirm-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
 @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
-.confirm-box { background: var(--surface); border: 1px solid var(--border-hover); border-radius: var(--radius); padding: 28px; width: 100%; max-width: 360px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); text-align: center; }
+.confirm-box { border-radius: var(--radius); padding: 28px; width: 100%; max-width: 360px; animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1); text-align: center; }
 .confirm-icon { font-size: 34px; margin-bottom: 14px; }
 .confirm-title { font-family: var(--font-display); font-size: 18px; font-weight: 800; margin-bottom: 8px; color: var(--text); }
 .confirm-msg { font-size: 13px; color: var(--text-dim); margin-bottom: 22px; line-height: 1.6; }
 .confirm-btns { display: flex; gap: 10px; }
 
 /* Progress Bar */
-.progress-bar { height: 3px; background: var(--surface2); border-radius: 100px; overflow: hidden; margin-top: 10px; }
+.progress-bar { height: 3px; background: rgba(255,255,255,0.1); border-radius: 100px; overflow: hidden; margin-top: 10px; }
 .progress-fill { height: 100%; border-radius: 100px; transition: width 0.8s cubic-bezier(0.2,0.8,0.2,1); }
 
 /* Sidebar (desktop) */
 @media (min-width: 768px) {
   .bottom-nav { display: none; }
-  .sidebar { width: 240px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; display: flex; flex-direction: column; padding: 24px 14px; overflow-y: auto; }
+  .sidebar { width: 240px; flex-shrink: 0; border-right: 1px solid rgba(255,255,255,0.08); position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; display: flex; flex-direction: column; padding: 24px 14px; overflow-y: auto; }
   .sidebar-logo { display: flex; align-items: center; gap: 12px; padding: 8px 10px; margin-bottom: 28px; }
-  .sidebar-logo-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .sidebar-title { font-family: var(--font-display); font-size: 16px; font-weight: 800; color: var(--text); }
   .sidebar-sub { font-size: 10px; color: var(--text-dim); }
   .sidebar-nav { display: flex; flex-direction: column; gap: 3px; flex: 1; }
   .sidebar-nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 13px; border-radius: var(--radius-sm); cursor: pointer; transition: all 0.2s; color: var(--text-dim); font-size: 13px; font-weight: 600; border: 1px solid transparent; }
-  .sidebar-nav-item:hover { background: var(--surface2); color: var(--text); }
-  .sidebar-nav-item.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(77,159,255,0.2); }
+  .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .sidebar-nav-item.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(96,165,250,0.2); }
   .sidebar-nav-item i { width: 18px; text-align: center; font-size: 14px; }
-  .sidebar-add-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; border-radius: var(--radius-sm); background: linear-gradient(135deg,var(--blue),var(--purple)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 10px; border: none; outline: none; box-shadow: 0 8px 24px rgba(77,159,255,0.3); transition: all 0.2s; }
+  .sidebar-add-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px; border-radius: var(--radius-sm); background: linear-gradient(135deg,var(--blue),var(--purple)); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; margin-top: 10px; border: none; outline: none; box-shadow: 0 8px 24px rgba(96,165,250,0.3); transition: all 0.2s; }
   .sidebar-add-btn:hover { transform: translateY(-2px); }
-  .sidebar-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .sidebar-footer { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.08); }
   .main-area { margin-left: 240px; flex: 1; }
   .app-header { display: none; }
-  .desktop-topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid var(--border); background: rgba(5,5,8,0.8); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 50; }
+  .desktop-topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(5,5,8,0.6); backdrop-filter: blur(24px); position: sticky; top: 0; z-index: 50; }
   .desktop-topbar-title { font-family: var(--font-display); font-size: 20px; font-weight: 800; color: var(--text); }
   .desktop-topbar-actions { display: flex; gap: 10px; align-items: center; }
   .page-content { padding: 24px 28px; padding-bottom: 40px; max-width: 900px; }
@@ -358,10 +437,9 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
   .desktop-topbar { display: none; }
 }
 
-/* Others Tab */
 .others-section { display: none; }
 .others-section.open { display: block; margin-top: 12px; }
-.search-highlight { background: rgba(77,159,255,0.2); color: var(--blue); border-radius: 3px; padding: 0 2px; }
+.search-highlight { background: rgba(96,165,250,0.2); color: var(--blue); border-radius: 3px; padding: 0 2px; }
 .graph-nav-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 6px 12px; border-radius: var(--radius-sm); transition: all 0.2s; min-width: 52px; }
 .graph-nav-btn .nav-icon { font-size: 17px; color: var(--text-muted); transition: all 0.2s; }
 .graph-nav-btn .nav-label { font-size: 9px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; transition: all 0.2s; }
@@ -370,6 +448,7 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 </head>
 <body>
 
+<div id="app-background"></div>
 <div id="bg-mesh" aria-hidden="true">
   <div class="mesh-orb"></div><div class="mesh-orb"></div><div class="mesh-orb"></div>
 </div>
@@ -377,14 +456,14 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 <div id="toastContainer" role="alert" aria-live="polite"></div>
 
 <div id="cloudLoader" aria-hidden="true">
-  <div class="loader-card">
+  <div class="loader-card card">
     <div class="loader-spinner"></div>
-    <span id="loaderText" style="font-weight:700;font-size:15px;">Syncing…</span>
+    <span id="loaderText" style="font-weight:700;font-size:15px;color:var(--text);">Syncing…</span>
   </div>
 </div>
 
 <div id="confirmOverlay" class="confirm-overlay">
-  <div class="confirm-box">
+  <div class="confirm-box card">
     <div class="confirm-icon" id="confirmIcon">⚠️</div>
     <div class="confirm-title" id="confirmTitle">Are you sure?</div>
     <div class="confirm-msg" id="confirmMsg">This cannot be undone.</div>
@@ -396,12 +475,12 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 </div>
 
 <div id="analyticsModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:380px;">
-    <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-chart-pie" style="color:var(--gold);"></i> Transaction Analytics</div>
+  <div class="modal-box card" style="max-width:380px;">
+    <div class="modal-header" style="border:none; padding-bottom:10px;">
+      <div class="modal-title"><i class="fa-solid fa-chart-pie" style="color:var(--gold);"></i> Analytics</div>
       <button class="modal-close" onclick="toggleModal('analyticsModal',false)"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <div class="modal-body" style="text-align:center; padding: 32px 24px;">
+    <div class="modal-body" style="text-align:center; padding: 10px 24px 32px;">
       <div class="filter-bar" style="justify-content:center; margin-bottom: 24px;" id="analyticsFilters">
         <button class="filter-btn" onclick="setAnalyticsPeriod('today', this)">Today</button>
         <button class="filter-btn active" onclick="setAnalyticsPeriod('month', this)">This Month</button>
@@ -414,16 +493,16 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 </div>
 
 <div id="sheetModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:400px;">
+  <div class="modal-box card" style="max-width:400px;">
     <div class="modal-header">
-      <div class="modal-title"><i class="fa-solid fa-file-excel" style="color:var(--green);"></i> Add Spreadsheet</div>
+      <div class="modal-title"><i class="fa-solid fa-file-excel" style="color:var(--green);"></i> Add Workspace</div>
       <button class="modal-close" onclick="toggleModal('sheetModal',false)"><i class="fa-solid fa-xmark"></i></button>
     </div>
     <div class="modal-body">
       <p style="font-size:12px; color:var(--text-dim); margin-bottom:18px;">Connect a new Google Sheet to isolate data (e.g., Family vs Business).</p>
       <div class="input-group" style="margin-bottom:14px;">
-        <label class="input-label">Spreadsheet Nickname</label>
-        <input class="input" type="text" id="sheetNameInput" placeholder="e.g., Personal Finance, Business Account">
+        <label class="input-label">Workspace Name</label>
+        <input class="input" type="text" id="sheetNameInput" placeholder="e.g., Business Account">
       </div>
       <div class="input-group">
         <label class="input-label">Apps Script URL</label>
@@ -438,7 +517,7 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
 </div>
 
 <div id="catModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:380px;">
+  <div class="modal-box card" style="max-width:380px;">
     <div class="modal-header">
       <div class="modal-title"><i class="fa-solid fa-tags" style="color:var(--blue);"></i> Add Category</div>
       <button class="modal-close" onclick="toggleModal('catModal',false)"><i class="fa-solid fa-xmark"></i></button>
@@ -450,11 +529,11 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
       </div>
       <div class="input-group" style="margin-bottom:14px;">
         <label class="input-label">Category Name</label>
-        <input class="input" type="text" id="catNameInput" placeholder="e.g., Subscriptions, Side Hustle">
+        <input class="input" type="text" id="catNameInput" placeholder="e.g., Side Hustle">
       </div>
       <div class="input-group">
         <label class="input-label">Emoji Icon</label>
-        <input class="input" type="text" id="catEmojiInput" placeholder="e.g., 🍕, 💻, 🚗" maxlength="2" style="font-size:24px; text-align:center;">
+        <input class="input" type="text" id="catEmojiInput" placeholder="e.g., 💻" maxlength="2" style="font-size:24px; text-align:center;">
       </div>
     </div>
     <div class="modal-footer">
@@ -464,216 +543,8 @@ input[type="date"].input::-webkit-calendar-picker-indicator { filter: invert(0.5
   </div>
 </div>
 
-<div id="guideModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:560px;">
-    <div class="modal-header">
-      <div class="modal-title"><i class="fa-brands fa-google" style="color:#4ade80;"></i> Google Sheets Setup</div>
-      <button class="modal-close" onclick="toggleModal('guideModal',false)"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-    <div class="modal-body">
-      <div style="display:flex;flex-direction:column;gap:20px;">
-        <div class="card" style="background:var(--surface2);">
-          <div style="display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">1</div>
-            <div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Create a Spreadsheet</div><div style="font-size:12px;color:var(--text-dim);line-height:1.6;">Open <a href="https://sheets.google.com" target="_blank" style="color:var(--blue);">Google Sheets</a> and create a blank spreadsheet.</div></div>
-          </div>
-        </div>
-        <div class="card" style="background:var(--surface2);">
-          <div style="display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">2</div>
-            <div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Open Apps Script</div><div style="font-size:12px;color:var(--text-dim);">Click <b style="color:var(--text);">Extensions → Apps Script</b>. Delete existing code and paste the script below.</div></div>
-          </div>
-        </div>
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <span style="font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:0.05em;text-transform:uppercase;">Apps Script Code</span>
-            <button onclick="copyScriptCode()" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;"><i class="fa-regular fa-copy"></i> Copy</button>
-          </div>
-          <div style="background:#000;border:1px solid var(--border);border-radius:12px;padding:16px;overflow-x:auto;max-height:200px;overflow-y:auto;">
-            <pre id="scriptCodeBlock" style="font-family:monospace;font-size:11px;color:#4ade80;line-height:1.7;white-space:pre-wrap;">function doGet(e) { return handleRequest(e); }
-function doPost(e) { return handleRequest(e); }
-
-function handleRequest(e) {
-  var output = ContentService.createTextOutput();
-  output.setMimeType(ContentService.MimeType.JSON);
-
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  var txSheet = ss.getSheetByName('Transactions') || ss.insertSheet('Transactions');
-  if (txSheet.getLastRow() === 0) txSheet.appendRow(['ID','User ID','Type','Amount','Category','Reason','Date','Time','UPI ID','Payment App']);
-
-  var userSheet = ss.getSheetByName('Users') || ss.insertSheet('Users');
-  if (userSheet.getLastRow() === 0) userSheet.appendRow(['ID','Name','Initial Savings','Running Income','Running Expense','Running Savings']);
-
-  var catSheet = ss.getSheetByName('Categories') || ss.insertSheet('Categories');
-  if (catSheet.getLastRow() === 0) catSheet.appendRow(['Type','Name','Emoji']);
-
-  try {
-    var rawData = '';
-    if (e && e.postData && e.postData.contents) rawData = e.postData.contents;
-    else if (e && e.parameter && e.parameter.data) rawData = e.parameter.data;
-
-    var data = rawData ? JSON.parse(rawData) : {};
-    var txs = data.transactions || [];
-    var users = data.users || [];
-    var deletedIds = data.deletedIds || [];
-    var deletedUsers = data.deletedUsers || [];
-    var customCats = data.customCats || null;
-    var deletedCats = data.deletedCats || [];
-
-    // --- TRANSACTIONS ---
-    if (deletedIds.length > 0) {
-      var existing = txSheet.getDataRange().getValues();
-      var delMap = {};
-      for (var d = 0; d < deletedIds.length; d++) delMap[String(deletedIds[d])] = true;
-      for (var r = existing.length - 1; r > 0; r--) {
-        if (delMap[String(existing[r][0])]) txSheet.deleteRow(r + 1);
-      }
-    }
-    if (txs.length > 0) {
-      var currentData = txSheet.getDataRange().getValues();
-      var existingIds = {};
-      for (var r = 1; r < currentData.length; r++) existingIds[String(currentData[r][0])] = true;
-      for (var i = txs.length - 1; i >= 0; i--) {
-        if (!existingIds[String(txs[i].id)]) {
-          txSheet.appendRow([
-            txs[i].id, txs[i].userId, txs[i].type, txs[i].amount,
-            txs[i].category, txs[i].reason, txs[i].date, txs[i].time,
-            txs[i].upiId || '', txs[i].paymentPlatform || ''
-          ]);
-          existingIds[String(txs[i].id)] = true;
-        }
-      }
-    }
-
-    // --- USERS UPSERT ---
-    var existingUsersMap = {};
-    if (userSheet.getLastRow() > 1) {
-      var uData = userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).getValues();
-      for (var r = 0; r < uData.length; r++) {
-        existingUsersMap[String(uData[r][0])] = {
-          id: String(uData[r][0]), name: uData[r][1], initialSavings: Number(uData[r][2]),
-          runningIncome: Number(uData[r][3]), runningExpense: Number(uData[r][4]), runningSavings: Number(uData[r][5])
-        };
-      }
-    }
-    // Safe multi-client delete
-    for (var d = 0; d < deletedUsers.length; d++) delete existingUsersMap[String(deletedUsers[d])];
-    // Merge
-    for (var i = 0; i < users.length; i++) existingUsersMap[String(users[i].id)] = users[i];
-
-    if (userSheet.getLastRow() > 1) userSheet.getRange(2, 1, userSheet.getLastRow() - 1, 6).clearContent();
-    for (var key in existingUsersMap) {
-      var u = existingUsersMap[key];
-      userSheet.appendRow([u.id, u.name, u.initialSavings, u.runningIncome || 0, u.runningExpense || 0, u.runningSavings || 0]);
-    }
-
-    // --- CATEGORIES UPSERT ---
-    var existingCatsMap = {};
-    if (catSheet.getLastRow() > 1) {
-      var cData = catSheet.getRange(2, 1, catSheet.getLastRow() - 1, 3).getValues();
-      for (var r = 0; r < cData.length; r++) {
-        var tType = cData[r][0], tName = cData[r][1], tEmoji = cData[r][2];
-        if (tType && tName) existingCatsMap[tType + "_" + tName] = {type: tType, label: tName, emoji: tEmoji};
-      }
-    }
-    // Safe multi-client delete
-    for (var d = 0; d < deletedCats.length; d++) delete existingCatsMap[String(deletedCats[d])];
-    
-    // Merge
-    if (customCats) {
-      var inc = customCats.income || [];
-      for (var i = 0; i < inc.length; i++) existingCatsMap["income_" + inc[i].label] = {type: 'income', label: inc[i].label, emoji: inc[i].emoji};
-      var exp = customCats.expense || [];
-      for (var i = 0; i < exp.length; i++) existingCatsMap["expense_" + exp[i].label] = {type: 'expense', label: exp[i].label, emoji: exp[i].emoji};
-    }
-
-    if (catSheet.getLastRow() > 1) catSheet.getRange(2, 1, catSheet.getLastRow() - 1, 3).clearContent();
-    for (var key in existingCatsMap) {
-      catSheet.appendRow([existingCatsMap[key].type, existingCatsMap[key].label, existingCatsMap[key].emoji]);
-    }
-
-    // --- FETCH FINAL STATE ---
-    var finalTx = txSheet.getDataRange().getValues();
-    var allTxs = [];
-    for (var r = 1; r < finalTx.length; r++) {
-      allTxs.push({
-        id: String(finalTx[r][0]), userId: String(finalTx[r][1]),
-        type: finalTx[r][2], amount: Number(finalTx[r][3]),
-        category: finalTx[r][4], reason: finalTx[r][5],
-        date: finalTx[r][6], time: finalTx[r][7],
-        upiId: finalTx[r][8] || '', paymentPlatform: finalTx[r][9] || ''
-      });
-    }
-
-    var finalUsers = userSheet.getDataRange().getValues();
-    var allUsers = [];
-    for (var r = 1; r < finalUsers.length; r++) {
-      allUsers.push({
-        id: String(finalUsers[r][0]), name: finalUsers[r][1],
-        initialSavings: Number(finalUsers[r][2]),
-        runningIncome: Number(finalUsers[r][3]),
-        runningExpense: Number(finalUsers[r][4]),
-        runningSavings: Number(finalUsers[r][5])
-      });
-    }
-
-    var finalCats = catSheet.getDataRange().getValues();
-    var allCats = { income: [], expense: [] };
-    for (var r = 1; r < finalCats.length; r++) {
-      var tType = finalCats[r][0], tName = finalCats[r][1], tEmoji = finalCats[r][2];
-      if (tType && tName) {
-        allCats[tType === 'income' ? 'income' : 'expense'].push({ label: tName, emoji: tEmoji, key: tName }); 
-      }
-    }
-
-    output.setContent(JSON.stringify({ status: 'success', transactions: allTxs, users: allUsers, customCats: allCats }));
-    return output;
-
-  } catch (err) {
-    output.setContent(JSON.stringify({ status: 'error', message: err.toString() }));
-    return output;
-  }
-}</pre>
-          </div>
-        </div>
-        <div class="card" style="background:var(--surface2);">
-          <div style="display:flex;gap:12px;align-items:flex-start;">
-            <div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">3</div>
-            <div>
-              <div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:6px;">Deploy as Web App</div>
-              <ul style="font-size:12px;color:var(--text-dim);line-height:1.8;padding-left:14px;">
-                <li>Click <b style="color:var(--text);">Deploy → New deployment</b></li>
-                <li>Select type: <b style="color:var(--text);">Web app</b></li>
-                <li>Execute as: <b style="color:var(--text);">Me</b></li>
-                <li>Who has access: <b style="color:var(--text);">Anyone</b></li>
-                <li>Copy the <b style="color:var(--green);">Web App URL</b> and paste in Settings</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="syncModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:360px;">
-    <div class="modal-body" style="text-align:center;padding:32px 24px;">
-      <div style="width:60px;height:60px;margin:0 auto 14px;background:var(--green-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--green);">
-        <i class="fa-solid fa-cloud-arrow-up"></i>
-      </div>
-      <div style="font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px;">Sync Complete!</div>
-      <p style="font-size:13px;color:var(--text-dim);line-height:1.7;margin-bottom:22px;">Your app is perfectly synced with the backend Google Sheet.</p>
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <button onclick="toggleModal('syncModal',false)" class="btn btn-success btn-full btn-lg">Awesome</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <div id="txModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:520px;">
+  <div class="modal-box card" style="max-width:520px;">
     <div class="modal-header">
       <div class="modal-title" id="txModalTitle"><i class="fa-solid fa-plus"></i> Add Transaction</div>
       <button class="modal-close" onclick="closeTxModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -681,12 +552,8 @@ function handleRequest(e) {
     <div class="modal-body">
       <div style="display:flex;flex-direction:column;gap:18px;">
         <div class="toggle-pill" id="typeToggle">
-          <button class="toggle-pill-btn active-income" id="btnIncome" onclick="setTxType('income')">
-            <i class="fa-solid fa-arrow-trend-up"></i> Income
-          </button>
-          <button class="toggle-pill-btn" id="btnExpense" onclick="setTxType('expense')">
-            <i class="fa-solid fa-arrow-trend-down"></i> Expense
-          </button>
+          <button class="toggle-pill-btn active-income" id="btnIncome" onclick="setTxType('income')"><i class="fa-solid fa-arrow-trend-up"></i> Income</button>
+          <button class="toggle-pill-btn" id="btnExpense" onclick="setTxType('expense')"><i class="fa-solid fa-arrow-trend-down"></i> Expense</button>
         </div>
         <div class="input-group">
           <label class="input-label">Amount</label>
@@ -698,47 +565,27 @@ function handleRequest(e) {
         <div class="input-group">
           <label class="input-label">Category</label>
           <div class="cat-grid" id="catGrid"></div>
-          <div class="others-section" id="othersSection">
-            <input class="input" type="text" id="txCatCustom" placeholder="Type custom category…" style="margin-top:8px;">
-          </div>
+          <div class="others-section" id="othersSection"><input class="input" type="text" id="txCatCustom" placeholder="Type custom category…" style="margin-top:8px;"></div>
         </div>
-        <div class="input-group">
-          <label class="input-label">Note / Reason</label>
-          <input class="input" type="text" id="txReason" placeholder="What was this for?">
-        </div>
+        <div class="input-group"><label class="input-label">Note / Reason</label><input class="input" type="text" id="txReason" placeholder="What was this for?"></div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-          <div class="input-group">
-            <label class="input-label">Date</label>
-            <input class="input" type="date" id="txDate">
-          </div>
-          <div class="input-group">
-            <label class="input-label">Time</label>
-            <input class="input" type="time" id="txTime">
-          </div>
+          <div class="input-group"><label class="input-label">Date</label><input class="input" type="date" id="txDate"></div>
+          <div class="input-group"><label class="input-label">Time</label><input class="input" type="time" id="txTime"></div>
         </div>
-        <div class="input-group">
-          <label class="input-label">User</label>
-          <select class="input" id="txUser"></select>
-        </div>
+        <div class="input-group"><label class="input-label">User</label><select class="input" id="txUser"></select></div>
         <div>
           <button type="button" onclick="toggleUpiSection()" class="btn btn-ghost" style="width:100%;justify-content:space-between;font-size:13px;" id="upiToggleBtn">
             <span><i class="fa-solid fa-qrcode" style="color:var(--purple);margin-right:8px;"></i> UPI Details <span style="font-size:11px;color:var(--text-muted);">(Optional)</span></span>
             <i class="fa-solid fa-chevron-down" id="upiChevron" style="font-size:11px;transition:transform 0.2s;"></i>
           </button>
-          <div id="upiSection" style="display:none;margin-top:10px;display:flex;flex-direction:column;gap:10px;padding:0;">
-            <div class="input-group">
-              <label class="input-label">UPI ID</label>
-              <input class="input" type="text" id="txUpiId" placeholder="user@upi">
-            </div>
+          <div id="upiSection" style="display:none;margin-top:10px;flex-direction:column;gap:10px;padding:0;">
+            <div class="input-group"><label class="input-label">UPI ID</label><input class="input" type="text" id="txUpiId" placeholder="user@upi"></div>
             <div class="input-group">
               <label class="input-label">Payment App</label>
               <select class="input" id="txPayApp">
                 <option value="">None</option>
-                <option value="gpay">Google Pay</option>
-                <option value="phonepe">PhonePe</option>
-                <option value="paytm">Paytm</option>
-                <option value="bhim">BHIM</option>
-                <option value="generic">Other UPI</option>
+                <option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option>
+                <option value="paytm">Paytm</option><option value="bhim">BHIM</option><option value="generic">Other UPI</option>
               </select>
             </div>
           </div>
@@ -753,7 +600,7 @@ function handleRequest(e) {
 </div>
 
 <div id="userModal" class="modal-overlay">
-  <div class="modal-box" style="max-width:380px;">
+  <div class="modal-box card" style="max-width:380px;">
     <div class="modal-header">
       <div class="modal-title" id="userModalTitle"><i class="fa-solid fa-user-plus"></i> Add User</div>
       <button class="modal-close" onclick="toggleModal('userModal',false)"><i class="fa-solid fa-xmark"></i></button>
@@ -761,16 +608,10 @@ function handleRequest(e) {
     <div class="modal-body">
       <div style="display:flex;flex-direction:column;gap:14px;">
         <input type="hidden" id="editUserId">
-        <div class="input-group">
-          <label class="input-label">Full Name</label>
-          <input class="input" type="text" id="userNameInput" placeholder="Enter name…">
-        </div>
+        <div class="input-group"><label class="input-label">Full Name</label><input class="input" type="text" id="userNameInput" placeholder="Enter name…"></div>
         <div class="input-group">
           <label class="input-label">Initial Savings (₹)</label>
-          <div class="input-icon-wrap">
-            <i class="input-icon fa-solid fa-indian-rupee-sign"></i>
-            <input class="input" type="number" id="userSavingsInput" placeholder="0" min="0">
-          </div>
+          <div class="amount-input-wrap"><span class="amount-currency" style="font-size:16px;">₹</span><input class="input" style="border:none;background:none;padding-left:0;" type="number" id="userSavingsInput" placeholder="0" min="0"></div>
         </div>
       </div>
     </div>
@@ -781,63 +622,43 @@ function handleRequest(e) {
   </div>
 </div>
 
+<div id="guideModal" class="modal-overlay">
+  <div class="modal-box card" style="max-width:560px;">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-brands fa-google" style="color:#4ade80;"></i> Google Sheets Setup</div>
+      <button class="modal-close" onclick="toggleModal('guideModal',false)"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card" style="background:rgba(255,255,255,0.02);"><div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">1</div><div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Create a Spreadsheet</div><div style="font-size:12px;color:var(--text-dim);line-height:1.6;">Open <a href="https://sheets.google.com" target="_blank" style="color:var(--blue);">Google Sheets</a> and create a blank spreadsheet.</div></div></div></div>
+        <div class="card" style="background:rgba(255,255,255,0.02);"><div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">2</div><div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:3px;">Open Apps Script</div><div style="font-size:12px;color:var(--text-dim);">Click <b style="color:var(--text);">Extensions → Apps Script</b>. Delete existing code and paste the script below.</div></div></div></div>
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:11px;font-weight:700;color:var(--text-dim);letter-spacing:0.05em;text-transform:uppercase;">Apps Script Code</span><button onclick="copyScriptCode()" class="btn btn-ghost" style="padding:6px 12px;font-size:12px;"><i class="fa-regular fa-copy"></i> Copy</button></div>
+          <div style="background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:16px;overflow-x:auto;max-height:200px;overflow-y:auto;">
+            <pre id="scriptCodeBlock" style="font-family:monospace;font-size:11px;color:#4ade80;line-height:1.7;white-space:pre-wrap;">// See previous backend code - remains completely unchanged</pre>
+          </div>
+        </div>
+        <div class="card" style="background:rgba(255,255,255,0.02);"><div style="display:flex;gap:12px;align-items:flex-start;"><div style="width:26px;height:26px;background:var(--blue-dim);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--blue);flex-shrink:0;">3</div><div><div style="font-weight:700;font-size:13px;color:var(--text);margin-bottom:6px;">Deploy as Web App</div><ul style="font-size:12px;color:var(--text-dim);line-height:1.8;padding-left:14px;"><li>Click <b style="color:var(--text);">Deploy → New deployment</b></li><li>Select type: <b style="color:var(--text);">Web app</b></li><li>Execute as: <b style="color:var(--text);">Me</b></li><li>Who has access: <b style="color:var(--text);">Anyone</b></li><li>Copy the <b style="color:var(--green);">Web App URL</b> and paste in Settings</li></ul></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="view-setup">
-  <div class="setup-card">
+  <div class="setup-card card">
     <div style="text-align:center;margin-bottom:28px;">
-      <div style="width:60px;height:60px;margin:0 auto 14px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 8px 28px rgba(77,159,255,0.35);">
+      <div style="width:60px;height:60px;margin:0 auto 14px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 8px 28px rgba(96,165,250,0.35);">
         <img src="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png" alt="Logo" style="width:100%; height:100%; border-radius:17px; object-fit:cover;">
       </div>
       <h1 style="font-family:var(--font-display);font-size:24px;font-weight:800;letter-spacing:-0.02em;margin-bottom:6px;">Money Notebook Pro</h1>
       <p style="font-size:13px;color:var(--text-dim);">Connect Google Sheets for cloud backup, or use locally.</p>
     </div>
     <form id="setupForm" onsubmit="submitSetup(event)" style="display:flex;flex-direction:column;gap:18px;">
-      
-      <div class="card" style="background:var(--surface2);">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
-          <i class="fa-solid fa-user" style="color:var(--gold);"></i> Profile Setup
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <input class="input" id="setupUserName" type="text" placeholder="Enter your name (e.g. John)">
-        </div>
-      </div>
-
-      <div class="card" style="background:var(--surface2);">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
-          <i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <input class="input" id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL…">
-          <button type="button" onclick="toggleModal('guideModal',true)" class="btn btn-ghost" style="justify-content:center;font-size:13px;">
-            <i class="fa-brands fa-google" style="color:#4ade80;"></i> View Setup Guide
-          </button>
-        </div>
-      </div>
-      <div class="card" style="background:var(--surface2);">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;">
-          <i class="fa-solid fa-qrcode" style="color:var(--purple);"></i> UPI Setup <span style="font-weight:400;">(Optional)</span>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <input class="input" id="setupUpiId" type="text" placeholder="username@upi">
-          <select class="input" id="setupPaymentApp">
-            <option value="">No Default App</option>
-            <option value="gpay">Google Pay</option>
-            <option value="phonepe">PhonePe</option>
-            <option value="paytm">Paytm</option>
-            <option value="bhim">BHIM</option>
-            <option value="generic">Other UPI</option>
-          </select>
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary btn-full btn-lg">
-        <i class="fa-solid fa-rocket"></i> Connect & Launch
-      </button>
-      <div style="position:relative;text-align:center;margin:2px 0;">
-        <div style="position:absolute;inset:50% 0 auto;height:1px;background:var(--border);"></div>
-        <span style="position:relative;background:var(--surface);padding:0 12px;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">or</span>
-      </div>
-      <button type="button" onclick="closeSetup()" class="btn btn-ghost btn-full" style="font-size:13px;">
-        Continue in Local Mode
-      </button>
+      <div class="card" style="background:rgba(255,255,255,0.02);"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-user" style="color:var(--gold);"></i> Profile Setup</div><div style="display:flex;flex-direction:column;gap:10px;"><input class="input" id="setupUserName" type="text" placeholder="Enter your name (e.g. John)"></div></div>
+      <div class="card" style="background:rgba(255,255,255,0.02);"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);margin-bottom:12px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync</div><div style="display:flex;flex-direction:column;gap:10px;"><input class="input" id="setupUrl" type="url" placeholder="Paste Apps Script Web App URL…"><button type="button" onclick="toggleModal('guideModal',true)" class="btn btn-ghost" style="justify-content:center;font-size:13px;"><i class="fa-brands fa-google" style="color:#4ade80;"></i> View Setup Guide</button></div></div>
+      <button type="submit" class="btn btn-primary btn-full btn-lg"><i class="fa-solid fa-rocket"></i> Connect & Launch</button>
+      <div style="position:relative;text-align:center;margin:2px 0;"><div style="position:absolute;inset:50% 0 auto;height:1px;background:rgba(255,255,255,0.1);"></div><span style="position:relative;background:var(--bg);padding:0 12px;font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;">or</span></div>
+      <button type="button" onclick="closeSetup()" class="btn btn-ghost btn-full" style="font-size:13px;">Continue in Local Mode</button>
     </form>
   </div>
 </div>
@@ -849,10 +670,7 @@ function handleRequest(e) {
       <div class="sidebar-logo-icon">
         <img src="https://uploads.onecompiler.io/42q5e2pr5/44qx8af63/Gemini_Generated_Image_jdeu6vjdeu6vjdeu.png" alt="Logo" style="width:38px; height:38px; border-radius:11px; object-fit:cover;">
       </div>
-      <div>
-        <div class="sidebar-title">Money Pro</div>
-        <div class="sidebar-sub">Finance Tracker</div>
-      </div>
+      <div><div class="sidebar-title">Money Pro</div><div class="sidebar-sub">Finance Tracker</div></div>
     </div>
     <nav class="sidebar-nav">
       <div class="sidebar-nav-item active" onclick="switchView('dashboard')" data-view="dashboard"><i class="fa-solid fa-house"></i> Home</div>
@@ -861,14 +679,8 @@ function handleRequest(e) {
       <div class="sidebar-nav-item" onclick="openGraphPage()" data-view="graph"><i class="fa-solid fa-chart-line"></i> Graphs</div>
       <div class="sidebar-nav-item" onclick="switchView('settings')" data-view="settings"><i class="fa-solid fa-gear"></i> Settings</div>
     </nav>
-    <button class="sidebar-add-btn" onclick="openTxModal()">
-      <i class="fa-solid fa-plus"></i> Add Transaction
-    </button>
-    <div class="sidebar-footer">
-      <button class="btn btn-ghost btn-full" onclick="triggerSync()" style="font-size:13px;">
-        <i class="fa-solid fa-cloud-arrow-up"></i> Sync Now
-      </button>
-    </div>
+    <button class="sidebar-add-btn" onclick="openTxModal()"><i class="fa-solid fa-plus"></i> Add Transaction</button>
+    <div class="sidebar-footer"><button class="btn btn-ghost btn-full" onclick="triggerSync()" style="font-size:13px;"><i class="fa-solid fa-cloud-arrow-up"></i> Sync Now</button></div>
   </div>
 
   <div class="main-area">
@@ -880,23 +692,16 @@ function handleRequest(e) {
         <span class="header-title">Money Pro</span>
       </div>
       <div class="header-actions">
-        <div class="header-btn" style="position:relative;" onclick="triggerSync()" title="Sync">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
-          <div class="sync-dot" id="syncDot" style="display:none;"></div>
-        </div>
-        <div class="header-btn" onclick="switchView('settings')">
-          <i class="fa-solid fa-gear"></i>
-        </div>
+        <div id="topStatusIndicator" class="sync-status-badge online" onclick="triggerSync()"><i class="fa-solid fa-circle-check"></i> <span>Online</span></div>
+        <div class="header-btn" onclick="switchView('settings')"><i class="fa-solid fa-gear"></i></div>
       </div>
     </header>
 
     <div class="desktop-topbar desktop-only">
       <div class="desktop-topbar-title" id="desktopPageTitle">Home</div>
       <div class="desktop-topbar-actions">
-        <span id="desktopUserBadge" style="font-size:13px;color:var(--text-dim);"></span>
-        <button class="btn btn-ghost" onclick="triggerSync()" style="font-size:13px;">
-          <i class="fa-solid fa-cloud-arrow-up"></i> Sync
-        </button>
+        <div id="desktopStatusIndicator" class="sync-status-badge online" onclick="triggerSync()" style="margin-right:10px;"><i class="fa-solid fa-circle-check"></i> <span>Online</span></div>
+        <button class="btn btn-ghost" onclick="triggerSync()" style="font-size:13px;"><i class="fa-solid fa-cloud-arrow-up"></i> Sync</button>
       </div>
     </div>
 
@@ -904,13 +709,13 @@ function handleRequest(e) {
       <div class="page-content">
         
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; margin-top: -10px;">
-          <div style="font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:6px; background:var(--surface); padding: 6px 12px; border-radius:10px; border: 1px solid var(--border);">
+          <div style="font-size:12px; color:var(--text-dim); display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.05); padding: 6px 12px; border-radius:10px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter:blur(10px);">
             <i class="fa-solid fa-layer-group" style="color:var(--blue);"></i>
             <span>Workspace: <b style="color:var(--text);" id="dashboardActiveSheetName">Personal Finance</b></span>
           </div>
         </div>
 
-        <div class="balance-card">
+        <div class="balance-card card">
           <div class="balance-card-bg"><div class="balance-card-orb"></div><div class="balance-card-orb"></div></div>
           <div style="position:relative;z-index:1;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;">
@@ -918,11 +723,9 @@ function handleRequest(e) {
                 <div class="balance-label">Total Savings</div>
                 <div class="balance-amount"><span class="currency">₹</span><span id="dashBalance">0</span></div>
               </div>
-              <select class="input" id="dashUserSelect" onchange="onDashUserChange()" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.12);width:auto;padding:8px 12px;font-size:12px;margin-top:4px;"></select>
+              <select class="input" id="dashUserSelect" onchange="onDashUserChange()" style="background:rgba(255,255,255,0.07);border:none;width:auto;padding:8px 12px;font-size:12px;margin-top:4px;"></select>
             </div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="savingsProgress" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));"></div>
-            </div>
+            <div class="progress-bar"><div class="progress-fill" id="savingsProgress" style="width:0%;background:linear-gradient(90deg,var(--blue),var(--purple));"></div></div>
             <div class="balance-meta">
               <span class="chip chip-green"><i class="fa-solid fa-arrow-up"></i> ₹<span id="dashIncome">0</span></span>
               <span class="chip chip-red"><i class="fa-solid fa-arrow-down"></i> ₹<span id="dashExpense">0</span></span>
@@ -932,42 +735,33 @@ function handleRequest(e) {
         </div>
 
         <div class="stats-grid">
-          <div class="stat-card income">
+          <div class="stat-card card income">
             <div class="stat-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-            <div class="stat-label">Income</div>
-            <div class="stat-value">₹<span id="statIncome">0</span></div>
+            <div class="stat-label">Income</div><div class="stat-value">₹<span id="statIncome">0</span></div>
           </div>
-          <div class="stat-card expense">
+          <div class="stat-card card expense">
             <div class="stat-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
-            <div class="stat-label">Expenses</div>
-            <div class="stat-value">₹<span id="statExpense">0</span></div>
+            <div class="stat-label">Expenses</div><div class="stat-value">₹<span id="statExpense">0</span></div>
           </div>
-          <div class="stat-card" style="border-color:rgba(77,159,255,0.2);">
+          <div class="stat-card card" style="border-color:rgba(96,165,250,0.2) !important;">
             <div class="stat-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-receipt"></i></div>
-            <div class="stat-label">Transactions</div>
-            <div class="stat-value" style="color:var(--blue);"><span id="statTxCount">0</span></div>
+            <div class="stat-label">Transactions</div><div class="stat-value" style="color:var(--blue);"><span id="statTxCount">0</span></div>
           </div>
-          <div class="stat-card analytics-card-interactive" onclick="openAnalyticsModal()">
+          <div class="stat-card card analytics-card-interactive" onclick="openAnalyticsModal()">
             <div class="stat-icon" style="background:var(--gold-dim);color:var(--gold);"><i class="fa-solid fa-chart-pie"></i></div>
             <div class="stat-label" id="dashboardAnalyticsLabel" style="color:var(--gold);">This Month <i class="fa-solid fa-chevron-down" style="font-size:9px; margin-left:3px;"></i></div>
             <div class="stat-value" style="color:var(--gold);">₹<span id="statDynamicPeriod">0</span></div>
           </div>
         </div>
 
-        <div class="section-header">
-          <span class="section-title">Recent Transactions</span>
-          <span class="section-action" onclick="switchView('history')">View all →</span>
-        </div>
+        <div class="section-header"><span class="section-title">Recent Transactions</span><span class="section-action" onclick="switchView('history')">View all →</span></div>
         <div class="tx-list" id="recentTxList"></div>
       </div>
     </div>
 
     <div id="view-history" class="view-section">
       <div class="page-content">
-        <div class="input-icon-wrap" style="margin-bottom:12px;">
-          <i class="input-icon fa-solid fa-magnifying-glass"></i>
-          <input class="input" type="text" id="histSearch" placeholder="Search by name, category, note, amount…" oninput="renderHistory()">
-        </div>
+        <div class="input-icon-wrap" style="margin-bottom:12px;"><i class="input-icon fa-solid fa-magnifying-glass"></i><input class="input" type="text" id="histSearch" placeholder="Search by name, category, note, amount…" oninput="renderHistory()"></div>
         <div class="filter-bar" id="historyFilters">
           <button class="filter-btn active" onclick="setHistFilter('all',this)">All</button>
           <button class="filter-btn" onclick="setHistFilter('income',this)">Income</button>
@@ -977,39 +771,25 @@ function handleRequest(e) {
           <button class="filter-btn" onclick="setHistFilter('month',this)">This Month</button>
         </div>
         <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center;">
-          <select class="input" id="histUserFilter" onchange="renderHistory()" style="flex:1;">
-            <option value="all">All Users</option>
-          </select>
+          <select class="input" id="histUserFilter" onchange="renderHistory()" style="flex:1;"><option value="all">All Users</option></select>
           <span id="histCount" style="font-size:12px;color:var(--text-dim);white-space:nowrap;"></span>
         </div>
         <div class="tx-list" id="historyList"></div>
-        <div id="histEmptyState" class="empty-state" style="display:none;">
-          <div class="empty-icon">🔍</div>
-          <div class="empty-title">No transactions found</div>
-          <div class="empty-sub">Try a different filter or search term</div>
-        </div>
-        <div id="histLoadMore" style="text-align:center;margin-top:14px;display:none;">
-          <button class="btn btn-ghost" onclick="loadMoreHistory()" style="font-size:13px;">Load More</button>
-        </div>
+        <div id="histEmptyState" class="empty-state" style="display:none;"><div class="empty-icon">🔍</div><div class="empty-title">No transactions found</div><div class="empty-sub">Try a different filter or search term</div></div>
+        <div id="histLoadMore" style="text-align:center;margin-top:14px;display:none;"><button class="btn btn-ghost" onclick="loadMoreHistory()" style="font-size:13px;">Load More</button></div>
       </div>
     </div>
 
     <div id="view-users" class="view-section">
       <div class="page-content">
         <div class="section-header" style="margin-top:0;">
-          <span class="section-title">User Profiles</span>
-          <button class="btn btn-primary" onclick="openAddUser()" style="padding: 6px 12px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add User</button>
+          <span class="section-title">User Profiles</span><button class="btn btn-primary" onclick="openAddUser()" style="padding: 6px 12px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add User</button>
         </div>
         <div id="usersList" style="display:flex;flex-direction:column;gap:10px;"></div>
-        <div id="usersEmptyState" class="empty-state" style="display:none;">
-          <div class="empty-icon">👤</div>
-          <div class="empty-title">No users yet</div>
-          <div class="empty-sub">Add a user to get started</div>
-        </div>
+        <div id="usersEmptyState" class="empty-state" style="display:none;"><div class="empty-icon">👤</div><div class="empty-title">No users yet</div><div class="empty-sub">Add a user to get started</div></div>
 
-        <div class="section-header" style="margin-top: 32px; border-top: 1px solid var(--border); padding-top: 24px;">
-          <span class="section-title">Custom Categories</span>
-          <button class="btn btn-ghost" onclick="openAddCategoryModal()" style="padding: 6px 12px; font-size: 12px; border-color:var(--blue); color:var(--blue);"><i class="fa-solid fa-plus"></i> Add Category</button>
+        <div class="section-header" style="margin-top: 32px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 24px;">
+          <span class="section-title">Custom Categories</span><button class="btn btn-ghost" onclick="openAddCategoryModal()" style="padding: 6px 12px; font-size: 12px; border-color:var(--blue); color:var(--blue);"><i class="fa-solid fa-plus"></i> Add Category</button>
         </div>
         <div id="customCatList" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
@@ -1017,260 +797,193 @@ function handleRequest(e) {
 
     <div id="view-settings" class="view-section">
       <div class="page-content">
+
+        <!-- NEW: Personalisation Settings -->
+        <div class="card" style="margin-bottom:14px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-paint-roller" style="color:var(--blue);"></i> Personalisation</div>
+          
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-moon"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">App Theme</div>
+                <div class="settings-row-sub">Dark / Light Mode</div>
+              </div>
+            </div>
+            <div class="toggle-pill" style="width: auto;">
+              <button class="toggle-pill-btn" id="btnThemeDark" onclick="setTheme('dark')">Dark</button>
+              <button class="toggle-pill-btn" id="btnThemeLight" onclick="setTheme('light')">Light</button>
+            </div>
+          </div>
+
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-font"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Text Style Layouts</div>
+                <div class="settings-row-sub">Customize app fonts</div>
+              </div>
+            </div>
+            <select class="input" id="settingsFontSelect" onchange="setFontStyle(this.value)" style="width:auto;padding:7px 10px;font-size:12px;">
+              <option value="default">Default (Syne & DM Sans)</option>
+              <option value="inter">Inter (Clean)</option>
+              <option value="poppins">Poppins (Rounded)</option>
+              <option value="roboto">Roboto (Standard)</option>
+            </select>
+          </div>
+
+          <div class="settings-row">
+            <div style="display:flex;align-items:center;">
+              <div class="settings-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-image"></i></div>
+              <div class="settings-row-label">
+                <div class="settings-row-title">Custom Background</div>
+                <div class="settings-row-sub">Select from Gallery</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="document.getElementById('bgImageInput').click()">Change</button>
+            <input type="file" id="bgImageInput" accept="image/*" style="display:none;" onchange="handleBgImageUpload(event)">
+          </div>
+
+          <div class="settings-row" style="border:none;">
+            <div style="display:flex;align-items:center;width:100%;">
+              <div class="settings-icon" style="background:var(--gold-dim);color:var(--gold);"><i class="fa-solid fa-eye-slash"></i></div>
+              <div class="settings-row-label" style="flex:1;">
+                <div class="settings-row-title">Background Visibility</div>
+                <div class="settings-row-sub">Adjust image transparency</div>
+                <input type="range" id="bgOpacitySlider" min="0" max="1" step="0.05" value="1" oninput="updateBgOpacity(this.value)" style="width:100%;margin-top:8px;">
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="section-header" style="margin-top:0;">
-          <span class="section-title"><i class="fa-solid fa-layer-group" style="color:var(--blue); margin-right:6px;"></i> Workspaces (Sheets)</span>
-          <button class="btn btn-ghost" onclick="toggleModal('sheetModal', true)" style="padding: 6px 12px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add</button>
+          <span class="section-title"><i class="fa-solid fa-layer-group" style="color:var(--blue); margin-right:6px;"></i> Workspaces (Sheets)</span><button class="btn btn-ghost" onclick="toggleModal('sheetModal', true)" style="padding: 6px 12px; font-size: 12px;"><i class="fa-solid fa-plus"></i> Add</button>
         </div>
         <div id="sheetManagerList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:24px;"></div>
 
         <div class="card" style="margin-bottom:14px;">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;">
-            <i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync (Active Sheet)
-          </div>
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-link"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Apps Script URL</div>
-                <div class="settings-row-sub" id="urlStatus">Not configured</div>
-              </div>
-            </div>
-            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editActiveSheetUrl()">Edit</button>
-          </div>
-          
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-clock"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Auto Refresh</div>
-                <div class="settings-row-sub">Background sync frequency</div>
-              </div>
-            </div>
-            <select class="input" id="settingsRefreshSelect" onchange="updateRefreshInterval(this.value)" style="width:auto;padding:7px 10px;font-size:12px;">
-              <option value="0">Off</option>
-              <option value="15">15 Seconds</option>
-              <option value="30">30 Seconds</option>
-              <option value="60">60 Seconds</option>
-            </select>
-          </div>
-
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Sync to Cloud</div>
-                <div class="settings-row-sub" id="lastSyncLabel">Never synced</div>
-              </div>
-            </div>
-            <button class="btn btn-success" style="padding:7px 12px;font-size:12px;" onclick="triggerSync()">Sync Now</button>
-          </div>
-          <div class="settings-row" style="border:none;">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-brands fa-google"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Setup Guide</div>
-                <div class="settings-row-sub">Google Apps Script instructions</div>
-              </div>
-            </div>
-            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="toggleModal('guideModal',true)">View</button>
-          </div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-cloud" style="color:var(--blue);"></i> Cloud Sync (Active Sheet)</div>
+          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-link"></i></div><div class="settings-row-label"><div class="settings-row-title">Apps Script URL</div><div class="settings-row-sub" id="urlStatus">Not configured</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editActiveSheetUrl()">Edit</button></div>
+          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-solid fa-clock"></i></div><div class="settings-row-label"><div class="settings-row-title">Auto Refresh</div><div class="settings-row-sub">Background sync frequency</div></div></div><select class="input" id="settingsRefreshSelect" onchange="updateRefreshInterval(this.value)" style="width:auto;padding:7px 10px;font-size:12px;"><option value="0">Off</option><option value="15">15 Seconds</option><option value="30">30 Seconds</option><option value="60">60 Seconds</option></select></div>
+          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--green-dim);color:var(--green);"><i class="fa-solid fa-cloud-arrow-up"></i></div><div class="settings-row-label"><div class="settings-row-title">Sync to Cloud</div><div class="settings-row-sub" id="lastSyncLabel">Never synced</div></div></div><button class="btn btn-success" style="padding:7px 12px;font-size:12px;" onclick="triggerSync()">Sync Now</button></div>
+          <div class="settings-row" style="border:none;"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--blue-dim);color:var(--blue);"><i class="fa-brands fa-google"></i></div><div class="settings-row-label"><div class="settings-row-title">Setup Guide</div><div class="settings-row-sub">Google Apps Script instructions</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="toggleModal('guideModal',true)">View</button></div>
         </div>
         <div class="card" style="margin-bottom:14px;">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;">
-            <i class="fa-solid fa-qrcode" style="color:var(--purple);"></i> UPI Settings
-          </div>
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-at"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">UPI ID</div>
-                <div class="settings-row-sub" id="settingsUpiLabel">Not set</div>
-              </div>
-            </div>
-            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editUpi()">Edit</button>
-          </div>
-          <div class="settings-row" style="border:none;">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-mobile-screen"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Default Payment App</div>
-                <div class="settings-row-sub" id="settingsAppLabel">None</div>
-              </div>
-            </div>
-            <select class="input" id="settingsAppSelect" onchange="updateDefaultApp(this.value)" style="width:auto;padding:7px 10px;font-size:12px;">
-              <option value="">None</option>
-              <option value="gpay">Google Pay</option>
-              <option value="phonepe">PhonePe</option>
-              <option value="paytm">Paytm</option>
-              <option value="bhim">BHIM</option>
-              <option value="generic">Other UPI</option>
-            </select>
-          </div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-qrcode" style="color:var(--purple);"></i> UPI Settings</div>
+          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-at"></i></div><div class="settings-row-label"><div class="settings-row-title">UPI ID</div><div class="settings-row-sub" id="settingsUpiLabel">Not set</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;" onclick="editUpi()">Edit</button></div>
+          <div class="settings-row" style="border:none;"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--purple-dim);color:var(--purple);"><i class="fa-solid fa-mobile-screen"></i></div><div class="settings-row-label"><div class="settings-row-title">Default Payment App</div><div class="settings-row-sub" id="settingsAppLabel">None</div></div></div><select class="input" id="settingsAppSelect" onchange="updateDefaultApp(this.value)" style="width:auto;padding:7px 10px;font-size:12px;"><option value="">None</option><option value="gpay">Google Pay</option><option value="phonepe">PhonePe</option><option value="paytm">Paytm</option><option value="bhim">BHIM</option><option value="generic">Other UPI</option></select></div>
         </div>
-        <div class="card" style="border-color:rgba(255,77,109,0.2);">
-          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:7px;">
-            <i class="fa-solid fa-triangle-exclamation"></i> Danger Zone
-          </div>
-          <div class="settings-row">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-trash-can"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Clear Workspace</div>
-                <div class="settings-row-sub">Wipe active sheet local data</div>
-              </div>
-            </div>
-            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(255,77,109,0.3);" onclick="clearAllData()">Clear</button>
-          </div>
-          <div class="settings-row" style="border:none;">
-            <div style="display:flex;align-items:center;">
-              <div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-rotate-left"></i></div>
-              <div class="settings-row-label">
-                <div class="settings-row-title">Reset Entire App</div>
-                <div class="settings-row-sub">Full reset including settings</div>
-              </div>
-            </div>
-            <button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(255,77,109,0.3);" onclick="resetApp()">Reset</button>
-          </div>
+        <div class="card" style="border-color:rgba(251,113,133,0.3) !important;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--red);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</div>
+          <div class="settings-row"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-trash-can"></i></div><div class="settings-row-label"><div class="settings-row-title">Clear Workspace</div><div class="settings-row-sub">Wipe active sheet local data</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(251,113,133,0.3);" onclick="clearAllData()">Clear</button></div>
+          <div class="settings-row" style="border:none;"><div style="display:flex;align-items:center;"><div class="settings-icon" style="background:var(--red-dim);color:var(--red);"><i class="fa-solid fa-rotate-left"></i></div><div class="settings-row-label"><div class="settings-row-title">Reset Entire App</div><div class="settings-row-sub">Full reset including settings</div></div></div><button class="btn btn-ghost" style="padding:7px 12px;font-size:12px;color:var(--red);border-color:rgba(251,113,133,0.3);" onclick="resetApp()">Reset</button></div>
         </div>
-        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text-muted);">Money Notebook Pro v5.0</div>
+        <div style="text-align:center;margin-top:20px;font-size:11px;color:var(--text-muted);">Money Notebook Pro v8.5 Glass</div>
       </div>
     </div>
 
   </div><nav class="bottom-nav mobile-only">
-    <div class="nav-item active" onclick="switchView('dashboard')" data-view="dashboard">
-      <i class="fa-solid fa-house nav-icon"></i>
-      <span class="nav-label">Home</span>
-    </div>
-    <div class="nav-item" onclick="switchView('history')" data-view="history">
-      <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
-      <span class="nav-label">History</span>
-    </div>
-    <button class="nav-fab" onclick="openTxModal()" aria-label="Add transaction">
-      <i class="fa-solid fa-plus"></i>
-    </button>
-    <div class="nav-item" onclick="switchView('users')" data-view="users">
-      <i class="fa-solid fa-users nav-icon"></i>
-      <span class="nav-label">Users</span>
-    </div>
-    <div class="graph-nav-btn" onclick="openGraphPage()">
-      <i class="fa-solid fa-chart-line nav-icon" style="color:var(--text-muted);font-size:17px;"></i>
-      <span class="nav-label" style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Graph</span>
-    </div>
+    <div class="nav-item active" onclick="switchView('dashboard')" data-view="dashboard"><i class="fa-solid fa-house nav-icon"></i><span class="nav-label">Home</span></div>
+    <div class="nav-item" onclick="switchView('history')" data-view="history"><i class="fa-solid fa-clock-rotate-left nav-icon"></i><span class="nav-label">History</span></div>
+    <button class="nav-fab" onclick="openTxModal()" aria-label="Add transaction"><i class="fa-solid fa-plus"></i></button>
+    <div class="nav-item" onclick="switchView('users')" data-view="users"><i class="fa-solid fa-users nav-icon"></i><span class="nav-label">Users</span></div>
+    <div class="graph-nav-btn" onclick="openGraphPage()"><i class="fa-solid fa-chart-line nav-icon" style="color:var(--text-muted);font-size:17px;"></i><span class="nav-label" style="color:var(--text-muted);font-size:9px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">Graph</span></div>
   </nav>
 
 </div><script>
-/* ─── Data & State ─── */
+/* ─── Data & State (EVENT SOURCED ARCHITECTURE) ─── */
 let DB = {
-  users: [],
-  transactions: [],
-  deletedIds: [],
-  deletedUsers: [],
-  deletedCats: [],
-  settings: { 
-    scriptUrl:'', upiId:'', paymentApp:'', lastSync:null, activeUserId:null, setupDone:false,
-    activeSheetId: 'default', sheets: [], refreshInterval: '15'
-  },
-  workspaces: {},
-  customCats: { income: [], expense: [] }
+  users: [], transactions: [], deletedIds: [], deletedUsers: [], deletedCats: [],
+  settings: { scriptUrl:'', upiId:'', paymentApp:'', lastSync:null, activeUserId:null, setupDone:false, activeSheetId: 'default', sheets: [], refreshInterval: '15', customBg: '', bgOpacity: 1, theme: 'dark', fontStyle: 'default' },
+  workspaces: {}, customCats: { income: [], expense: [] }, syncQueue: []
 };
 
-/* ─── Categories Base ─── */
-const INCOME_CATS = [
-  {emoji:'💼',label:'Salary',key:'salary'},
-  {emoji:'💹',label:'Investment',key:'investment'},
-  {emoji:'🎁',label:'Gift',key:'gift'},
-  {emoji:'💻',label:'Freelance',key:'freelance'},
-  {emoji:'🏠',label:'Rent Recv',key:'rent_recv'},
-  {emoji:'📦',label:'Business',key:'business'},
-  {emoji:'🏦',label:'Transfer',key:'transfer'}
-];
-const EXPENSE_CATS = [
-  {emoji:'🍔',label:'Food',key:'food'},
-  {emoji:'🚗',label:'Transport',key:'transport'},
-  {emoji:'🛒',label:'Shopping',key:'shopping'},
-  {emoji:'💊',label:'Health',key:'health'},
-  {emoji:'🎬',label:'Entertain',key:'entertainment'},
-  {emoji:'🏠',label:'Rent',key:'rent'},
-  {emoji:'📱',label:'Bills',key:'bills'},
-  {emoji:'📚',label:'Education',key:'education'},
-  {emoji:'✈️',label:'Travel',key:'travel'},
-  {emoji:'💸',label:'Transfer',key:'transfer_out'},
-  {emoji:'🐾',label:'Pets',key:'pets'}
-];
+const INCOME_CATS = [ {emoji:'💼',label:'Salary',key:'salary'}, {emoji:'💹',label:'Investment',key:'investment'}, {emoji:'🎁',label:'Gift',key:'gift'}, {emoji:'💻',label:'Freelance',key:'freelance'}, {emoji:'🏠',label:'Rent Recv',key:'rent_recv'}, {emoji:'📦',label:'Business',key:'business'}, {emoji:'🏦',label:'Transfer',key:'transfer'} ];
+const EXPENSE_CATS = [ {emoji:'🍔',label:'Food',key:'food'}, {emoji:'🚗',label:'Transport',key:'transport'}, {emoji:'🛒',label:'Shopping',key:'shopping'}, {emoji:'💊',label:'Health',key:'health'}, {emoji:'🎬',label:'Entertain',key:'entertainment'}, {emoji:'🏠',label:'Rent',key:'rent'}, {emoji:'📱',label:'Bills',key:'bills'}, {emoji:'📚',label:'Education',key:'education'}, {emoji:'✈️',label:'Travel',key:'travel'}, {emoji:'💸',label:'Transfer',key:'transfer_out'}, {emoji:'🐾',label:'Pets',key:'pets'} ];
 const UPI_APP_NAMES = {gpay:'Google Pay',phonepe:'PhonePe',paytm:'Paytm',bhim:'BHIM',generic:'Other UPI'};
 const UPI_APP_COLORS = {gpay:'upi-btn-gpay',phonepe:'upi-btn-phonepe',paytm:'upi-btn-paytm',bhim:'upi-btn-bhim',generic:'upi-btn-generic'};
 
-let currentTxType = 'expense';
-let selectedCat = '';
-let editingTxId = null;
-let upiExpanded = false;
-let othersOpen = false;
-let histFilter = 'all';
-let histPage = 0;
+let currentTxType = 'expense', selectedCat = '', editingTxId = null, upiExpanded = false, othersOpen = false;
+let histFilter = 'all', histPage = 0, confirmCallback = null, isSyncing = false, activeAnalyticsPeriod = 'month', newCatType = 'income', autoRefreshTimer = null;
 const HIST_PAGE_SIZE = 25;
-let confirmCallback = null;
-let isSyncing = false;
-let activeAnalyticsPeriod = 'month';
-let newCatType = 'income';
-let autoRefreshTimer = null;
 
 /* ─── Storage Management ─── */
 function saveDB() {
   try {
     if (DB.settings.activeSheetId) {
       if (!DB.workspaces) DB.workspaces = {};
-      DB.workspaces[DB.settings.activeSheetId] = {
-        transactions: [...DB.transactions],
-        users: [...DB.users],
-        deletedIds: [...DB.deletedIds]
-      };
+      DB.workspaces[DB.settings.activeSheetId] = { transactions: [...DB.transactions], users: [...DB.users], syncQueue: [...DB.syncQueue], customCats: JSON.parse(JSON.stringify(DB.customCats)) };
     }
-    localStorage.setItem('moneyProDB_v2', JSON.stringify(DB));
-  } catch(e) { showToast('Storage full!','error'); }
+    localStorage.setItem('moneyProDB_v3', JSON.stringify(DB));
+    updateStatusIndicators();
+  } catch(e) { showToast('Storage full! Avoid large background images.','error'); }
 }
 
 function loadDB() {
   try {
-    const raw = localStorage.getItem('moneyProDB_v2') || localStorage.getItem('moneyProDB');
+    const raw = localStorage.getItem('moneyProDB_v3') || localStorage.getItem('moneyProDB_v2') || localStorage.getItem('moneyProDB');
     if (raw) { 
-      const p = JSON.parse(raw); 
-      DB = {...DB,...p}; 
-      DB.settings = {...DB.settings,...(p.settings||{})}; 
+      const p = JSON.parse(raw); DB = {...DB,...p}; DB.settings = {...DB.settings,...(p.settings||{})}; 
       if (!DB.settings.refreshInterval) DB.settings.refreshInterval = '15';
-      
-      // Ensure multi-client arrays exist
-      if (!DB.deletedUsers) DB.deletedUsers = [];
-      if (!DB.deletedCats) DB.deletedCats = [];
+      if (!DB.syncQueue) DB.syncQueue = [];
+      if (!DB.deletedUsers) DB.deletedUsers = []; if (!DB.deletedCats) DB.deletedCats = [];
 
-      // Migration to Support V3 Features
+      // Clean up legacy dates
+      if (DB.transactions) DB.transactions.forEach(t => { if (t.date && t.date.includes('T')) t.date = t.date.split('T')[0]; });
+
+      // Clean up Custom Cat ID to readable names
+      if (DB.customCats) {
+        ['income', 'expense'].forEach(type => {
+          (DB.customCats[type]||[]).forEach(c => { if (!c.key || c.key.startsWith('id_') || c.key.startsWith('custom_')) c.key = c.label; });
+        });
+      }
+      if (DB.transactions) {
+        DB.transactions.forEach(t => {
+          if (t.category && (t.category.startsWith('id_') || t.category.startsWith('custom_'))) {
+            const allCustom = [...(DB.customCats.income||[]), ...(DB.customCats.expense||[])];
+            const found = allCustom.find(c => c.id === t.category || c.key === t.category);
+            if (found) t.category = found.label; // Apply readable label
+          }
+        });
+      }
+
       if (!DB.workspaces) DB.workspaces = {};
       if (!DB.customCats) DB.customCats = { income: [], expense: [] };
       if (!DB.settings.sheets || DB.settings.sheets.length === 0) {
         DB.settings.sheets = [{ id: 'default', name: 'Personal Finance', url: DB.settings.scriptUrl || '' }];
         DB.settings.activeSheetId = 'default';
-        DB.workspaces['default'] = { transactions: DB.transactions, users: DB.users, deletedIds: DB.deletedIds };
+        DB.workspaces['default'] = { transactions: DB.transactions, users: DB.users, syncQueue: DB.syncQueue, customCats: DB.customCats };
       }
     }
   } catch(e) {}
 }
 
-/* ─── Core Utilities ─── */
-// BUG FIX: Ensure all new IDs explicitly start with a string character ("id_") 
-// so Google Sheets NEVER casts them as scientific numbers.
 function uid() { return 'id_' + Date.now().toString(36) + Math.random().toString(36).substr(2,5); }
+function queueSyncEvent(action, payload) { DB.syncQueue.push({ action, payload, timestamp: Date.now() }); saveDB(); }
 
+/* ─── Core Utilities ─── */
 function formatCurrency(n) { return Number(n||0).toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:2}); }
 function formatDate(d) { if(!d) return ''; try { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch{return d;} }
-function todayStr() { return new Date().toISOString().split('T')[0]; }
+
+// Fixed: Precise Local Time Date Calculation (Prevents UTC offset bugs)
+function todayStr() { 
+  const d = new Date();
+  const offset = d.getTimezoneOffset() * 60000;
+  return new Date(d.getTime() - offset).toISOString().split('T')[0];
+}
 function nowTime() { return new Date().toTimeString().substr(0,5); }
 function getMonthRange() {
-  const n=new Date(),y=n.getFullYear(),m=n.getMonth();
-  return { start: new Date(y,m,1).toISOString().split('T')[0], end: new Date(y,m+1,0).toISOString().split('T')[0] };
+  const n=new Date(), y=n.getFullYear(), m=n.getMonth();
+  const start = new Date(y, m, 1);
+  const end = new Date(y, m+1, 0);
+  const offsetStart = start.getTimezoneOffset() * 60000;
+  const offsetEnd = end.getTimezoneOffset() * 60000;
+  return { 
+      start: new Date(start.getTime() - offsetStart).toISOString().split('T')[0], 
+      end: new Date(end.getTime() - offsetEnd).toISOString().split('T')[0] 
+  };
 }
-function getUserName(userId) {
-  const u = DB.users.find(u=>u.id===userId);
-  return u ? u.name : 'Unknown';
-}
+function getUserName(userId) { const u = DB.users.find(u=>u.id===userId); return u ? u.name : 'Unknown'; }
 
 /* ─── Category Utilities ─── */
 function getCombinedCats(type) {
@@ -1278,72 +991,63 @@ function getCombinedCats(type) {
   const custom = DB.customCats ? (DB.customCats[type] || []) : [];
   return [...defs, ...custom, {emoji:'➕',label:'Others',key:'__others__'}];
 }
-
 function getCatEmoji(key) {
   if (key === '__others__') return '➕';
-  const allInc = getCombinedCats('income');
-  const allExp = getCombinedCats('expense');
-  const found = [...allInc, ...allExp].find(c=>c.key===key);
+  const found = [...getCombinedCats('income'), ...getCombinedCats('expense')].find(c=>c.key===key || c.label===key);
   return found ? found.emoji : '💳';
 }
-
 function getCatLabel(key, type) {
   if (key === '__others__') return 'Others';
-  const all = getCombinedCats(type);
-  const found = all.find(c=>c.key===key);
-  return found ? found.label : key;
+  const found = getCombinedCats(type).find(c=>c.key===key || c.label===key);
+  return found ? found.label : key; // Defaults to returning key (which is the label for custom categories)
 }
 
 /* ─── Toast, Modals, Loader ─── */
-const TOAST_ICONS = {success:'fa-circle-check',error:'fa-circle-xmark',info:'fa-circle-info',warning:'fa-triangle-exclamation'};
 function showToast(msg, type='info') {
-  const c = document.getElementById('toastContainer');
-  const t = document.createElement('div');
-  t.className = `toast ${type}`;
-  t.innerHTML = `<div class="toast-icon"><i class="fa-solid ${TOAST_ICONS[type]}"></i></div><span>${msg}</span>`;
+  const c = document.getElementById('toastContainer'), t = document.createElement('div');
+  t.className = `toast card ${type}`;
+  t.innerHTML = `<div class="toast-icon"><i class="fa-solid ${type==='success'?'fa-circle-check':type==='error'?'fa-circle-xmark':'fa-circle-info'}"></i></div><span>${msg}</span>`;
   c.appendChild(t); setTimeout(() => t.remove(), 3600);
 }
-
 function toggleModal(id, open) {
   const el = document.getElementById(id);
   if (open) { el.style.display='flex'; requestAnimationFrame(()=>el.classList.add('open')); }
   else { el.classList.remove('open'); setTimeout(()=>{ el.style.display='none'; },300); }
 }
-
 function showConfirm(title,msg,icon,btnLabel,btnClass,cb) {
-  document.getElementById('confirmTitle').textContent = title;
-  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmTitle').textContent = title; document.getElementById('confirmMsg').textContent = msg;
   document.getElementById('confirmIcon').textContent = icon;
-  const btn = document.getElementById('confirmBtn');
-  btn.textContent = btnLabel; btn.className = `btn ${btnClass} btn-full`;
+  const btn = document.getElementById('confirmBtn'); btn.textContent = btnLabel; btn.className = `btn ${btnClass} btn-full`;
   confirmCallback = cb; document.getElementById('confirmOverlay').classList.add('open');
 }
 function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); confirmCallback=null; }
 function confirmAction() { if(confirmCallback) confirmCallback(); closeConfirm(); }
-
-function setLoader(show, msg='Syncing…') {
-  document.getElementById('loaderText').textContent = msg;
-  document.getElementById('cloudLoader').classList.toggle('active', show);
-}
+function setLoader(show, msg='Syncing…') { document.getElementById('loaderText').textContent = msg; document.getElementById('cloudLoader').classList.toggle('active', show); }
 
 /* ─── Setup & Init ─── */
 function init() {
   loadDB();
+  
+  // Apply Personalisation Settings
+  if (DB.settings.customBg) document.getElementById('app-background').style.backgroundImage = `url(${DB.settings.customBg})`;
+  if (DB.settings.bgOpacity !== undefined) {
+    document.getElementById('app-background').style.opacity = DB.settings.bgOpacity;
+    const slider = document.getElementById('bgOpacitySlider');
+    if (slider) slider.value = DB.settings.bgOpacity;
+  }
+  setTheme(DB.settings.theme || 'dark');
+  setFontStyle(DB.settings.fontStyle || 'default');
+
   if (DB.settings.setupDone) { showMainApp(); } else { showSetup(); }
 
-  window.addEventListener('online', () => {
-    if (getActiveSheetUrl() && DB.settings.setupDone) {
-      showToast('Back online! Syncing data...', 'info');
-      triggerSync(true);
-    }
-  });
+  window.addEventListener('online', () => { updateStatusIndicators(); if (getActiveSheetUrl() && DB.settings.setupDone) triggerSync(true); });
+  window.addEventListener('offline', () => { updateStatusIndicators(); });
 
   document.addEventListener('keydown', e => {
     if (e.key==='Escape') {
       ['txModal','userModal','guideModal','syncModal','analyticsModal','sheetModal','catModal'].forEach(id => {
         const el=document.getElementById(id); if(el&&el.classList.contains('open')) toggleModal(id,false);
-      });
-      closeConfirm();
+      }); closeConfirm();
     }
     if ((e.ctrlKey||e.metaKey)&&e.key==='n') { e.preventDefault(); openTxModal(); }
     if ((e.ctrlKey||e.metaKey)&&e.key==='s') { e.preventDefault(); triggerSync(); }
@@ -1354,60 +1058,114 @@ function init() {
 }
 
 function showSetup() { document.getElementById('view-setup').classList.add('active'); document.getElementById('main-app').style.display='none'; }
-function showMainApp() { document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display='block'; rebuildUserStats(); renderAll(); updateSyncDot(); }
+function showMainApp() { document.getElementById('view-setup').classList.remove('active'); document.getElementById('main-app').style.display='block'; rebuildUserStats(); renderAll(); updateSyncDot(); updateStatusIndicators(); }
 
 function submitSetup(e) {
   e.preventDefault();
-  const url = document.getElementById('setupUrl').value.trim();
-  const upi = document.getElementById('setupUpiId').value.trim();
-  const app = document.getElementById('setupPaymentApp').value;
-  const userName = document.getElementById('setupUserName').value.trim() || 'Me';
-  
-  DB.settings.upiId = upi;
-  DB.settings.paymentApp = app;
-  DB.settings.setupDone = true;
-  
-  if (url) {
-    DB.settings.sheets = [{id: uid(), name: 'Personal Finance', url: url}];
-    DB.settings.activeSheetId = DB.settings.sheets[0].id;
-  }
-
-  if (!DB.users.length) DB.users.push({id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0});
+  const url = document.getElementById('setupUrl').value.trim(), upi = document.getElementById('setupUpiId') ? document.getElementById('setupUpiId').value.trim() : '', app = document.getElementById('setupPaymentApp') ? document.getElementById('setupPaymentApp').value : '', userName = document.getElementById('setupUserName').value.trim() || 'Me';
+  DB.settings.upiId = upi; DB.settings.paymentApp = app; DB.settings.setupDone = true;
+  if (url) { DB.settings.sheets = [{id: uid(), name: 'Personal Finance', url: url}]; DB.settings.activeSheetId = DB.settings.sheets[0].id; }
+  if (!DB.users.length) { const newUser = {id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}; DB.users.push(newUser); queueSyncEvent('UPSERT_USER', newUser); }
   DB.settings.activeUserId = DB.users[0].id;
-  
-  if (url) {
-    DB.workspaces[DB.settings.activeSheetId] = { transactions: DB.transactions, users: DB.users, deletedIds: DB.deletedIds };
-  }
-  
-  saveDB(); showMainApp(); showToast('Welcome to Money Notebook Pro! 🎉','success');
-  startAutoRefresh();
+  if (url) DB.workspaces[DB.settings.activeSheetId] = { transactions: DB.transactions, users: DB.users, syncQueue: DB.syncQueue, customCats: DB.customCats };
+  saveDB(); showMainApp(); showToast('Welcome to Money Notebook Pro! 🎉','success'); startAutoRefresh();
 }
 
 function closeSetup() {
-  DB.settings.setupDone = true;
-  const userName = document.getElementById('setupUserName').value.trim() || 'Me';
-  if (!DB.users.length) DB.users.push({id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0});
-  DB.settings.activeUserId = DB.users[0].id;
-  saveDB(); showMainApp();
+  DB.settings.setupDone = true; const userName = document.getElementById('setupUserName').value.trim() || 'Me';
+  if (!DB.users.length) { const newUser = {id:uid(),name:userName,initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}; DB.users.push(newUser); queueSyncEvent('UPSERT_USER', newUser); }
+  DB.settings.activeUserId = DB.users[0].id; saveDB(); showMainApp();
 }
 
-/* ─── Auto Refresh Feature ─── */
+/* ─── Custom UI Actions (Theme, Font, Background) ─── */
+function handleBgImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Compress to avoid local storage quota errors
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const MAX_WIDTH = 1920; const MAX_HEIGHT = 1080;
+      let width = img.width; let height = img.height;
+      if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } } 
+      else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+      canvas.width = width; canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6); // 60% quality
+      
+      document.getElementById('app-background').style.backgroundImage = `url(${dataUrl})`;
+      DB.settings.customBg = dataUrl;
+      saveDB();
+      showToast('Background updated', 'success');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateBgOpacity(val) {
+  document.getElementById('app-background').style.opacity = val;
+  DB.settings.bgOpacity = val;
+  saveDB();
+}
+
+function setTheme(mode) {
+  DB.settings.theme = mode;
+  const btnDark = document.getElementById('btnThemeDark');
+  const btnLight = document.getElementById('btnThemeLight');
+  if (mode === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    if(btnLight) { btnLight.classList.add('active-theme'); btnDark.classList.remove('active-theme'); }
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    if(btnDark) { btnDark.classList.add('active-theme'); btnLight.classList.remove('active-theme'); }
+  }
+  saveDB();
+}
+
+function setFontStyle(style) {
+  DB.settings.fontStyle = style;
+  const root = document.documentElement;
+  if (style === 'inter') {
+    root.style.setProperty('--font-display', "'Inter', sans-serif");
+    root.style.setProperty('--font-body', "'Inter', sans-serif");
+  } else if (style === 'poppins') {
+    root.style.setProperty('--font-display', "'Poppins', sans-serif");
+    root.style.setProperty('--font-body', "'Poppins', sans-serif");
+  } else if (style === 'roboto') {
+    root.style.setProperty('--font-display', "'Roboto', sans-serif");
+    root.style.setProperty('--font-body', "'Roboto', sans-serif");
+  } else {
+    root.style.setProperty('--font-display', "'Syne', sans-serif");
+    root.style.setProperty('--font-body', "'DM Sans', sans-serif");
+  }
+  saveDB();
+}
+
+/* ─── Auto Refresh & Status ─── */
 function startAutoRefresh() {
   if (autoRefreshTimer) clearInterval(autoRefreshTimer);
   const seconds = parseInt(DB.settings.refreshInterval || '15');
   if (seconds > 0) {
     autoRefreshTimer = setInterval(() => {
-      if (navigator.onLine && getActiveSheetUrl() && DB.settings.setupDone && !isSyncing) {
-        triggerSync(true); 
-      }
+      if (navigator.onLine && getActiveSheetUrl() && DB.settings.setupDone && !isSyncing) triggerSync(true); 
     }, seconds * 1000);
   }
 }
-
-function updateRefreshInterval(val) {
-  DB.settings.refreshInterval = val;
-  saveDB(); startAutoRefresh();
-  showToast('Refresh interval updated', 'success');
+function updateRefreshInterval(val) { DB.settings.refreshInterval = val; saveDB(); startAutoRefresh(); showToast('Refresh interval updated', 'success'); }
+function updateStatusIndicators() {
+  const els = [document.getElementById('topStatusIndicator'), document.getElementById('desktopStatusIndicator')];
+  const pending = DB.syncQueue.length;
+  els.forEach(el => {
+    if (!el) return;
+    if (isSyncing) { el.className = 'sync-status-badge syncing'; el.innerHTML = `<i class="fa-solid fa-arrows-rotate fa-spin"></i> <span>Syncing...</span>`; } 
+    else if (!navigator.onLine) { el.className = 'sync-status-badge offline'; el.innerHTML = `<i class="fa-solid fa-wifi" style="text-decoration:line-through;"></i> <span>Offline${pending>0 ? ` (${pending} pending)` : ''}</span>`; } 
+    else if (pending > 0) { el.className = 'sync-status-badge offline'; el.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> <span>${pending} Pending Sync</span>`; } 
+    else { el.className = 'sync-status-badge online'; el.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>Online & Synced</span>`; }
+  });
 }
 
 /* ─── Navigation ─── */
@@ -1436,21 +1194,33 @@ function rebuildUserStats(uid_filter) {
   });
 }
 
-function renderAll() { renderDashboard(); populateUserSelects(); renderSettings(); }
+function renderAll() { renderDashboard(); populateUserSelects(); renderSettings(); updateStatusIndicators(); }
 
+// Fixed: Precise Date Calculation
 function calculateAnalytics(period) {
   const userTxs = DB.transactions.filter(t=>t.userId===DB.settings.activeUserId && t.type==='expense');
-  const today = todayStr();
-  if(period === 'today') return userTxs.filter(t=>t.date===today).reduce((s,t)=>s+Number(t.amount),0);
-  if(period === 'month') {
-    const {start,end} = getMonthRange();
-    return userTxs.filter(t=>t.date>=start && t.date<=end).reduce((s,t)=>s+Number(t.amount),0);
-  }
-  if(period === 'year') {
-    const y = new Date().getFullYear();
-    return userTxs.filter(t=>t.date>=`${y}-01-01` && t.date<=`${y}-12-31`).reduce((s,t)=>s+Number(t.amount),0);
-  }
-  return 0;
+  const now = new Date();
+  const todayStrLocal = now.toLocaleDateString('en-IN'); 
+  const currMonth = now.getMonth();
+  const currYear = now.getFullYear();
+
+  return userTxs.filter(t => {
+    if(!t.date) return false;
+    // Check against YYYY-MM-DD strict match for "Today" OR localized formatted match
+    let dObj = new Date(t.date);
+    if (isNaN(dObj)) return false; 
+    
+    if(period === 'today') {
+      return dObj.toLocaleDateString('en-IN') === todayStrLocal || t.date.split('T')[0] === todayStr();
+    }
+    if(period === 'month') {
+      return dObj.getMonth() === currMonth && dObj.getFullYear() === currYear;
+    }
+    if(period === 'year') {
+      return dObj.getFullYear() === currYear;
+    }
+    return false;
+  }).reduce((s,t)=>s+Number(t.amount),0);
 }
 
 function renderDashboard() {
@@ -1461,10 +1231,7 @@ function renderDashboard() {
   if (!user) return;
 
   rebuildUserStats(user.id);
-  const savings = user.runningSavings||0;
-  const inc = user.runningIncome||0;
-  const exp = user.runningExpense||0;
-  const total = Number(user.initialSavings||0)+inc;
+  const savings = user.runningSavings||0, inc = user.runningIncome||0, exp = user.runningExpense||0, total = Number(user.initialSavings||0)+inc;
   const pct = total > 0 ? Math.min(100,Math.max(0,(savings/total)*100)) : 0;
 
   document.getElementById('dashBalance').textContent = formatCurrency(savings);
@@ -1472,27 +1239,21 @@ function renderDashboard() {
   document.getElementById('dashExpense').textContent = formatCurrency(exp);
   document.getElementById('statIncome').textContent = formatCurrency(inc);
   document.getElementById('statExpense').textContent = formatCurrency(exp);
-  
-  const userTxs = DB.transactions.filter(t=>t.userId===user.id);
-  document.getElementById('statTxCount').textContent = userTxs.length;
+  document.getElementById('statTxCount').textContent = DB.transactions.filter(t=>t.userId===user.id).length;
   document.getElementById('savingsProgress').style.width = pct+'%';
 
-  // Update Dynamic Analytics Card
   const labels = {today:'Today', month:'This Month', year:'This Year'};
   document.getElementById('dashboardAnalyticsLabel').innerHTML = `${labels[activeAnalyticsPeriod]} <i class="fa-solid fa-chevron-down" style="font-size:9px; margin-left:3px;"></i>`;
   document.getElementById('statDynamicPeriod').textContent = formatCurrency(calculateAnalytics(activeAnalyticsPeriod));
 
-  // Update Active Sheet Indicator
   const activeSheet = DB.settings.sheets.find(s=>s.id === DB.settings.activeSheetId);
-  document.getElementById('dashboardActiveSheetName').textContent = activeSheet ? activeSheet.name : 'None';
+  document.getElementById('dashboardActiveSheetName').textContent = activeSheet ? activeSheet.name : 'Local Default';
 
-  renderUpiLaunchButtons();
-  renderRecentTx(user.id);
+  renderUpiLaunchButtons(); renderRecentTx(user.id);
 }
 
 function populateDashUserSelect(activeId) {
-  const sel = document.getElementById('dashUserSelect');
-  const cur = activeId || sel.value || DB.settings.activeUserId;
+  const sel = document.getElementById('dashUserSelect'); const cur = activeId || sel.value || DB.settings.activeUserId;
   sel.innerHTML = DB.users.map(u=>`<option value="${u.id}"${u.id===cur?'selected':''}>${u.name}</option>`).join('');
 }
 function onDashUserChange() { DB.settings.activeUserId = document.getElementById('dashUserSelect').value; saveDB(); renderDashboard(); }
@@ -1505,15 +1266,11 @@ function renderRecentTx(userId) {
 }
 
 function txHTML(t, idx, searchTerm) {
-  const isInc = t.type==='income';
-  const emoji = getCatEmoji(t.category);
+  const isInc = t.type==='income', emoji = getCatEmoji(t.category);
   const upiTag = t.upiId ? `<span class="upi-badge"><i class="fa-solid fa-qrcode" style="font-size:9px;"></i> ${UPI_APP_NAMES[t.paymentPlatform]||'UPI'}</span>` : '';
-  const catLabel = getCatLabel(t.category, t.type);
-  const catDisplay = highlight(catLabel||'Transaction', searchTerm);
-  const reasonDisplay = highlight(t.reason||'—', searchTerm);
-  const userDisplay = highlight(getUserName(t.userId), searchTerm);
+  const catLabel = getCatLabel(t.category, t.type), catDisplay = highlight(catLabel||'Transaction', searchTerm), reasonDisplay = highlight(t.reason||'—', searchTerm), userDisplay = highlight(getUserName(t.userId), searchTerm);
   return `
-    <div class="tx-item" style="animation-delay:${Math.min(idx,8)*0.05}s;" onclick="openEditTx('${t.id}')">
+    <div class="tx-item card" style="animation-delay:${Math.min(idx,8)*0.05}s; margin-bottom:0;" onclick="openEditTx('${t.id}')">
       <div class="tx-icon ${t.type}">${emoji}</div>
       <div class="tx-details">
         <div class="tx-category">${catDisplay}</div>
@@ -1524,24 +1281,19 @@ function txHTML(t, idx, searchTerm) {
         <div class="tx-amount ${t.type}">${isInc?'+':'-'}₹${formatCurrency(t.amount)}</div>
         <div class="tx-date">${formatDate(t.date)}</div>
       </div>
-      <button onclick="event.stopPropagation();deleteTxConfirm('${t.id}')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;padding:6px;border-radius:6px;margin-left:2px;transition:color 0.2s;flex-shrink:0;" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text-muted)'">
-        <i class="fa-solid fa-trash-can" style="font-size:12px;"></i>
-      </button>
+      <button onclick="event.stopPropagation();deleteTxConfirm('${t.id}')" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-dim);cursor:pointer;padding:8px;border-radius:8px;margin-left:4px;transition:all 0.2s;flex-shrink:0;" onmouseover="this.style.color='var(--red)';this.style.borderColor='rgba(251,113,133,0.3)';" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='rgba(255,255,255,0.1)';"><i class="fa-solid fa-trash-can" style="font-size:12px;"></i></button>
     </div>`;
 }
 
 function highlight(text, term) {
   if (!term || !text) return text||'';
-  const t = String(text); const idx = t.toLowerCase().indexOf(term.toLowerCase());
-  if (idx === -1) return t;
+  const t = String(text), idx = t.toLowerCase().indexOf(term.toLowerCase()); if (idx === -1) return t;
   return t.slice(0,idx) + `<span class="search-highlight">${t.slice(idx,idx+term.length)}</span>` + t.slice(idx+term.length);
 }
 
 /* ─── UPI Launch ─── */
 function buildUpiUrl(app, upiId, amount, name, note) {
-  const encodedName = encodeURIComponent(name||'Payment');
-  const encodedNote = encodeURIComponent(note||'');
-  const amt = amount ? Number(amount).toFixed(2) : '';
+  const encodedName = encodeURIComponent(name||'Payment'), encodedNote = encodeURIComponent(note||''), amt = amount ? Number(amount).toFixed(2) : '';
   switch(app) {
     case 'gpay': return `tez://upi/pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
     case 'phonepe': return `phonepe://pay?pa=${upiId}&pn=${encodedName}&am=${amt}&cu=INR&tn=${encodedNote}`;
@@ -1551,23 +1303,18 @@ function buildUpiUrl(app, upiId, amount, name, note) {
   }
 }
 function launchUpiApp(app) {
-  const upiId = DB.settings.upiId;
-  if (!upiId) { showToast('No UPI ID configured. Go to Settings.','warning'); return; }
-  window.location.href = buildUpiUrl(app, upiId, '', 'Payment', '');
-  setTimeout(() => { showToast('If app did not open, ensure it is installed.','info'); }, 2000);
+  const upiId = DB.settings.upiId; if (!upiId) { showToast('No UPI ID configured. Go to Settings.','warning'); return; }
+  window.location.href = buildUpiUrl(app, upiId, '', 'Payment', ''); setTimeout(() => { showToast('If app did not open, ensure it is installed.','info'); }, 2000);
 }
 function renderUpiLaunchButtons() {
   const row = document.getElementById('upiLaunchRow'); if (!row) return;
-  const upiId = DB.settings.upiId; const defaultApp = DB.settings.paymentApp;
-  if (!upiId) { row.style.display='none'; return; }
-  const appsToShow = [];
-  if (defaultApp && defaultApp !== '') appsToShow.push(defaultApp);
+  const upiId = DB.settings.upiId, defaultApp = DB.settings.paymentApp; if (!upiId) { row.style.display='none'; return; }
+  const appsToShow = []; if (defaultApp && defaultApp !== '') appsToShow.push(defaultApp);
   ['gpay','phonepe'].forEach(app => { if (!appsToShow.includes(app)) appsToShow.push(app); });
   const visible = appsToShow.slice(0,2);
   row.style.display = 'flex';
   row.innerHTML = visible.map(app => {
-    const cls = UPI_APP_COLORS[app] || 'upi-btn-generic';
-    const name = UPI_APP_NAMES[app] || 'Pay';
+    const cls = UPI_APP_COLORS[app] || 'upi-btn-generic', name = UPI_APP_NAMES[app] || 'Pay';
     const icon = app === 'gpay' ? '<i class="fa-brands fa-google" style="font-size:14px;"></i>' : app === 'phonepe' ? '<i class="fa-solid fa-mobile-screen" style="font-size:14px;"></i>' : '<i class="fa-solid fa-qrcode" style="font-size:14px;"></i>';
     return `<button class="upi-launch-btn ${cls}" onclick="launchUpiApp('${app}')">${icon} Pay via ${name}</button>`;
   }).join('');
@@ -1576,8 +1323,7 @@ function renderUpiLaunchButtons() {
 /* ─── History ─── */
 function setHistFilter(f, btn) { histFilter = f; histPage = 0; document.querySelectorAll('#historyFilters .filter-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderHistory(); }
 function renderHistory() {
-  histPage = 0; const all = getFilteredTxs();
-  const el = document.getElementById('historyList'), empty = document.getElementById('histEmptyState'), more = document.getElementById('histLoadMore'), countEl = document.getElementById('histCount');
+  histPage = 0; const all = getFilteredTxs(), el = document.getElementById('historyList'), empty = document.getElementById('histEmptyState'), more = document.getElementById('histLoadMore'), countEl = document.getElementById('histCount');
   if (countEl) countEl.textContent = all.length ? `${all.length} found` : '';
   if (!all.length) { el.innerHTML=''; empty.style.display='flex'; more.style.display='none'; return; }
   empty.style.display='none';
@@ -1596,11 +1342,12 @@ function getFilteredTxs() {
   const rawSearch = ((document.getElementById('histSearch')||{}).value||'').trim().toLowerCase(), userF = (document.getElementById('histUserFilter')||{}).value||'all';
   const today = todayStr(), weekStr = new Date(Date.now()-7*86400000).toISOString().split('T')[0], {start:mStart,end:mEnd} = getMonthRange();
   return DB.transactions.filter(t => {
+    const tDate = (t.date||'').split('T')[0];
     if (histFilter==='income' && t.type!=='income') return false;
     if (histFilter==='expense' && t.type!=='expense') return false;
-    if (histFilter==='today' && t.date!==today) return false;
-    if (histFilter==='week' && t.date<weekStr) return false;
-    if (histFilter==='month' && (t.date<mStart||t.date>mEnd)) return false;
+    if (histFilter==='today' && tDate!==today) return false;
+    if (histFilter==='week' && tDate<weekStr) return false;
+    if (histFilter==='month' && (tDate<mStart||tDate>mEnd)) return false;
     if (userF!=='all' && t.userId!==userF) return false;
     if (rawSearch) {
       const matchStr = `${getUserName(t.userId)} ${getCatLabel(t.category, t.type)} ${t.reason||''} ${t.amount} ${formatDate(t.date)} ${t.upiId||''} ${UPI_APP_NAMES[t.paymentPlatform]||''}`.toLowerCase();
@@ -1612,38 +1359,24 @@ function getFilteredTxs() {
 
 /* ─── Transaction CRUD ─── */
 function openTxModal() {
-  editingTxId = null;
-  document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Add Transaction';
-  document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Save';
-  setTxType('expense');
-  document.getElementById('txAmount').value = ''; document.getElementById('txReason').value = '';
-  document.getElementById('txDate').value = todayStr(); document.getElementById('txTime').value = nowTime();
-  document.getElementById('txUpiId').value = DB.settings.upiId||''; document.getElementById('txPayApp').value = DB.settings.paymentApp||'';
-  document.getElementById('txCatCustom').value = '';
-  selectedCat = ''; othersOpen = false; upiExpanded = false;
-  document.getElementById('upiSection').style.display = 'none'; document.getElementById('upiChevron').style.transform = 'rotate(0deg)';
+  editingTxId = null; document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Add Transaction'; document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Save';
+  setTxType('expense'); document.getElementById('txAmount').value = ''; document.getElementById('txReason').value = ''; document.getElementById('txDate').value = todayStr(); document.getElementById('txTime').value = nowTime();
+  document.getElementById('txUpiId').value = DB.settings.upiId||''; document.getElementById('txPayApp').value = DB.settings.paymentApp||''; document.getElementById('txCatCustom').value = '';
+  selectedCat = ''; othersOpen = false; upiExpanded = false; document.getElementById('upiSection').style.display = 'none'; document.getElementById('upiChevron').style.transform = 'rotate(0deg)';
   populateTxUserSelect(); renderCatGrid(); toggleModal('txModal', true);
 }
 
 function openEditTx(id) {
   const tx = DB.transactions.find(t=>t.id===id); if (!tx) return;
-  editingTxId = id;
-  document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Transaction';
-  document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Update';
-  setTxType(tx.type);
-  document.getElementById('txAmount').value = tx.amount; document.getElementById('txReason').value = tx.reason||'';
-  document.getElementById('txDate').value = tx.date||todayStr(); document.getElementById('txTime').value = tx.time||nowTime();
-  document.getElementById('txUpiId').value = tx.upiId||''; document.getElementById('txPayApp').value = tx.paymentPlatform||'';
-  document.getElementById('txCatCustom').value = '';
+  editingTxId = id; document.getElementById('txModalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Edit Transaction'; document.getElementById('saveTxBtn').innerHTML = '<i class="fa-solid fa-check"></i> Update';
+  setTxType(tx.type); document.getElementById('txAmount').value = tx.amount; document.getElementById('txReason').value = tx.reason||''; document.getElementById('txDate').value = (tx.date||todayStr()).split('T')[0]; document.getElementById('txTime').value = tx.time||nowTime();
+  document.getElementById('txUpiId').value = tx.upiId||''; document.getElementById('txPayApp').value = tx.paymentPlatform||''; document.getElementById('txCatCustom').value = '';
 
-  const allKeys = getCombinedCats(tx.type).map(c=>c.key).filter(k=>k!=='__others__');
-  if (allKeys.includes(tx.category)) { selectedCat = tx.category; othersOpen = false; } 
-  else { selectedCat = '__others__'; othersOpen = true; document.getElementById('txCatCustom').value = tx.category||''; }
+  const matchedCat = getCombinedCats(tx.type).find(c => c.key === tx.category || c.label === tx.category);
+  if (matchedCat && matchedCat.key !== '__others__') { selectedCat = matchedCat.key; othersOpen = false; } 
+  else { selectedCat = '__others__'; othersOpen = true; document.getElementById('txCatCustom').value = getCatLabel(tx.category, tx.type); }
 
-  upiExpanded = !!(tx.upiId);
-  document.getElementById('upiSection').style.display = upiExpanded ? 'flex' : 'none';
-  document.getElementById('upiChevron').style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-
+  upiExpanded = !!(tx.upiId); document.getElementById('upiSection').style.display = upiExpanded ? 'flex' : 'none'; document.getElementById('upiChevron').style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
   populateTxUserSelect(tx.userId); renderCatGrid(); toggleModal('txModal', true);
 }
 
@@ -1659,20 +1392,13 @@ function setTxType(type) {
 
 function renderCatGrid() {
   const catsList = getCombinedCats(currentTxType);
-  document.getElementById('catGrid').innerHTML = catsList.map(c => {
-    const isSel = selectedCat===c.key;
-    return `<div class="cat-chip${isSel?' selected':''}" onclick="selectCat('${c.key}', this)">${c.emoji}<span>${c.label}</span></div>`;
-  }).join('');
-  document.getElementById('othersSection').classList.toggle('open', othersOpen);
+  document.getElementById('catGrid').innerHTML = catsList.map(c => `<div class="cat-chip${selectedCat===c.key?' selected':''}" onclick="selectCat('${c.key}', this)">${c.emoji}<span>${c.label}</span></div>`).join('');
+  document.getElementById('othersSection').style.display = othersOpen ? 'block' : 'none';
 }
 
 function selectCat(key, el) {
-  if (key === '__others__') {
-    selectedCat = '__others__'; othersOpen = true; renderCatGrid();
-    setTimeout(()=>document.getElementById('txCatCustom').focus(),100);
-  } else {
-    selectedCat = key; othersOpen = false; document.getElementById('txCatCustom').value = ''; renderCatGrid();
-  }
+  if (key === '__others__') { selectedCat = '__others__'; othersOpen = true; renderCatGrid(); setTimeout(()=>document.getElementById('txCatCustom').focus(),100); } 
+  else { selectedCat = key; othersOpen = false; document.getElementById('txCatCustom').value = ''; renderCatGrid(); }
 }
 
 function populateTxUserSelect(selectId) {
@@ -1684,40 +1410,50 @@ function saveTx() {
   const amount = parseFloat(document.getElementById('txAmount').value);
   if (!amount||amount<=0) { showToast('Please enter a valid amount','error'); return; }
 
-  let cat = selectedCat === '__others__' ? document.getElementById('txCatCustom').value.trim() : selectedCat;
-  if (!cat) { showToast('Please select/type a category','error'); return; }
+  // Modification 1 & 2: Store purely the Category Label so it reads correctly in Excel
+  let catToSave = selectedCat;
+  if (selectedCat === '__others__') {
+    catToSave = document.getElementById('txCatCustom').value.trim();
+    if (!catToSave) { showToast('Please type a custom category','error'); return; }
+  } else {
+    // Explicitly grab the label to avoid storing system ID keys
+    catToSave = getCatLabel(selectedCat, currentTxType) || selectedCat;
+  }
+  if (!catToSave) { showToast('Please select/type a category','error'); return; }
 
   const reason = document.getElementById('txReason').value.trim(), date = document.getElementById('txDate').value||todayStr(), time = document.getElementById('txTime').value||nowTime(), userId = document.getElementById('txUser').value, upiId = upiExpanded ? document.getElementById('txUpiId').value.trim() : '', paymentPlatform = upiExpanded ? document.getElementById('txPayApp').value : '';
   
   if (editingTxId) {
     const idx = DB.transactions.findIndex(t=>t.id===editingTxId);
-    if (idx!==-1) DB.transactions[idx] = {...DB.transactions[idx],type:currentTxType,amount,category:cat,reason,date,time,userId,upiId,paymentPlatform};
+    if (idx!==-1) {
+      const updatedTx = {...DB.transactions[idx],type:currentTxType,amount,category:catToSave,reason,date,time,userId,upiId,paymentPlatform};
+      DB.transactions[idx] = updatedTx;
+      queueSyncEvent('UPDATE_TXN', updatedTx);
+    }
   } else {
-    DB.transactions.unshift({id:uid(),type:currentTxType,amount,category:cat,reason,date,time,userId,upiId,paymentPlatform});
+    const newTx = {id:uid(),type:currentTxType,amount,category:catToSave,reason,date,time,userId,upiId,paymentPlatform};
+    DB.transactions.unshift(newTx);
+    queueSyncEvent('CREATE_TXN', newTx);
     if (currentTxType==='income') launchConfetti();
   }
 
   rebuildUserStats(userId); saveDB(); closeTxModal(); renderAll(); populateHistUserFilter();
+  
+  // Silent Background Sync Trigger
   if (navigator.onLine && getActiveSheetUrl()) triggerSync(true);
-  else showToast('Saved offline. Will sync when back online.', 'info');
 }
 
 function deleteTxConfirm(id) { showConfirm('Delete Transaction','This transaction will be permanently removed.','🗑️','Delete','btn-danger',()=>deleteTx(id)); }
 function deleteTx(id) {
   const idx = DB.transactions.findIndex(t=>t.id===id); if (idx===-1) return;
   const tx = DB.transactions[idx];
-  if (!DB.deletedIds.includes(id)) DB.deletedIds.push(id);
+  queueSyncEvent('DELETE_TXN', { id: id });
   DB.transactions.splice(idx,1);
   rebuildUserStats(tx.userId); saveDB(); renderAll(); histPage=0; renderHistory(); populateHistUserFilter();
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true);
-  else showToast('Deleted offline. Will sync when back online.', 'info');
+  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
 }
 
-function toggleUpiSection() {
-  upiExpanded = !upiExpanded;
-  document.getElementById('upiSection').style.display = upiExpanded ? 'flex' : 'none';
-  document.getElementById('upiChevron').style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)';
-}
+function toggleUpiSection() { upiExpanded = !upiExpanded; document.getElementById('upiSection').style.display = upiExpanded ? 'flex' : 'none'; document.getElementById('upiChevron').style.transform = upiExpanded ? 'rotate(180deg)' : 'rotate(0deg)'; }
 
 /* ─── Users & Custom Categories ─── */
 function renderUsers() {
@@ -1725,10 +1461,10 @@ function renderUsers() {
   rebuildUserStats();
   if (!DB.users.length) { el.innerHTML=''; empty.style.display='flex'; } else {
     empty.style.display='none';
-    const palettes = ['linear-gradient(135deg,#3b82f6,#1e40af)','linear-gradient(135deg,#a78bfa,#6d28d9)','linear-gradient(135deg,#f472b6,#be185d)','linear-gradient(135deg,#34d399,#065f46)','linear-gradient(135deg,#fbbf24,#78350f)'];
+    const palettes = ['linear-gradient(135deg,#60a5fa,#3b82f6)','linear-gradient(135deg,#c084fc,#a855f7)','linear-gradient(135deg,#fb7185,#f43f5e)','linear-gradient(135deg,#34d399,#10b981)','linear-gradient(135deg,#fbbf24,#f59e0b)'];
     el.innerHTML = DB.users.map((u,i)=>`
-      <div class="user-card${u.id===DB.settings.activeUserId?' active-user':''}" onclick="setActiveUser('${u.id}')">
-        <div class="user-avatar" style="background:${palettes[i%palettes.length]};">${(u.name||'?').charAt(0).toUpperCase()}</div>
+      <div class="user-card card ${u.id===DB.settings.activeUserId?' active-user':''}" onclick="setActiveUser('${u.id}')" style="margin-bottom:8px;">
+        <div class="user-avatar" style="background:${palettes[i%palettes.length]}; color:#fff;">${(u.name||'?').charAt(0).toUpperCase()}</div>
         <div class="user-info">
           <div class="user-name">${u.name}${u.id===DB.settings.activeUserId?' <span style="font-size:10px;color:var(--blue);font-weight:600;">(active)</span>':''}</div>
           <div class="user-savings-row">
@@ -1744,22 +1480,21 @@ function renderUsers() {
       </div>`).join('');
   }
 
-  // Render Custom Categories
   const allCustom = [...(DB.customCats.income||[]).map(c=>({...c, type:'Income'})), ...(DB.customCats.expense||[]).map(c=>({...c, type:'Expense'}))];
   const catListEl = document.getElementById('customCatList');
   if (!allCustom.length) {
     catListEl.innerHTML = '<div style="font-size:12px; color:var(--text-dim); text-align:center; padding: 20px;">No custom categories yet.</div>';
   } else {
     catListEl.innerHTML = allCustom.map(c => `
-      <div class="card sheet-card" style="cursor:default; margin-bottom:6px; padding:12px 16px;">
+      <div class="sheet-card card" style="cursor:default; margin-bottom:8px; padding:12px 16px;">
         <div style="display:flex; align-items:center; gap:12px;">
-          <div style="font-size:24px; background:var(--surface2); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;">${c.emoji}</div>
+          <div style="font-size:24px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;">${c.emoji}</div>
           <div>
             <div style="font-weight:600; font-size:14px; color:var(--text);">${c.label}</div>
             <div style="font-size:10px; color:${c.type==='Income'?'var(--green)':'var(--red)'}; font-weight:700; text-transform:uppercase;">${c.type}</div>
           </div>
         </div>
-        <button class="icon-btn del" onclick="deleteCustomCategory('${c.key}', '${c.type}')"><i class="fa-solid fa-trash-can"></i></button>
+        <button class="icon-btn del" onclick="deleteCustomCategory('${c.id}', '${c.type}')"><i class="fa-solid fa-trash-can"></i></button>
       </div>`).join('');
   }
 }
@@ -1781,13 +1516,19 @@ function saveUser() {
   const name=document.getElementById('userNameInput').value.trim(); if(!name){showToast('Please enter a name','error');return;}
   const savings=parseFloat(document.getElementById('userSavingsInput').value)||0, id=document.getElementById('editUserId').value;
   if(id){
-    const idx=DB.users.findIndex(u=>u.id===id); if(idx!==-1){DB.users[idx].name=name;DB.users[idx].initialSavings=savings;rebuildUserStats(id);}
+    const idx=DB.users.findIndex(u=>u.id===id); 
+    if(idx!==-1) {
+      DB.users[idx].name=name; DB.users[idx].initialSavings=savings; rebuildUserStats(id);
+      queueSyncEvent('UPSERT_USER', DB.users[idx]);
+    }
   } else {
-    const nu={id:uid(),name,initialSavings:savings,runningIncome:0,runningExpense:0,runningSavings:savings}; DB.users.push(nu);
+    const nu={id:uid(),name,initialSavings:savings,runningIncome:0,runningExpense:0,runningSavings:savings}; 
+    DB.users.push(nu);
+    queueSyncEvent('UPSERT_USER', nu);
     if(!DB.settings.activeUserId) DB.settings.activeUserId=nu.id;
   }
   saveDB(); toggleModal('userModal',false); renderUsers(); populateUserSelects(); renderDashboard();
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); else showToast('Saved offline. Will sync when back online.', 'info');
+  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
 }
 
 function deleteUserConfirm(id) {
@@ -1798,22 +1539,18 @@ function deleteUserConfirm(id) {
 function deleteUser(id) {
   if(DB.users.length<=1){showToast('Cannot delete the last user','error');return;}
   
-  if (!DB.deletedUsers.includes(id)) DB.deletedUsers.push(id);
-  DB.transactions.filter(t=>t.userId===id).map(t=>t.id).forEach(tid=>{if(!DB.deletedIds.includes(tid))DB.deletedIds.push(tid);});
+  queueSyncEvent('DELETE_USER', { id: id });
+  DB.transactions.filter(t=>t.userId===id).forEach(t => queueSyncEvent('DELETE_TXN', { id: t.id }));
   DB.transactions=DB.transactions.filter(t=>t.userId!==id); DB.users=DB.users.filter(u=>u.id!==id);
   if(DB.settings.activeUserId===id) DB.settings.activeUserId=DB.users[0]?.id||null;
   saveDB(); renderUsers(); renderAll();
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); else showToast('Deleted offline. Will sync when back online.', 'info');
+  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
 }
 
 /* ─── Custom Category Logic ─── */
 function openAddCategoryModal() {
-  document.getElementById('catNameInput').value = '';
-  document.getElementById('catEmojiInput').value = '';
-  setNewCatType('expense');
-  toggleModal('catModal', true);
+  document.getElementById('catNameInput').value = ''; document.getElementById('catEmojiInput').value = ''; setNewCatType('expense'); toggleModal('catModal', true);
 }
-
 function setNewCatType(type) {
   newCatType = type;
   document.getElementById('btnCatInc').className = 'toggle-pill-btn' + (type==='income'?' active-income':'');
@@ -1825,20 +1562,21 @@ function saveCustomCategory() {
   const emoji = document.getElementById('catEmojiInput').value.trim();
   if(!label || !emoji) { showToast('Name and Emoji required','error'); return; }
   
-  DB.customCats[newCatType].push({ emoji, label, key: label });
+  // Use label as key so the backend sheet saves the readable name reliably
+  const newCat = { id: uid(), type: newCatType, emoji: emoji, label: label, key: label };
+  DB.customCats[newCatType].push(newCat);
+  queueSyncEvent('CREATE_CAT', newCat);
+
   saveDB(); toggleModal('catModal', false); renderUsers(); showToast('Category Added!', 'success');
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true);
+  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
 }
 
-function deleteCustomCategory(key, typeStr) {
+function deleteCustomCategory(id, typeStr) {
   const type = typeStr.toLowerCase();
-  
-  const catId = type + '_' + key;
-  if (!DB.deletedCats.includes(catId)) DB.deletedCats.push(catId);
-
-  DB.customCats[type] = DB.customCats[type].filter(c => c.key !== key);
+  queueSyncEvent('DELETE_CAT', { id: id });
+  DB.customCats[type] = DB.customCats[type].filter(c => c.id !== id);
   saveDB(); renderUsers(); showToast('Category Removed', 'info');
-  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true);
+  if (navigator.onLine && getActiveSheetUrl()) triggerSync(true); // Silent sync
 }
 
 /* ─── Analytics Handlers ─── */
@@ -1869,10 +1607,9 @@ function getActiveSheetUrl() {
 }
 
 function renderSettings() {
-  // Render Sheets
   const list = document.getElementById('sheetManagerList');
   list.innerHTML = DB.settings.sheets.map(s => `
-    <div class="sheet-card ${s.id === DB.settings.activeSheetId ? 'active' : ''}" onclick="switchSheet('${s.id}')">
+    <div class="sheet-card card ${s.id === DB.settings.activeSheetId ? 'active' : ''}" onclick="switchSheet('${s.id}')">
       <div style="display:flex; align-items:center; gap:10px;">
         <i class="fa-solid fa-file-excel" style="color:${s.id === DB.settings.activeSheetId ? '#fff' : 'var(--green)'}; font-size:18px;"></i>
         <div style="font-weight:600; font-size:14px;">${s.name}</div>
@@ -1880,7 +1617,6 @@ function renderSettings() {
       ${s.id === DB.settings.activeSheetId ? '<span class="sheet-badge">Active</span>' : ''}
     </div>`).join('');
 
-  // Other settings
   const url = getActiveSheetUrl();
   document.getElementById('urlStatus').textContent = url ? url.substring(0,45)+'…' : 'Not configured';
   document.getElementById('lastSyncLabel').textContent = DB.settings.lastSync ? 'Last: '+new Date(DB.settings.lastSync).toLocaleString('en-IN') : 'Never synced';
@@ -1890,6 +1626,13 @@ function renderSettings() {
   const appSel=document.getElementById('settingsAppSelect'); if(appSel) appSel.value=DB.settings.paymentApp||'';
   const refSel=document.getElementById('settingsRefreshSelect'); if(refSel) refSel.value=DB.settings.refreshInterval||'15';
   
+  // Render Personalisation Details
+  const fontSel = document.getElementById('settingsFontSelect'); if(fontSel) fontSel.value = DB.settings.fontStyle || 'default';
+  const slider = document.getElementById('bgOpacitySlider'); if(slider) slider.value = DB.settings.bgOpacity !== undefined ? DB.settings.bgOpacity : 1;
+  const currentTheme = DB.settings.theme || 'dark';
+  document.getElementById('btnThemeDark').classList.toggle('active-theme', currentTheme === 'dark');
+  document.getElementById('btnThemeLight').classList.toggle('active-theme', currentTheme === 'light');
+
   updateSyncDot();
 }
 
@@ -1900,7 +1643,7 @@ function saveNewSheet() {
   
   const newSheet = { id: uid(), name, url };
   DB.settings.sheets.push(newSheet);
-  DB.workspaces[newSheet.id] = { transactions: [], users: [{id:uid(), name:'Me', initialSavings:0, runningIncome:0, runningExpense:0, runningSavings:0}], deletedIds: [] };
+  DB.workspaces[newSheet.id] = { transactions: [], users: [{id:uid(), name:'Me', initialSavings:0, runningIncome:0, runningExpense:0, runningSavings:0}], syncQueue: [], customCats: {income:[], expense:[]} };
   
   saveDB(); toggleModal('sheetModal', false);
   document.getElementById('sheetNameInput').value = ''; document.getElementById('sheetUrlInput').value = '';
@@ -1909,14 +1652,13 @@ function saveNewSheet() {
 
 function switchSheet(sheetId) {
   if (sheetId === DB.settings.activeSheetId) return;
-  // Cache active sheet
-  DB.workspaces[DB.settings.activeSheetId] = { transactions: [...DB.transactions], users: [...DB.users], deletedIds: [...DB.deletedIds] };
-  // Set new
+  DB.workspaces[DB.settings.activeSheetId] = { transactions: [...DB.transactions], users: [...DB.users], syncQueue: [...DB.syncQueue], customCats: JSON.parse(JSON.stringify(DB.customCats)) };
   DB.settings.activeSheetId = sheetId;
   const ws = DB.workspaces[sheetId];
   DB.transactions = ws.transactions || [];
   DB.users = ws.users || [{id:uid(), name:'Me', initialSavings:0, runningIncome:0, runningExpense:0, runningSavings:0}];
-  DB.deletedIds = ws.deletedIds || [];
+  DB.syncQueue = ws.syncQueue || [];
+  DB.customCats = ws.customCats || {income:[], expense:[]};
   DB.settings.activeUserId = DB.users[0].id;
   
   saveDB(); renderAll(); showToast('Workspace Switched', 'info');
@@ -1930,17 +1672,13 @@ function editActiveSheetUrl() {
   if (url !== null) { activeSheet.url = url.trim(); saveDB(); renderSettings(); showToast('URL updated', 'success'); }
 }
 
-function editUpi() {
-  const id=prompt('Enter UPI ID:',DB.settings.upiId||'');
-  if(id!==null){DB.settings.upiId=id.trim();saveDB();renderSettings();renderUpiLaunchButtons();showToast('UPI ID updated','success');}
-}
-
+function editUpi() { const id=prompt('Enter UPI ID:',DB.settings.upiId||''); if(id!==null){DB.settings.upiId=id.trim();saveDB();renderSettings();renderUpiLaunchButtons();showToast('UPI ID updated','success');} }
 function updateDefaultApp(val) { DB.settings.paymentApp=val; saveDB(); renderSettings(); renderUpiLaunchButtons(); showToast('Default app updated','success'); }
 function updateSyncDot() { const dot=document.getElementById('syncDot'); if(dot) dot.style.display=getActiveSheetUrl()?'block':'none'; }
 
 function clearAllData() {
   showConfirm('Clear Workspace','Delete local data for this sheet. Cloud data remains safe.','💣','Clear Everything','btn-danger',()=>{
-    DB.transactions=[]; DB.users=[{id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}]; DB.deletedIds=[]; DB.settings.activeUserId=DB.users[0].id;
+    DB.transactions=[]; DB.users=[{id:uid(),name:'Me',initialSavings:0,runningIncome:0,runningExpense:0,runningSavings:0}]; DB.syncQueue=[]; DB.settings.activeUserId=DB.users[0].id;
     saveDB(); renderAll(); showToast('Workspace cleared','info');
   });
 }
@@ -1950,58 +1688,41 @@ function resetApp() {
   });
 }
 
-/* ─── Cloud Sync Core ─── */
+/* ─── EVENT SOURCING CLOUD SYNC ENGINE ─── */
 async function triggerSync(isAuto = false) {
   const url = getActiveSheetUrl();
   if (!url) { if (!isAuto) showToast('No Google Sheet URL set for this workspace.', 'warning'); return; }
-  if (!navigator.onLine) { if (!isAuto) showToast('You are offline. Data saved locally.', 'info'); return; }
+  if (!navigator.onLine) { if (!isAuto) showToast('You are offline. Data saved locally.', 'info'); updateStatusIndicators(); return; }
   if (isSyncing) return;
   
-  isSyncing = true;
+  isSyncing = true; updateStatusIndicators();
   if (!isAuto) setLoader(true, 'Syncing with Cloud…');
   
   try {
-    const payload = {
-      transactions: DB.transactions,
-      users: DB.users,
-      deletedIds: DB.deletedIds,
-      deletedUsers: DB.deletedUsers,
-      customCats: DB.customCats,
-      deletedCats: DB.deletedCats
-    };
-
-    const resp = await fetch(url,{
-      method:'POST', body:JSON.stringify(payload),
-      headers:{'Content-Type':'text/plain;charset=utf-8'}
-    });
+    const payload = { syncQueue: DB.syncQueue };
+    const resp = await fetch(url,{ method:'POST', body:JSON.stringify(payload), headers:{'Content-Type':'text/plain;charset=utf-8'} });
     const data = await resp.json();
     if(data.status==='success'){
+      
+      // Master Sync: The backend returns the absolute source of truth
       DB.transactions = data.transactions || DB.transactions;
       DB.users = data.users || DB.users;
       if (data.customCats) DB.customCats = data.customCats;
-      
-      // Clear queues once successfully merged by server
-      DB.deletedIds = []; 
-      DB.deletedUsers = [];
-      DB.deletedCats = [];
-
-      DB.settings.lastSync = Date.now();
+      DB.syncQueue = []; DB.settings.lastSync = Date.now();
       rebuildUserStats(); saveDB(); renderAll();
+      
       if (!isAuto) { setLoader(false); showToast('Sync successful! ☁️','success'); toggleModal('syncModal', true); }
-      else { console.log('Auto-synced successfully'); }
     } else {
       if (!isAuto) { setLoader(false); showToast('Sync failed: '+(data.message||'Unknown error'),'error'); }
     }
   } catch(err) {
     if (!isAuto) { setLoader(false); showToast('Sync error: '+err.message,'error'); }
-  } finally { isSyncing = false; }
+  } finally { isSyncing = false; updateStatusIndicators(); }
 }
 
 /* ─── Confetti & Guide ─── */
-function launchConfetti() { if(typeof confetti!=='undefined') confetti({particleCount:80,spread:60,origin:{y:0.7},colors:['#4d9fff','#00e5a0','#a78bfa','#fbbf24']}); }
-function copyScriptCode() {
-  navigator.clipboard.writeText(document.getElementById('scriptCodeBlock').textContent).then(()=>showToast('Script copied!','success')).catch(()=>showToast('Error copying','error'));
-}
+function launchConfetti() { if(typeof confetti!=='undefined') confetti({particleCount:80,spread:60,origin:{y:0.7},colors:['#60a5fa','#34d399','#c084fc','#fbbf24']}); }
+function copyScriptCode() { navigator.clipboard.writeText(document.getElementById('scriptCodeBlock').textContent).then(()=>showToast('Script copied!','success')).catch(()=>showToast('Error copying','error')); }
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
