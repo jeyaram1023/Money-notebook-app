@@ -801,7 +801,6 @@ input[type="date"].input::-webkit-calendar-picker-indicator, input[type="time"].
     <div id="view-settings" class="view-section">
       <div class="page-content">
 
-        <!-- NEW: Personalisation Settings -->
         <div class="card" style="margin-bottom:14px;">
           <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-paint-roller" style="color:var(--blue);"></i> Personalisation</div>
           
@@ -1184,7 +1183,19 @@ function switchView(view) {
   if (view==='users') renderUsers();
   if (view==='settings') renderSettings();
 }
-function openGraphPage() { window.open('graph.html','_blank'); }
+
+function openGraphPage() { 
+  const activeSheet = DB.settings.sheets.find(s => s.id === DB.settings.activeSheetId);
+  const sheetUrl = activeSheet ? activeSheet.url : '';
+  
+  if (!sheetUrl) {
+    showToast('No active Google Sheet URL configured. Please connect a sheet in Settings first.', 'warning');
+    return;
+  }
+  
+  // Open in the same tab instead of a new one
+  window.location.href = 'graph.html?url=' + encodeURIComponent(sheetUrl);
+}
 
 /* ─── User Stats & Dash ─── */
 function rebuildUserStats(uid_filter) {
